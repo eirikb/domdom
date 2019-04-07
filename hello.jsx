@@ -1,7 +1,22 @@
 export default () => <div>
-  Hello, world!
+  <div>
+    <input type="text" dd-model="input"/>
+    <input type="text" dd-model="input"/>
+    Input value: {text('input')}
+  </div>
+  <div>
+    <button dd-on-click="incCounter">Inc counter</button>
+    Counter: {text('counter')}
+  </div>
 
-  <button trigger="click">Click me, please</button>
+  <div>
+    <button dd-on-click="toggleShow">Toggle show</button>
+  </div>
+  <div dd-if="show">
+    Show me ! :)
 
-  <div path="test">This is a test :)</div>
+    <input type="text" dd-model="input"/>
+    and wat is {text('input')}
+  </div>
+
 </div>
