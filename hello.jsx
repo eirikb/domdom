@@ -1,22 +1,9 @@
 export default () => <div>
-  <div>
-    <input type="text" dd-model="input"/>
-    <input type="text" dd-model="input"/>
-    Input value: {text('input')}
-  </div>
-  <div>
-    <button dd-on-click="incCounter">Inc counter</button>
-    Counter: {text('counter')}
-  </div>
+  Test!
+  <button onClick={() => set('test', !get('test'))}>Click me!</button>
+  test is {text('test')}
 
-  <div>
-    <button dd-on-click="toggleShow">Toggle show</button>
-  </div>
-  <div dd-if="show">
-    Show me ! :)
-
-    <input type="text" dd-model="input"/>
-    and wat is {text('input')}
-  </div>
-
+  <b>
+    {on('test', (test) => <h1>Test is {test}</h1>)}
+  </b>
 </div>

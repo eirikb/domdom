@@ -1,72 +1,58 @@
 import Data from './data';
 import hello from './hello.jsx';
 
-const data = new Data();
-
-data.on('= incCounter', () =>
-  data.set('counter', (data.get('counter') || 0) + 1)
-);
-
-data.on('+* show', eh => {
-  console.log(eh);
-});
-
-data.on('= toggleShow', () =>
-  data.set('show', !data.get('show'))
-);
-
 global.React = {
   createElement(tagName, props, ...children) {
-    const element = document.createElement(tagName);
+    const listeners = [];
+    return {
+      create(data) {
+        const element = document.createElement(tagName);
 
-    global.text = (path) => {
-      const textNode = document.createTextNode(data.get(path) || '');
-      data.on('+* ' + path, val => textNode.nodeValue = val);
-      return textNode;
+        for (let child of children) {
+          console.log('child', child);
+          if (!child) {
+          } else if (child.create) {
+            element.appendChild(child.create(data));
+          } else if (child.on) {
+            console.log(child.on.listener().create(data));
+            let prev;
+            listeners.push(
+              data.on('+*! ' + child.on.path, res => {
+                const next = child.on.listener(res).create(data);
+                if (prev) {
+                  element.removeChild(prev)
+                }
+                element.appendChild(next);
+                prev = next;
+              })
+            );
+          } else if (child.text) {
+            const text = document.createTextNode('');
+            data.on('+*! ' + child.text.path, (value) =>
+              text.nodeValue = value
+            );
+            element.appendChild(text);
+          } else {
+            element.appendChild(document.createTextNode(child));
+          }
+        }
+
+        if (props && props.onClick) {
+          element.addEventListener('click', props.onClick);
+        }
+
+        return element;
+      }
     };
-
-    if (props) {
-      console.log(element, props);
-      for (let [prop, trigger] of Object.entries(props)) {
-        if (prop.startsWith('dd-on-')) {
-          const eventType = prop.split('-').slice(2).join('-');
-          element.addEventListener(eventType, () => data.trigger(trigger));
-        }
-      }
-      const model = props['dd-model'];
-      if (model) {
-        data.on('!+* ' + model, val => element.value = val);
-        element.addEventListener('keyup', () => data.set(model, element.value));
-      }
-      if (props['dd-if']) {
-        element.if = props['dd-if'];
-      }
-    }
-
-    for (let child of children) {
-      if (typeof child === 'string') {
-        child = document.createTextNode(child);
-      }
-      if (child) {
-        if (child.if) {
-          console.log('but', child.if);
-          data.on('+* ' + child.if, cond => {
-            if (cond) {
-              element.appendChild(child);
-            } else {
-              if (child.parentElement) {
-                child.parentElement.removeChild(child);
-              }
-            }
-          });
-        } else {
-          element.appendChild(child);
-        }
-      }
-    }
-    return element;
   }
 };
 
-const entry = hello();
+global.on = (path, listener) => ({on: {path, listener}});
+global.text = (path) => ({text: {path}});
+
+const data = new Data();
+global.set = (path, value) => data.set(path, value);
+global.get = (path) => data.get(path);
+console.log(hello);
+const entry = hello().create(data);
 document.body.appendChild(entry);
