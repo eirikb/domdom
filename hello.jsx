@@ -1,3 +1,7 @@
+function Please() {
+  return <div>ok :) {text('test')}</div>;
+}
+
 export default () => <div>
   Test!
   <button onClick={() => set('test', !get('test'))}>Click me!</button>
@@ -10,6 +14,6 @@ export default () => <div>
 
   {when('test', () => <div>
     Ok, now what?
-
+    <Please></Please>
   </div>)}
 </div>
