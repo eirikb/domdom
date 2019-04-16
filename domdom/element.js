@@ -11,7 +11,6 @@ export default (template, data) => {
           const element = typeof tagName === 'function' ? tagName().create(data) : document.createElement(tagName);
 
           for (let child of children) {
-            console.log('child', child);
             if (typeof child === 'undefined') {
             } else if (child.create) {
               element.appendChild(child.create(data));
