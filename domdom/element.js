@@ -2,6 +2,7 @@ export default (template, data) => {
   window.React = {
     createElement(tagName, props, ...children) {
       const listeners = [];
+
       return {
         destroy() {
           data.off(listeners.join(' '));
@@ -10,7 +11,7 @@ export default (template, data) => {
         create(data) {
           const element = typeof tagName === 'function' ? tagName().create(data) : document.createElement(tagName);
 
-          for (let child of children) {
+          for (let child of [].concat(...children)) {
             if (typeof child === 'undefined') {
             } else if (child.create) {
               element.appendChild(child.create(data));
