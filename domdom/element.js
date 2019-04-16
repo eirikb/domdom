@@ -70,6 +70,9 @@ export default (template, data) => {
             const model = props['dd-model'];
             if (model) {
               element.addEventListener('keyup', () => data.set(model, element.value));
+              listeners.push(
+                data.on('!+* ' + model, (value) => element.value = value)
+              );
             }
           }
 
