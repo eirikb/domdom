@@ -1,5 +1,5 @@
-const Listeners = require('./listeners');
-const {get, set, unset, isPlainObject, isEqual} = require('./common');
+import Listeners from './listeners';
+import {get, set, unset, isPlainObject, isEqual} from './common';
 
 /***
  *    *   Value changed
@@ -14,7 +14,7 @@ const {get, set, unset, isPlainObject, isEqual} = require('./common');
  *            triggers on any of the values when any of the values are set
  *
  */
-module.exports = class {
+export default class {
 
   constructor(...modules) {
     this._data = {};

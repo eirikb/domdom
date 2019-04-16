@@ -1,6 +1,6 @@
-const {get, set, clone} = require('./common');
+import {get, set, clone} from './common';
 
-module.exports = class {
+export default class {
   constructor(prefix) {
     this.prefix = prefix;
     this.next = 1;

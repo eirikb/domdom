@@ -1,5 +1,5 @@
 export default (template, data) => {
-  global.React = {
+  window.React = {
     createElement(tagName, props, ...children) {
       const listeners = [];
       return {
@@ -74,12 +74,12 @@ export default (template, data) => {
     }
   };
 
-  global.on = (path, listener) => ({on: {path, listener}});
-  global.when = (path, listener) => ({when: {path, listener}});
-  global.text = (path) => ({text: {path}});
+  window.on = (path, listener) => ({on: {path, listener}});
+  window.when = (path, listener) => ({when: {path, listener}});
+  window.text = (path) => ({text: {path}});
 
-  global.set = (path, value) => data.set(path, value);
-  global.get = (path) => data.get(path);
+  window.set = (path, value) => data.set(path, value);
+  window.get = (path) => data.get(path);
   return template().create(data);
 };
 
