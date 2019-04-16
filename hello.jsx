@@ -4,6 +4,12 @@ export default () => <div>
   test is {text('test')}
 
   <b>
-    {on('test', (test) => <h1>Test is {test}</h1>)}
+    {on('test', (test) => <h1>Test is {test} and test really is {text('test')}</h1>)}
   </b>
+
+
+  {when('test', () => <div>
+    Ok, now what?
+
+  </div>)}
 </div>

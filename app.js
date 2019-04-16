@@ -5,31 +5,59 @@ global.React = {
   createElement(tagName, props, ...children) {
     const listeners = [];
     return {
+      destroy() {
+        data.off(listeners.join(' '));
+      },
+
       create(data) {
         const element = document.createElement(tagName);
 
         for (let child of children) {
-          console.log('child', child);
-          if (!child) {
+          if (typeof child === 'undefined') {
           } else if (child.create) {
             element.appendChild(child.create(data));
-          } else if (child.on) {
-            console.log(child.on.listener().create(data));
+          } else if (child.when) {
             let prev;
+            let holder;
             listeners.push(
-              data.on('+*! ' + child.on.path, res => {
-                const next = child.on.listener(res).create(data);
+              data.on('+*! ' + child.when.path, res => {
+                holder = child.when.listener(res);
                 if (prev) {
                   element.removeChild(prev)
                 }
+                if (holder) {
+                  holder.destroy();
+                }
+                if (res) {
+                  const next = holder.create(data);
+                  element.appendChild(next);
+                  prev = next;
+                } else {
+                  prev = null;
+                }
+              })
+            );
+          } else if (child.on) {
+            let prev;
+            let holder;
+            listeners.push(
+              data.on('+*! ' + child.on.path, res => {
+                holder = child.on.listener(res);
+                if (prev) {
+                  element.removeChild(prev)
+                }
+                if (holder) {
+                  holder.destroy();
+                }
+                const next = holder.create(data);
                 element.appendChild(next);
                 prev = next;
               })
             );
           } else if (child.text) {
             const text = document.createTextNode('');
-            data.on('+*! ' + child.text.path, (value) =>
-              text.nodeValue = value
+            listeners.push(
+              data.on('+*! ' + child.text.path, (value) => text.nodeValue = value)
             );
             element.appendChild(text);
           } else {
@@ -48,11 +76,11 @@ global.React = {
 };
 
 global.on = (path, listener) => ({on: {path, listener}});
+global.when = (path, listener) => ({when: {path, listener}});
 global.text = (path) => ({text: {path}});
 
 const data = new Data();
 global.set = (path, value) => data.set(path, value);
 global.get = (path) => data.get(path);
-console.log(hello);
 const entry = hello().create(data);
 document.body.appendChild(entry);
