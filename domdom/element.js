@@ -63,8 +63,14 @@ export default (template, data) => {
             }
           }
 
-          if (props && props.onClick) {
-            element.addEventListener('click', props.onClick);
+          if (props) {
+            if (props.onClick) {
+              element.addEventListener('click', props.onClick);
+            }
+            const model = props['dd-model'];
+            if (model) {
+              element.addEventListener('keyup', () => data.set(model, element.value));
+            }
           }
 
           return element;
