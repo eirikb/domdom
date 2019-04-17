@@ -15,56 +15,69 @@ export default (template, data) => {
       function create(data) {
         const element = typeof tagName === 'function' ? tagName().create(data) : document.createElement(tagName);
 
+        const slots = [];
+
+        function appendChild(child, index) {
+          slots.push(index);
+          slots.sort();
+          const position = slots.indexOf(index);
+          if (position > 0) {
+            element.insertBefore(child, element.children[position]);
+          } else {
+            element.appendChild(child)
+          }
+        }
+
+        function on(path, listener) {
+          listeners.push(data.on('!+* ' + path, listener));
+        }
+
+        let counter = 0;
         for (let child of [].concat(...children)) {
+          const index = counter++;
           if (typeof child === 'undefined') {
           } else if (child.create) {
-            element.appendChild(child.create(data));
+            appendChild(child.create(data), index);
           } else if (child.when) {
             let prev;
             let holder;
-            listeners.push(
-              data.on('+*! ' + child.when.path, res => {
-                holder = child.when.listener(res);
-                if (prev) {
-                  element.removeChild(prev)
-                }
-                if (holder) {
-                  holder.destroy();
-                }
-                if (res) {
-                  const next = holder.create(data);
-                  element.appendChild(next);
-                  prev = next;
-                } else {
-                  prev = null;
-                }
-              })
-            );
+            on(child.when.path, res => {
+              holder = child.when.listener(res);
+              if (prev) {
+                element.removeChild(prev)
+              }
+              if (holder) {
+                holder.destroy();
+              }
+              if (res) {
+                const next = holder.create(data);
+                appendChild(next, index);
+                prev = next;
+              } else {
+                prev = null;
+              }
+            });
           } else if (child.on) {
             let prev;
             let holder;
-            listeners.push(
-              data.on('+*! ' + child.on.path, res => {
-                holder = child.on.listener(res);
-                if (prev) {
-                  element.removeChild(prev)
-                }
-                if (holder) {
-                  holder.destroy();
-                }
-                const next = holder.create(data);
-                element.appendChild(next);
-                prev = next;
-              })
-            );
+            on(child.on.path, res => {
+              holder = child.on.listener(res);
+              if (prev) {
+                element.removeChild(prev)
+              }
+              if (holder) {
+                holder.destroy();
+              }
+              const next = holder.create(data);
+              appendChild(next, index);
+              prev = next;
+            });
           } else if (child.text) {
             const text = document.createTextNode('');
-            listeners.push(
-              data.on('+*! ' + child.text.path, (value) => text.nodeValue = value)
-            );
-            element.appendChild(text);
+            on(child.text.path, (value) => text.nodeValue = value);
+            appendChild(text, index);
           } else {
-            element.appendChild(document.createTextNode(child));
+            appendChild(document.createTextNode(child), index);
           }
         }
 
@@ -76,9 +89,7 @@ export default (template, data) => {
           const model = props['dd-model'];
           if (model) {
             element.addEventListener('keyup', () => data.set(model, element.value));
-            listeners.push(
-              data.on('!+* ' + model, (value) => element.value = value)
-            );
+            on(model, (value) => element.value = value);
           }
         }
 
