@@ -82,14 +82,25 @@ export default (template, data) => {
         }
 
         if (props) {
-          if (props.onClick) {
-            element.addEventListener('click', props.onClick);
+          const eventProps = Object.entries(props).filter(([key]) => key.match(/^on[A-Z]/));
+          for (let [key, value] of eventProps) {
+            const event = key[2].toLowerCase() + key.slice(3);
+            console.log(event);
+            element.addEventListener(event, value);
           }
 
           const model = props['dd-model'];
           if (model) {
             element.addEventListener('keyup', () => data.set(model, element.value));
             on(model, (value) => element.value = value);
+          }
+
+          const nonSpecialProps = Object.entries(props).filter(([key]) => !key.match(/(^dd-|on[A-Z])/));
+          for (let [key, value] of nonSpecialProps) {
+            if (key === 'class') {
+              key = 'className';
+            }
+            element[key] = value;
           }
         }
 
