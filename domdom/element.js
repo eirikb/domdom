@@ -21,11 +21,17 @@ export default (template, data) => {
           slots.push(index);
           slots.sort();
           const position = slots.indexOf(index);
-          if (position > 0) {
-            element.insertBefore(child, element.children[position]);
+          const before = element.children[position];
+          if (before) {
+            element.insertBefore(child, before);
           } else {
             element.appendChild(child)
           }
+        }
+
+        function removeChild(child, index) {
+          slots.splice(slots.indexOf(index), 1);
+          element.removeChild(child);
         }
 
         function on(path, listener) {
@@ -39,60 +45,44 @@ export default (template, data) => {
           } else if (child.create) {
             appendChild(child.create(data), index);
           } else if (child.when) {
-            let prev;
-            let holder;
-            on(child.when.path, res => {
-              const whens = child.when.listener;
+            const l = child.when.listener;
+            const whens = Array.isArray(l) ? l : [val => val, l];
 
-              if (typeof whens === 'function') {
-                holder = child.when.listener(res);
+            for (let i = 0; i < whens.length; i += 2) {
+              let prev;
+              let holder;
+              on(child.when.path, res => {
+                const conditional = whens[i];
+                const listener = whens[i + 1];
+                holder = listener(res);
                 if (prev) {
-                  element.removeChild(prev)
+                  removeChild(prev, index);
                 }
                 if (holder) {
                   holder.destroy();
                 }
-                if (res) {
+                let add = false;
+                if (typeof conditional === 'function') {
+                  add = conditional(res);
+                } else {
+                  add = res === conditional;
+                }
+                if (add) {
                   const next = holder.create(data);
                   appendChild(next, index);
                   prev = next;
                 } else {
                   prev = null;
                 }
-              } else if (Array.isArray(whens)) {
-                for (let i = 0; i < whens.length; i += 2) {
-                  const conditional = whens[i];
-                  const listener = whens[i + 1];
-                  holder = listener(res);
-                  if (prev) {
-                    element.removeChild(prev)
-                  }
-                  if (holder) {
-                    holder.destroy();
-                  }
-                  let add = false;
-                  if (typeof conditional === 'function') {
-                    add = conditional(res);
-                  } else {
-                    add = res === conditional;
-                  }
-                  if (add) {
-                    const next = holder.create(data);
-                    appendChild(next, index);
-                    prev = next;
-                  } else {
-                    prev = null;
-                  }
-                }
-              }
-            });
+              });
+            }
           } else if (child.on) {
             let prev;
             let holder;
             on(child.on.path, res => {
               holder = child.on.listener(res);
               if (prev) {
-                element.removeChild(prev)
+                removeChild(prev, index);
               }
               if (holder) {
                 holder.destroy();
