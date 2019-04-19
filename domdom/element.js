@@ -63,7 +63,6 @@ export default (template, data) => {
                 for (let i = 0; i < whens.length; i += 2) {
                   const conditional = whens[i];
                   const listener = whens[i + 1];
-                  console.log(listener);
                   holder = listener(res);
                   if (prev) {
                     element.removeChild(prev)
