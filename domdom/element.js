@@ -42,19 +42,49 @@ export default (template, data) => {
             let prev;
             let holder;
             on(child.when.path, res => {
-              holder = child.when.listener(res);
-              if (prev) {
-                element.removeChild(prev)
-              }
-              if (holder) {
-                holder.destroy();
-              }
-              if (res) {
-                const next = holder.create(data);
-                appendChild(next, index);
-                prev = next;
-              } else {
-                prev = null;
+              const whens = child.when.listener;
+
+              if (typeof whens === 'function') {
+                holder = child.when.listener(res);
+                if (prev) {
+                  element.removeChild(prev)
+                }
+                if (holder) {
+                  holder.destroy();
+                }
+                if (res) {
+                  const next = holder.create(data);
+                  appendChild(next, index);
+                  prev = next;
+                } else {
+                  prev = null;
+                }
+              } else if (Array.isArray(whens)) {
+                for (let i = 0; i < whens.length; i += 2) {
+                  const conditional = whens[i];
+                  const listener = whens[i + 1];
+                  console.log(listener);
+                  holder = listener(res);
+                  if (prev) {
+                    element.removeChild(prev)
+                  }
+                  if (holder) {
+                    holder.destroy();
+                  }
+                  let add = false;
+                  if (typeof conditional === 'function') {
+                    add = conditional(res);
+                  } else {
+                    add = res === conditional;
+                  }
+                  if (add) {
+                    const next = holder.create(data);
+                    appendChild(next, index);
+                    prev = next;
+                  } else {
+                    prev = null;
+                  }
+                }
               }
             });
           } else if (child.on) {
@@ -85,7 +115,6 @@ export default (template, data) => {
           const eventProps = Object.entries(props).filter(([key]) => key.match(/^on[A-Z]/));
           for (let [key, value] of eventProps) {
             const event = key[2].toLowerCase() + key.slice(3);
-            console.log(event);
             element.addEventListener(event, value);
           }
 
