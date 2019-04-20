@@ -15,23 +15,38 @@ export default (template, data) => {
       function create(data) {
         const element = typeof tagName === 'function' ? tagName().create(data) : document.createElement(tagName);
 
-        const slots = [];
+        const slots = {};
 
-        function appendChild(child, index) {
-          slots.push(index);
-          slots.sort();
-          const position = slots.indexOf(index);
+        function appendChild(index, child) {
+          removeChild(index);
+          const position = Object.keys(slots).indexOf('' + index);
           const before = element.children[position];
+          if (typeof child === 'function') child = child();
+          let toAdd;
+          if (child.create) toAdd = child.create(data);
+          else toAdd = document.createTextNode(child);
           if (before) {
-            element.insertBefore(child, before);
+            element.insertBefore(toAdd, before.element);
           } else {
-            element.appendChild(child)
+            element.appendChild(toAdd);
           }
+          const slot = {element: toAdd};
+          if (child.destroy) {
+            slot.destroy = child.destroy;
+          }
+          slot.index = index;
+          slots[index] = slot;
         }
 
-        function removeChild(child, index) {
-          slots.splice(slots.indexOf(index), 1);
-          element.removeChild(child);
+        function removeChild(index) {
+          const slot = slots[index];
+          if (slot) {
+            element.removeChild(slot.element);
+            if (slot.destroy) {
+              slot.destroy();
+            }
+            delete slots[index];
+          }
         }
 
         function on(path, listener) {
@@ -43,24 +58,15 @@ export default (template, data) => {
           const index = counter++;
           if (typeof child === 'undefined') {
           } else if (child.create) {
-            appendChild(child.create(data), index);
+            appendChild(index, child);
           } else if (child.when) {
             const l = child.when.listener;
             const whens = Array.isArray(l) ? l : [val => val, l];
 
             for (let i = 0; i < whens.length; i += 2) {
-              let prev;
-              let holder;
               on(child.when.path, res => {
                 const conditional = whens[i];
                 const listener = whens[i + 1];
-                holder = listener(res);
-                if (prev) {
-                  removeChild(prev, index);
-                }
-                if (holder) {
-                  holder.destroy();
-                }
                 let add = false;
                 if (typeof conditional === 'function') {
                   add = conditional(res);
@@ -68,35 +74,22 @@ export default (template, data) => {
                   add = res === conditional;
                 }
                 if (add) {
-                  const next = holder.create(data);
-                  appendChild(next, index);
-                  prev = next;
+                  appendChild(index + i, listener(res))
                 } else {
-                  prev = null;
+                  removeChild(index + i);
                 }
               });
             }
           } else if (child.on) {
-            let prev;
-            let holder;
-            on(child.on.path, res => {
-              holder = child.on.listener(res);
-              if (prev) {
-                removeChild(prev, index);
-              }
-              if (holder) {
-                holder.destroy();
-              }
-              const next = holder.create(data);
-              appendChild(next, index);
-              prev = next;
-            });
+            on(child.on.path, res =>
+              appendChild(index, child.on.listener(res))
+            );
           } else if (child.text) {
             const text = document.createTextNode('');
             on(child.text.path, (value) => text.nodeValue = value);
-            appendChild(text, index);
+            appendChild(index, text);
           } else {
-            appendChild(document.createTextNode(child), index);
+            appendChild(index, child);
           }
         }
 
