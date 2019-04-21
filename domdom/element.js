@@ -19,6 +19,8 @@ export default (template, data) => {
 
         function appendChild(index, child) {
           removeChild(index);
+          if (!child) return;
+
           const position = Object.keys(slots).indexOf('' + index);
           const before = element.children[position];
           if (typeof child === 'function') child = child();
@@ -81,6 +83,9 @@ export default (template, data) => {
               });
             }
           } else if (child.on) {
+            if (child.oror) {
+              appendChild(index, child.oror);
+            }
             on(child.on.path, res =>
               appendChild(index, child.on.listener(res))
             );
@@ -122,8 +127,20 @@ export default (template, data) => {
     }
   };
 
-  window.on = (path, listener) => ({on: {path, listener}});
-  window.when = (path, listener) => ({when: {path, listener}});
+  function orWrapper(tag) {
+    return (path, listener) => {
+      const res = {[tag]: {path, listener}};
+      res.or = (val) => {
+        res.oror = val;
+        return res;
+      };
+      return res;
+    };
+  }
+
+  window.on = orWrapper('on');
+  window.when = orWrapper('when');
+
   window.text = (path) => ({text: {path}});
 
   window.set = (path, value) => data.set(path, value);
