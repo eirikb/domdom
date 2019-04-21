@@ -145,6 +145,9 @@ export default (template, data) => {
 
   window.set = (path, value) => data.set(path, value);
   window.get = (path) => data.get(path);
+
+  window.trigger = (path, value) => data.trigger(path, value);
+
   return template().create(data);
 };
 
