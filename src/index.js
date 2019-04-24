@@ -1,10 +1,15 @@
-export default (template, data) => {
-  window.React = {
+import Data from './data';
+
+export default function (...modules) {
+  const data = new Data(...modules);
+  const self = {};
+
+  self.React = {
     createElement(tagName, props, ...children) {
       if (props && props['dd-if']) {
         const path = props['dd-if'];
         delete props['dd-if'];
-        return {when: {path, listener: () => window.React.createElement(tagName, props, children)}};
+        return {when: {path, listener: () => self.React.createElement(tagName, props, children)}};
       }
       const listeners = [];
 
@@ -12,8 +17,8 @@ export default (template, data) => {
         data.off(listeners.join(' '));
       }
 
-      function create(data) {
-        const element = typeof tagName === 'function' ? tagName().create(data) : document.createElement(tagName);
+      function create() {
+        const element = typeof tagName === 'function' ? tagName(self).create(data) : document.createElement(tagName);
 
         const slots = {};
 
@@ -23,7 +28,7 @@ export default (template, data) => {
 
           const position = Object.keys(slots).indexOf('' + index);
           const before = element.children[position];
-          if (typeof child === 'function') child = child();
+          if (typeof child === 'function') child = child(self);
           let toAdd;
           if (child.create) toAdd = child.create(data);
           else toAdd = document.createTextNode(child);
@@ -76,7 +81,7 @@ export default (template, data) => {
                   add = res === conditional;
                 }
                 if (add) {
-                  appendChild(index + i, listener(res))
+                  appendChild(index + i, listener(self))
                 } else {
                   removeChild(index + i);
                 }
@@ -127,6 +132,10 @@ export default (template, data) => {
     }
   };
 
+  self.render = function render(template) {
+    return template(self).create(self.data);
+  };
+
   function orWrapper(tag) {
     return (path, listener) => {
       const res = {[tag]: {path, listener}};
@@ -135,19 +144,27 @@ export default (template, data) => {
         return res;
       };
       return res;
-    };
+    }
   }
 
-  window.on = orWrapper('on');
-  window.when = orWrapper('when');
+  self.on = orWrapper('on');
+  self.when = orWrapper('when');
 
-  window.text = (path) => ({text: {path}});
+  self.text = function text(path) {
+    return {text: path};
+  };
 
-  window.set = (path, value) => data.set(path, value);
-  window.get = (path) => data.get(path);
+  self.set = function set(path, value) {
+    data.set(path, value)
+  };
 
-  window.trigger = (path, value) => data.trigger(path, value);
+  self.get = function get(path) {
+    return data.get(path);
+  };
 
-  return template().create(data);
-};
+  self.trigger = function trigger() {
+    data.trigger(path, value);
+  };
 
+  return self;
+}

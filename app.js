@@ -1,5 +1,5 @@
 import hello from './hello';
-import {Data, init} from './domdom';
+import domdom from './src';
 
-const data = new Data();
-document.body.appendChild(init(hello, data));
+const dd = domdom();
+document.body.appendChild(dd.render(hello));
