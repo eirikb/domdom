@@ -1,8 +1,8 @@
-function Please() {
+function Please({React, text}) {
   return <div>ok :) {text('test')}</div>;
 }
 
-export default () => <div>
+export default ({React, text, set, get, on, when}) => <div>
   Test!
   <button onClick={() => set('test', !get('test'))}>Click me!</button>
   test is {text('test')}

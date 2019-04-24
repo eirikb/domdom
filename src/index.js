@@ -31,6 +31,7 @@ export default function (...modules) {
           if (typeof child === 'function') child = child(self);
           let toAdd;
           if (child.create) toAdd = child.create(data);
+          else if (child.nodeName) toAdd = child;
           else toAdd = document.createTextNode(child);
           if (before) {
             element.insertBefore(toAdd, before.element);
@@ -96,7 +97,7 @@ export default function (...modules) {
             );
           } else if (child.text) {
             const text = document.createTextNode('');
-            on(child.text.path, (value) => text.nodeValue = value);
+            on(child.text, (value) => text.nodeValue = value);
             appendChild(index, text);
           } else {
             appendChild(index, child);
