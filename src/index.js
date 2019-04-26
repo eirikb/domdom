@@ -167,5 +167,14 @@ export default function (...modules) {
     data.trigger(path, value);
   };
 
+  self.global = function global() {
+    if (typeof global !== 'undefined') {
+      Object.assign(global, self);
+    }
+    if (typeof window !== 'undefined') {
+      Object.assign(window, self);
+    }
+  };
+
   return self;
 }
