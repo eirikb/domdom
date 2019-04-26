@@ -96,7 +96,7 @@ export default function (...modules) {
               appendChild(index, child.on.listener(res))
             );
           } else if (child.text) {
-            const text = document.createTextNode('');
+            const text = document.createTextNode(child.oror || '');
             on(child.text, (value) => text.nodeValue = value);
             appendChild(index, text);
           } else {
@@ -152,7 +152,12 @@ export default function (...modules) {
   self.when = orWrapper('when');
 
   self.text = function text(path) {
-    return {text: path};
+    const res = {text: path};
+    res.or = (val) => {
+      res.oror = val;
+      return res;
+    };
+    return res;
   };
 
   self.set = function set(path, value) {
