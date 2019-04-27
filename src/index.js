@@ -168,7 +168,7 @@ export default function (...modules) {
     return data.get(path);
   };
 
-  self.trigger = function trigger() {
+  self.trigger = function trigger(path, value) {
     data.trigger(path, value);
   };
 
