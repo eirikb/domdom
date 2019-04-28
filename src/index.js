@@ -169,7 +169,7 @@ export default function (...modules) {
   };
 
   self.trigger = function trigger(path, value) {
-    data.trigger(path, value);
+    return data.trigger(path, value);
   };
 
   self.global = function global() {
