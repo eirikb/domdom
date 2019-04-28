@@ -6,11 +6,6 @@ export default function (...modules) {
 
   self.React = {
     createElement(tagName, props, ...children) {
-      if (props && props['dd-if']) {
-        const path = props['dd-if'];
-        delete props['dd-if'];
-        return {when: {path, listener: () => self.React.createElement(tagName, props, children)}};
-      }
       const listeners = [];
 
       function destroy() {
@@ -82,7 +77,7 @@ export default function (...modules) {
                   add = res === conditional;
                 }
                 if (add) {
-                  appendChild(index + i, listener(self))
+                  appendChild(index + i, listener);
                 } else {
                   removeChild(index + i);
                 }
@@ -137,27 +132,24 @@ export default function (...modules) {
     return template(self).create(self.data);
   };
 
-  function orWrapper(tag) {
-    return (path, listener) => {
-      const res = {[tag]: {path, listener}};
-      res.or = (val) => {
-        res.oror = val;
-        return res;
-      };
-      return res;
-    }
-  }
-
-  self.on = orWrapper('on');
-  self.when = orWrapper('when');
-
-  self.text = function text(path) {
-    const res = {text: path};
+  function or(res) {
     res.or = (val) => {
       res.oror = val;
       return res;
     };
     return res;
+  }
+
+  self.on = function on(path, listener) {
+    return or({on: {path, listener}});
+  };
+
+  self.when = function when(path, listener) {
+    return {when: {path, listener}};
+  };
+
+  self.text = function text(path) {
+    return or({text: path});
   };
 
   self.set = function set(path, value) {
