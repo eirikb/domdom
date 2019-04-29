@@ -13,7 +13,9 @@ export default function (...modules) {
       }
 
       function create() {
-        const element = typeof tagName === 'function' ? tagName(self).create(data) : document.createElement(tagName);
+        const element = typeof tagName === 'function'
+          ? tagName({input: (props || {})['dd-input'], ...self}).create(data)
+          : document.createElement(tagName);
 
         const slots = {};
 
