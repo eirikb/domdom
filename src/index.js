@@ -75,6 +75,22 @@ export default function (...modules) {
           listeners.push(data.on('!+* ' + path, listener));
         }
 
+        function setElementValue(key, value) {
+          if (value && value.then) {
+            value.then(res => setElementValue(key, res));
+          } else {
+            if (key === 'style') {
+              if (typeof value === 'string') {
+                element[key] = value;
+              } else {
+                element[key] = Object.entries(value).map(([k, v]) => [k, v].join(':')).join(';');
+              }
+            } else {
+              element[key] = value;
+            }
+          }
+        }
+
         let counter = 0;
         for (let child of [].concat(...children)) {
           const index = counter++;
@@ -136,11 +152,7 @@ export default function (...modules) {
             if (key === 'class') {
               key = 'className';
             }
-            if (value && value.then) {
-              value.then(res => element[key] = res);
-            } else {
-              element[key] = value;
-            }
+            setElementValue(key, value);
           }
         }
 
