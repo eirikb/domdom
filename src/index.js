@@ -136,7 +136,11 @@ export default function (...modules) {
             if (key === 'class') {
               key = 'className';
             }
-            element[key] = value;
+            if (value && value.then) {
+              value.then(res => element[key] = res);
+            } else {
+              element[key] = value;
+            }
           }
         }
 
