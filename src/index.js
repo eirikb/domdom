@@ -1,4 +1,5 @@
 import Data from './data';
+import {isPlainObject} from './common';
 
 export default function (...modules) {
   const data = new Data(...modules);
@@ -79,12 +80,8 @@ export default function (...modules) {
           if (value && value.then) {
             value.then(res => setElementValue(key, res));
           } else {
-            if (key === 'style') {
-              if (typeof value === 'string') {
-                element[key] = value;
-              } else {
-                element[key] = Object.entries(value).map(([k, v]) => [k, v].join(':')).join(';');
-              }
+            if (isPlainObject(value) && element[key]) {
+              Object.assign(element[key], value);
             } else {
               element[key] = value;
             }
