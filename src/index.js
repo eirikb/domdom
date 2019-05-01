@@ -12,10 +12,27 @@ export default function (...modules) {
         data.off(listeners.join(' '));
       }
 
+      function createElement() {
+        if (typeof tagName === 'function') {
+          const options = {
+            input: (props || {})['dd-input'],
+            ...self
+          };
+
+          Object.entries(props || {})
+            .filter(([key]) => key.match(/^dd-input-/))
+            .forEach(([key, value]) =>
+              options[key.split('-').slice(2).join('')] = value
+            );
+
+          return tagName(options).create(data);
+        } else {
+          return document.createElement(tagName);
+        }
+      }
+
       function create() {
-        const element = typeof tagName === 'function'
-          ? tagName({input: (props || {})['dd-input'], ...self}).create(data)
-          : document.createElement(tagName);
+        const element = createElement();
 
         const slots = {};
 
