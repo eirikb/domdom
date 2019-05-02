@@ -141,6 +141,8 @@ export default function (...modules) {
           const model = props['dd-model'];
           if (model) {
             element.addEventListener('keyup', () => data.set(model, element.value));
+            element.addEventListener('input', () => data.set(model, element.value));
+            element.addEventListener('value', () => data.set(model, element.value));
             on(model, (value) => element.value = value);
           }
 
