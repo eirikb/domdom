@@ -3,7 +3,7 @@ import {isPlainObject} from './common';
 
 export default function (...modules) {
   const data = new Data(...modules);
-  const self = {};
+  const self = {data};
 
   self.React = {
     createElement(tagName, props, ...children) {
