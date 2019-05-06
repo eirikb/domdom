@@ -1,5 +1,5 @@
-import Data from './data';
-import {isPlainObject} from './common';
+import Data from '@eirikb/data';
+import {isPlainObject} from '../node_modules/@eirikb/data/src/common';
 
 export default function (...modules) {
   const data = new Data(...modules);
