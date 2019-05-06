@@ -35,14 +35,13 @@ export default function (...modules) {
       function create() {
         const element = createElement();
 
-        const slots = {};
+        const slots = [];
 
-        function appendChild(index, child) {
-          removeChild(index);
+        function appendChild(index, child, path) {
+          removeChild(index, path);
           if (!child) return;
 
-          const position = Object.keys(slots).indexOf('' + index);
-          const before = element.children[position];
+          let before = slots.slice(index).find(slot => slot);
           if (typeof child === 'function') child = child(self);
           let toAdd;
           if (child.create) toAdd = child.create(data);
@@ -53,16 +52,30 @@ export default function (...modules) {
           } else {
             element.appendChild(toAdd);
           }
-          const slot = {element: toAdd};
+          const slot = (path && slots[index]) || {};
+          slot.element = toAdd;
           if (child.destroy) {
             slot.destroy = child.destroy;
           }
-          slot.index = index;
+          if (path) {
+            slot[path] = {element: toAdd, destroy: child.destroy};
+          }
           slots[index] = slot;
         }
 
-        function removeChild(index) {
-          const slot = slots[index];
+        function removeChild(index, path) {
+          let slot = slots[index];
+          if (slot && path) {
+            const pathSlot = slot[path];
+            if (pathSlot) {
+              element.removeChild(pathSlot.element);
+              delete slot[path];
+              if (Object.keys(slot).length === 2) {
+                delete slots[index];
+              }
+            }
+            return;
+          }
           if (slot) {
             element.removeChild(slot.element);
             if (slot.destroy) {
@@ -119,8 +132,8 @@ export default function (...modules) {
             if (child.oror) {
               appendChild(index, child.oror);
             }
-            on(child.on.path, res =>
-              appendChild(index, child.on.listener(res))
+            on(child.on.path, (res, {path}) =>
+              appendChild(index, child.on.listener(res), path)
             );
           } else if (child.text) {
             const text = document.createTextNode(child.oror || '');
