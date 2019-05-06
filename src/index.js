@@ -37,18 +37,39 @@ export default function (...modules) {
 
         const slots = [];
 
-        function appendChild(index, child, path) {
+        function appendChild(index, child, path, sort) {
           removeChild(index, path);
           if (!child) return;
 
-          let before = slots.slice(index).find(slot => slot);
+          let before = slots.slice(index + 1).find(slot => slot);
           if (typeof child === 'function') child = child(self);
           let toAdd;
           if (child.create) toAdd = child.create(data);
           else if (child.nodeName) toAdd = child;
           else toAdd = document.createTextNode(child);
+
+          let beforeElement;
           if (before) {
-            element.insertBefore(toAdd, before.element);
+            beforeElement = before.element;
+          }
+
+          const selfSlot = slots[index];
+          if (path && !sort) {
+            sort = (a, b, aPath, bPath) => aPath.localeCompare(bPath)
+          }
+
+          if (selfSlot && sort) {
+            const keys = Object.keys(slots[index]).filter(key => key !== 'element' && key !== 'destroy');
+            keys.push(path);
+            keys.sort((a, b) => sort(data.get(a), data.get(b), a, b));
+            const beforeKey = keys[keys.indexOf(path) + 1];
+            if (beforeKey) {
+              beforeElement = selfSlot[beforeKey].element;
+            }
+          }
+
+          if (beforeElement) {
+            element.insertBefore(toAdd, beforeElement);
           } else {
             element.appendChild(toAdd);
           }
@@ -133,7 +154,7 @@ export default function (...modules) {
               appendChild(index, child.oror);
             }
             on(child.on.path, (res, {path}) =>
-              appendChild(index, child.on.listener(res), path)
+              appendChild(index, child.on.listener(res), path, child.on.sort)
             );
           } else if (child.text) {
             const text = document.createTextNode(child.oror || '');
@@ -187,8 +208,8 @@ export default function (...modules) {
     return res;
   }
 
-  self.on = function on(path, listener) {
-    return or({on: {path, listener}});
+  self.on = function on(path, listener, sort) {
+    return or({on: {path, listener, sort}});
   };
 
   self.when = function when(path, listener) {
