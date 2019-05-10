@@ -107,6 +107,10 @@ export default function (...modules) {
         }
 
         function on(path, listener) {
+          if (path.match(/^>/)) {
+            console.log('from parent path', path);
+            console.log(self.path);
+          }
           listeners.push(data.on('!+* ' + path, listener));
         }
 
