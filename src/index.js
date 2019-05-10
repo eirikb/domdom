@@ -26,13 +26,13 @@ export default function (...modules) {
               options[key.split('-').slice(2).join('')] = value
             );
 
-          return tagName(options).create(data);
+          return tagName(options).create();
         } else {
           return document.createElement(tagName);
         }
       }
 
-      function create() {
+      function create(pp) {
         const element = createElement();
 
         const slots = [];
@@ -44,7 +44,7 @@ export default function (...modules) {
           let before = slots.slice(index + 1).find(slot => slot);
           if (typeof child === 'function') child = child(self);
           let toAdd;
-          if (child.create) toAdd = child.create(data);
+          if (child.create) toAdd = child.create(path);
           else if (child.nodeName) toAdd = child;
           else toAdd = document.createTextNode(child);
 
@@ -107,9 +107,9 @@ export default function (...modules) {
         }
 
         function on(path, listener) {
+          console.log(path);
           if (path.match(/^>/)) {
-            console.log('from parent path', path);
-            console.log(self.path);
+            path = (pp || '') + path.slice(1);
           }
           listeners.push(data.on('!+* ' + path, listener));
         }
@@ -201,7 +201,7 @@ export default function (...modules) {
   };
 
   self.render = function render(template) {
-    return template(self).create(self.data);
+    return template(self).create();
   };
 
   function or(res) {
