@@ -153,8 +153,8 @@ export default function (...modules) {
             if (child.oror) {
               appendChild(index, child.oror);
             }
-            on(child.on.path, (res, {path}) =>
-              appendChild(index, child.on.listener(res), path, child.on.sort)
+            on(child.on.path, (res, o) =>
+              appendChild(index, child.on.listener(res, o), o.path, child.on.sort)
             );
           } else if (child.text) {
             const text = document.createTextNode(child.oror || '');
