@@ -40,6 +40,7 @@ export default (data = Data()) => {
       }
 
       function create(pp) {
+        self.path = pp || self.path;
         const element = createElement();
 
         const slots = [];
@@ -121,7 +122,7 @@ export default (data = Data()) => {
 
         function on(path, listener) {
           if (path.match(/^>/)) {
-            path = (pp || '') + path.slice(1);
+            path = (self.path || '') + path.slice(1);
           }
           listeners.push(data.on('!+* ' + path, listener));
         }
