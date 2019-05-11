@@ -1,8 +1,15 @@
 import Data from '@eirikb/data';
 import {isPlainObject} from '../node_modules/@eirikb/data/src/common';
 
-export default function (...modules) {
-  const data = new Data(...modules);
+function or(res) {
+  res.or = (val) => {
+    res.oror = val;
+    return res;
+  };
+  return res;
+}
+
+export default (data = Data()) => {
   const self = {data};
 
   self.React = {
@@ -40,6 +47,12 @@ export default function (...modules) {
         function appendChild(index, child, path, sort) {
           removeChild(index, path);
           if (!child) return;
+
+          if (path) {
+            listeners.push(data.on('- ' + path, () =>
+              removeChild(index, path)
+            ));
+          }
 
           let before = slots.slice(index + 1).find(slot => slot);
           if (typeof child === 'function') child = child(self);
@@ -107,7 +120,6 @@ export default function (...modules) {
         }
 
         function on(path, listener) {
-          console.log(path);
           if (path.match(/^>/)) {
             path = (pp || '') + path.slice(1);
           }
@@ -200,43 +212,37 @@ export default function (...modules) {
     }
   };
 
-  self.render = function render(template) {
+  self.render = (template) => {
     return template(self).create();
   };
 
-  function or(res) {
-    res.or = (val) => {
-      res.oror = val;
-      return res;
-    };
-    return res;
-  }
-
-  self.on = function on(path, listener, sort) {
+  self.on = (path, listener, sort) => {
     return or({on: {path, listener, sort}});
   };
 
-  self.when = function when(path, listener) {
+  self.when = (path, listener) => {
     return {when: {path, listener}};
   };
 
-  self.text = function text(path) {
+  self.text = (path) => {
     return or({text: path});
   };
 
-  self.set = function set(path, value) {
+  self.set = (path, value) => {
     data.set(path, value)
   };
 
-  self.get = function get(path) {
+  self.get = (path) => {
     return data.get(path);
   };
 
-  self.trigger = function trigger(path, value) {
+  self.trigger = (path, value) => {
     return data.trigger(path, value);
   };
 
-  self.global = function global() {
+  self.unset = (path) => data.unset(path);
+
+  self.global = () => {
     if (typeof global !== 'undefined') {
       Object.assign(global, self);
     }
