@@ -150,7 +150,7 @@ export default (data = Data()) => {
             const whens = Array.isArray(l) ? l : [val => val, l];
 
             for (let i = 0; i < whens.length; i += 2) {
-              on(child.when.path, res => {
+              on(child.when.path, (res, o) => {
                 const conditional = whens[i];
                 const listener = whens[i + 1];
                 let add = false;
@@ -159,10 +159,11 @@ export default (data = Data()) => {
                 } else {
                   add = res === conditional;
                 }
+                const pathPos = `${i}-${o.path}`;
                 if (add) {
-                  appendChild(index + i, listener);
+                  appendChild(index, listener(res, o), pathPos);
                 } else {
-                  removeChild(index + i);
+                  removeChild(index, pathPos);
                 }
               });
             }
