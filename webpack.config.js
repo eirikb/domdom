@@ -7,6 +7,7 @@ module.exports = {
     path: path.join(__dirname, 'dist'),
     library: 'domdom',
     filename: 'domdom.js',
-    libraryTarget: 'umd'
+    libraryTarget: 'umd',
+    libraryExport: 'default'
   }
 };
