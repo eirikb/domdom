@@ -15,8 +15,11 @@ export default (data = Data()) => {
   self.React = {
     createElement(tagName, props, ...children) {
       const listeners = [];
+      const wrapper = {};
+      const listenersQueue = [];
 
       function destroy() {
+        delete wrapper.element;
         data.off(listeners.join(' '));
       }
 
@@ -40,8 +43,14 @@ export default (data = Data()) => {
       }
 
       function create(pp) {
+        if (wrapper.element) return wrapper.element;
+
         self.path = pp || self.path;
         const element = createElement();
+        wrapper.element = element;
+
+        listenersQueue.forEach(({pathAndFlags, listener}) =>
+          wrapper.on(pathAndFlags, listener));
 
         const slots = [];
 
@@ -210,7 +219,20 @@ export default (data = Data()) => {
         return element;
       }
 
-      return {destroy, create};
+      wrapper.destroy = destroy;
+      wrapper.create = create;
+
+      wrapper.on = (pathAndFlags, listener) => {
+        if (!wrapper.element) {
+          listenersQueue.push({pathAndFlags, listener});
+          return;
+        }
+
+        pathAndFlags = pathAndFlags.replace(/ >/, ' ' + self.path);
+        listeners.push(data.on(pathAndFlags, listener));
+      };
+
+      return wrapper;
     }
   };
 
