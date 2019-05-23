@@ -1,7 +1,7 @@
 export default ({on, unset, set}) => {
-  // on('test', res => {
-  //   console.log('test is now', res);
-  // });
+  on('test', res => {
+    console.log('test is now', res);
+  });
   const o = <div>
     <button onClick={() => set('test', 'hello')}>Set</button>
     <button onClick={() => unset('test')}>Unset</button>

@@ -292,6 +292,9 @@ export default (data = Data()) => {
   // };
 
   window.React = React;
+  if (typeof global !== 'undefined') {
+    global.React = React;
+  }
 
   return {
     data,

@@ -5,10 +5,18 @@
   "scripts": {
     "start": "parcel index.html",
     "build": "webpack",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "test": "ava"
   },
   "main": "src/index.js",
   "devDependencies": {
+    "@babel/core": "7.4.5",
+    "@babel/polyfill": "7.4.4",
+    "@babel/preset-env": "7.4.5",
+    "@babel/preset-react": "7.0.0",
+    "@babel/register": "7.4.4",
+    "ava": "1.4.1",
+    "browser-env": "3.2.6",
     "gh-pages": "2.0.1",
     "parcel-bundler": "1.12.3",
     "webpack": "4.30.0",
@@ -16,5 +24,22 @@
   },
   "dependencies": {
     "@eirikb/data": "file:../data"
+  },
+  "ava": {
+    "require": [
+      "@babel/register",
+      "@babel/polyfill"
+    ],
+    "babel": {
+      "extensions": [
+        "js",
+        "jsx"
+      ],
+      "testOptions": {
+        "presets": [
+          "@babel/preset-react"
+        ]
+      }
+    }
   }
 }
