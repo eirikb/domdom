@@ -1,25 +1,19 @@
 import Data from '@eirikb/data';
 import {isPlainObject} from '../node_modules/@eirikb/data/src/common';
 
-function or(res) {
-  res.or = (val) => {
-    res.oror = val;
-    return res;
-  };
-  return res;
-}
-
 export default (data = Data()) => {
   const React = {
     createElement(tagName, props, ...children) {
-      const listeners = [];
       const slots = [];
+      const hodors = [];
 
       function createElement() {
         if (typeof tagName === 'function') {
           const options = {
             input: (props || {})['dd-input'],
-            on
+            on,
+            unset: data.unset,
+            set: data.set
           };
 
           Object.entries(props || {})
@@ -30,11 +24,12 @@ export default (data = Data()) => {
 
           return tagName(options);
         } else {
-          return {element: document.createElement(tagName)};
+          return document.createElement(tagName);
         }
       }
 
       function on(path, listener) {
+        const listeners = [];
         if (path.match(/^>/)) {
           path = (self.path || '') + path.slice(1);
         }
@@ -43,60 +38,59 @@ export default (data = Data()) => {
         if (!hasFlags) {
         }
 
-        const hodor = {isHodor: true, path};
+        const hodor = {
+          path,
+          toAdd: [],
+          isHodor: true,
+          unlisten() {
+            data.off(listeners.join(' '));
+          }
+        };
         listeners.push(data.on('!+* ' + path, (...args) => {
-          const res = listener(...args)
-          console.log('now what', res);
-          if (res && res.element && hodor.add) {
-            hodor.res = res;
-            hodor.add();
+          const res = listener(...args);
+          hodor.toAdd.push({res, path});
+          if (res && hodor.add) {
+            hodor.add({res, path});
           }
         }));
-        listeners.push(data.on('- ' + path, (...args) => {
-          console.log('removed', args);
+        listeners.push(data.on('- ' + path, () => {
           if (hodor.remove) {
-            hodor.remove()
+            hodor.remove(path);
           }
         }));
         return hodor;
       }
 
       function destroy() {
-        console.log('destroy');
-        data.off(listeners.join(' '));
+        for (let slot of slots) {
+          if (slot.destroy) {
+            slot.destroy();
+          }
+          for (let subSlot of Object.values(slot)) {
+            if (subSlot.destroy) {
+              subSlot.destroy();
+            }
+          }
+        }
+        for (let hodor of hodors) {
+          hodor.unlisten();
+        }
       }
 
-      const self = createElement();
-      const element = self.element || self;
-
-
-      // const listenersQueue = [];
-
-
-      // listenersQueue.forEach(({pathAndFlags, listener}) =>
-      //   wrapper.on(pathAndFlags, listener));
+      const element = createElement();
 
       function appendChild(index, child, path, sort) {
         removeChild(index, path);
         if (!child) return;
 
-        if (path) {
-          listeners.push(data.on('- ' + path, () =>
-            removeChild(index, path)
-          ));
-        }
-
         let before = slots.slice(index + 1).find(slot => slot);
-        if (typeof child === 'function') child = child({on});
-        let toAdd = child.element || child;
+        if (typeof child === 'function') child = child();
+        let toAdd = child;
         if (typeof child === 'string') toAdd = document.createTextNode(child);
-        // if (child.create) toAdd = child.create(path);
-        // else if (child.nodeName) toAdd = child;
-        // else toAdd = document.createTextNode(child);
 
         let beforeElement;
         if (before) {
-          beforeElement = before.element;
+          beforeElement = before;
         }
 
         const selfSlot = slots[index];
@@ -105,12 +99,12 @@ export default (data = Data()) => {
         }
 
         if (selfSlot && sort) {
-          const keys = Object.keys(slots[index]).filter(key => key !== 'element' && key !== 'destroy');
+          const keys = Object.keys(slots[index]);
           keys.push(path);
           keys.sort((a, b) => sort(data.get(a), data.get(b), a, b));
           const beforeKey = keys[keys.indexOf(path) + 1];
           if (beforeKey) {
-            beforeElement = selfSlot[beforeKey].element;
+            beforeElement = selfSlot[beforeKey];
           }
         }
 
@@ -120,14 +114,12 @@ export default (data = Data()) => {
           element.appendChild(toAdd);
         }
         const slot = (path && slots[index]) || {};
-        slot.element = toAdd;
-        if (child.destroy) {
-          slot.destroy = child.destroy;
-        }
         if (path) {
-          slot[path] = {element: toAdd, destroy: child.destroy};
+          slot[path] = toAdd;
+          slots[index] = slot;
+        } else {
+          slots[index] = toAdd;
         }
-        slots[index] = slot;
       }
 
       function removeChild(index, path) {
@@ -135,7 +127,8 @@ export default (data = Data()) => {
         if (slot && path) {
           const pathSlot = slot[path];
           if (pathSlot) {
-            element.removeChild(pathSlot.element);
+            element.removeChild(pathSlot);
+            pathSlot.destroy();
             delete slot[path];
             if (Object.keys(slot).length === 2) {
               delete slots[index];
@@ -144,10 +137,8 @@ export default (data = Data()) => {
           return;
         }
         if (slot) {
-          element.removeChild(slot.element);
-          if (slot.destroy) {
-            slot.destroy();
-          }
+          element.removeChild(slot);
+          slot.destroy();
           delete slots[index];
         }
       }
@@ -204,11 +195,16 @@ export default (data = Data()) => {
           //   on(child.text, (value) => text.nodeValue = value);
           //   appendChild(index, text);
         } else if (child.isHodor) {
-          child.add = () => {
-            console.log('add called', child.res);
-            appendChild(index, child.res, child.path);
+          hodors.push(child);
+          child.add = ({res, path}) => {
+            appendChild(index, res, path);
           };
-          console.log('is hodor', child.hodor);
+          child.remove = (path) => {
+            removeChild(index, path);
+          };
+          for (let {res, path} of child.toAdd) {
+            appendChild(index, res, path);
+          }
         } else {
           appendChild(index, child);
         }
@@ -236,8 +232,6 @@ export default (data = Data()) => {
           }
           setElementValue(key, value);
         }
-
-        return element;
       }
 
       // wrapper.destroy = destroy;
@@ -253,7 +247,8 @@ export default (data = Data()) => {
       //   listeners.push(data.on(pathAndFlags, listener));
       // };
 
-      return {element, destroy};
+      element.destroy = destroy;
+      return element;
     }
   };
   //
@@ -301,7 +296,7 @@ export default (data = Data()) => {
   return {
     data,
     render(template) {
-      return React.createElement(template).element;
+      return React.createElement(template);
     }
   }
 }
