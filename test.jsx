@@ -4,7 +4,11 @@ import browserEnv from 'browser-env';
 browserEnv();
 import domdom from './src';
 
-test('Double on', t => {
+test.beforeEach(() => {
+  document.body.innerHTML = '';
+});
+
+test.serial('Double on', t => {
   const dd = domdom();
   const div = ({on}) => <div>
     {on('test', (test) => <div>
@@ -28,11 +32,17 @@ test('Double on', t => {
   t.is(document.body.innerHTML, '<div><div>hello<span>eh world</span></div></div>');
 });
 
-test('foo', t => {
-  t.pass();
-});
+test.serial('text', t => {
+  const dd = domdom();
+  const div = ({text}) => <div>{text('test')}</div>;
+  document.body.appendChild(dd.render(div));
 
-test('bar', async t => {
-  const bar = Promise.resolve('bar');
-  t.is(await bar, 'bar');
+  dd.data.set('test', 'hello');
+  t.is(document.body.innerHTML, '<div>hello</div>');
+
+  dd.data.set('test', 'world');
+  t.is(document.body.innerHTML, '<div>world</div>');
+
+  dd.data.unset('test');
+  t.is(document.body.innerHTML, '<div></div>');
 });

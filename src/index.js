@@ -12,6 +12,7 @@ export default (data = Data()) => {
           const options = {
             input: (props || {})['dd-input'],
             on,
+            text: path => on(path, res => res),
             unset: data.unset,
             set: data.set
           };
@@ -128,7 +129,9 @@ export default (data = Data()) => {
           const pathSlot = slot[path];
           if (pathSlot) {
             element.removeChild(pathSlot);
-            pathSlot.destroy();
+            if (pathSlot.destroy) {
+              pathSlot.destroy();
+            }
             delete slot[path];
             if (Object.keys(slot).length === 2) {
               delete slots[index];
@@ -159,41 +162,6 @@ export default (data = Data()) => {
       for (let child of [].concat(...children)) {
         const index = counter++;
         if (typeof child === 'undefined') {
-          // } else if (child.create) {
-          //   appendChild(index, child);
-          // } else if (child.when) {
-          //   const l = child.when.listener;
-          //   const whens = Array.isArray(l) ? l : [val => val, l];
-          //
-          //   for (let i = 0; i < whens.length; i += 2) {
-          //     on(child.when.path, (res, o) => {
-          //       const conditional = whens[i];
-          //       const listener = whens[i + 1];
-          //       let add = false;
-          //       if (typeof conditional === 'function') {
-          //         add = conditional(res);
-          //       } else {
-          //         add = res === conditional;
-          //       }
-          //       const pathPos = `${i}-${o.path}`;
-          //       if (add) {
-          //         appendChild(index, listener(res, o), pathPos);
-          //       } else {
-          //         removeChild(index, pathPos);
-          //       }
-          //     });
-          //   }
-          // } else if (child.on) {
-          //   if (child.oror) {
-          //     appendChild(index, child.oror);
-          //   }
-          //   on(child.on.path, (res, o) =>
-          //     appendChild(index, child.on.listener(res, o), o.path, child.on.sort)
-          //   );
-          // } else if (child.text) {
-          //   const text = document.createTextNode(child.oror || '');
-          //   on(child.text, (value) => text.nodeValue = value);
-          //   appendChild(index, text);
         } else if (child.isHodor) {
           hodors.push(child);
           child.add = ({res, path}) => {
@@ -233,19 +201,6 @@ export default (data = Data()) => {
           setElementValue(key, value);
         }
       }
-
-      // wrapper.destroy = destroy;
-      // wrapper.create = create;
-
-      // wrapper.on = (pathAndFlags, listener) => {
-      //   if (!wrapper.element) {
-      //     listenersQueue.push({pathAndFlags, listener});
-      //     return;
-      //   }
-      //
-      //   pathAndFlags = pathAndFlags.replace(/ >/, ' ' + self.path);
-      //   listeners.push(data.on(pathAndFlags, listener));
-      // };
 
       element.destroy = destroy;
       return element;
