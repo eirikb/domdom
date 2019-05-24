@@ -48,13 +48,15 @@ export default (data = Data()) => {
           }
         };
         listeners.push(data.on('!+* ' + path, (...args) => {
+          const path = args[1].path;
           const res = listener(...args);
           hodor.toAdd.push({res, path});
           if (res && hodor.add) {
             hodor.add({res, path});
           }
         }));
-        listeners.push(data.on('- ' + path, () => {
+        listeners.push(data.on('- ' + path, (...args) => {
+          const path = args[1].path;
           if (hodor.remove) {
             hodor.remove(path);
           }
