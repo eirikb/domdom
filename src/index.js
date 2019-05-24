@@ -29,7 +29,7 @@ export default (data = Data()) => {
         }
       }
 
-      function on(path, listener) {
+      function on(path, listener, sort) {
         const listeners = [];
         if (path.match(/^>/)) {
           path = (self.path || '') + path.slice(1);
@@ -52,7 +52,7 @@ export default (data = Data()) => {
           const res = listener(...args);
           hodor.toAdd.push({res, path});
           if (res && hodor.add) {
-            hodor.add({res, path});
+            hodor.add({res, path, sort});
           }
         }));
         listeners.push(data.on('- ' + path, (...args) => {
@@ -166,8 +166,8 @@ export default (data = Data()) => {
         if (typeof child === 'undefined') {
         } else if (child.isHodor) {
           hodors.push(child);
-          child.add = ({res, path}) => {
-            appendChild(index, res, path);
+          child.add = ({res, path, sort}) => {
+            appendChild(index, res, path, sort);
           };
           child.remove = (path) => {
             removeChild(index, path);
@@ -208,45 +208,6 @@ export default (data = Data()) => {
       return element;
     }
   };
-  //
-  // self.render = (template) => {
-  //   return template(self).create();
-  // };
-  //
-  // self.on = (path, listener, sort) => {
-  //   return or({on: {path, listener, sort}});
-  // };
-  //
-  // self.when = (path, listener) => {
-  //   return {when: {path, listener}};
-  // };
-  //
-  // self.text = (path) => {
-  //   return or({text: path});
-  // };
-  //
-  // self.set = (path, value) => {
-  //   data.set(path, value)
-  // };
-  //
-  // self.get = (path) => {
-  //   return data.get(path);
-  // };
-  //
-  // self.trigger = (path, value) => {
-  //   return data.trigger(path, value);
-  // };
-  //
-  // self.unset = (path) => data.unset(path);
-  //
-  // self.global = () => {
-  //   if (typeof global !== 'undefined') {
-  //     Object.assign(global, self);
-  //   }
-  //   if (typeof window !== 'undefined') {
-  //     Object.assign(window, self);
-  //   }
-  // };
 
   window.React = React;
   if (typeof global !== 'undefined') {
