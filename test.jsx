@@ -91,3 +91,15 @@ test.serial('on Sort - by third argument', t => {
   dd.data.set('players.three', {name: '3'});
   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
 });
+
+// test.serial('Multiple on-siblings', t => {
+//   const dd = domdom();
+//   const div = ({on}) => <div>
+//     {on('b', test => <div>{test}</div>)}
+//     {on('a', ing => <div>{ing}</div>)}
+//   </div>;
+//   document.body.appendChild(dd.render(div));
+//   dd.data.set('a', 'World');
+//   dd.data.set('b', 'Hello');
+//   t.is(document.body.innerHTML, '<div><div>Hello</div><div>World</div></div>');
+// });

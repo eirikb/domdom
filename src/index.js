@@ -49,6 +49,7 @@ export default (data = Data()) => {
         };
         listeners.push(data.on('!+* ' + path, (...args) => {
           const path = args[1].path;
+          self.path = path;
           const res = listener(...args);
           hodor.toAdd.push({res, path});
           if (res && hodor.add) {
@@ -101,17 +102,28 @@ export default (data = Data()) => {
           sort = (a, b, aPath, bPath) => aPath.localeCompare(bPath)
         }
 
+        let isFirst = true;
+        let checkFirst = false;
         if (selfSlot && sort) {
-          const keys = Object.keys(slots[index]);
+          const keys = Object.keys(slots[index]).filter(key => key !== '$first');
           keys.push(path);
           keys.sort((a, b) => sort(data.get(a), data.get(b), a, b));
-          const beforeKey = keys[keys.indexOf(path) + 1];
+          const pos = keys.indexOf(path) + 1;
+          isFirst = pos === 1;
+          const beforeKey = keys[pos];
           if (beforeKey) {
             beforeElement = selfSlot[beforeKey];
+          } else {
+            checkFirst = true;
           }
+        } else {
+          checkFirst = true;
         }
 
         if (beforeElement) {
+          if (checkFirst && beforeElement.$first) {
+            beforeElement = beforeElement.$first;
+          }
           element.insertBefore(toAdd, beforeElement);
         } else {
           element.appendChild(toAdd);
@@ -120,6 +132,9 @@ export default (data = Data()) => {
         if (path) {
           slot[path] = toAdd;
           slots[index] = slot;
+          if (isFirst) {
+            slot.$first = toAdd;
+          }
         } else {
           slots[index] = toAdd;
         }
@@ -135,7 +150,7 @@ export default (data = Data()) => {
               pathSlot.destroy();
             }
             delete slot[path];
-            if (Object.keys(slot).length === 2) {
+            if (Object.keys(slot).filter(k => k !== '$first').length === 2) {
               delete slots[index];
             }
           }
