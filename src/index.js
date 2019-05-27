@@ -31,9 +31,6 @@ export default (data = Data()) => {
 
       function on(path, listener, sort) {
         const listeners = [];
-        if (path.match(/^>/)) {
-          path = (self.path || '') + path.slice(1);
-        }
 
         const hasFlags = path.match(/ /);
         if (!hasFlags) {
@@ -47,21 +44,33 @@ export default (data = Data()) => {
             data.off(listeners.join(' '));
           }
         };
-        listeners.push(data.on('!+* ' + path, (...args) => {
-          const path = args[1].path;
-          self.path = path;
-          const res = listener(...args);
-          hodor.toAdd.push({res, path});
-          if (res && hodor.add) {
-            hodor.add({res, path, sort});
-          }
-        }));
-        listeners.push(data.on('- ' + path, (...args) => {
-          const path = args[1].path;
-          if (hodor.remove) {
-            hodor.remove(path);
-          }
-        }));
+
+        function listen(path) {
+          listeners.push(data.on('!+* ' + path, (...args) => {
+            const path = args[1].path;
+            const res = listener(...args);
+            hodor.toAdd.push({res, path});
+            if (res && hodor.add) {
+              hodor.add({res, path, sort});
+            }
+          }));
+          listeners.push(data.on('- ' + path, (...args) => {
+            const path = args[1].path;
+            if (hodor.remove) {
+              hodor.remove(path);
+            }
+          }));
+          return hodor;
+        }
+
+        if (path.match(/^>\./)) {
+          hodor.bounce = (parentPath) => {
+            listen(parentPath + path.slice(1));
+          };
+          return hodor;
+        }
+
+        listen(path);
         return hodor;
       }
 
@@ -88,9 +97,14 @@ export default (data = Data()) => {
         if (!child) return;
 
         let before = slots.slice(index + 1).find(slot => slot);
-        if (typeof child === 'function') child = child();
+        if (typeof child === 'function') {
+          child = child();
+        }
+
         let toAdd = child;
-        if (typeof child === 'string') toAdd = document.createTextNode(child);
+        if (typeof child === 'string') {
+          toAdd = document.createTextNode(child);
+        }
 
         let beforeElement;
         if (before) {
@@ -183,6 +197,9 @@ export default (data = Data()) => {
           hodors.push(child);
           child.add = ({res, path, sort}) => {
             appendChild(index, res, path, sort);
+            if (res.onPath) {
+              res.onPath(path);
+            }
           };
           child.remove = (path) => {
             removeChild(index, path);
@@ -220,6 +237,17 @@ export default (data = Data()) => {
       }
 
       element.destroy = destroy;
+      element.onPath = (path) => {
+        for (let slot of slots) {
+          if (slot.onPath) {
+            slot.onPath(path);
+          }
+        }
+        const bounced = hodors.filter(hodor => hodor.bounce);
+        for (let hodor of bounced) {
+          hodor.bounce(path);
+        }
+      };
       return element;
     }
   };
