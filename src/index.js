@@ -4,30 +4,27 @@ import {isPlainObject} from '../node_modules/@eirikb/data/src/common';
 export default (data = Data()) => {
   const React = {
     createElement(tagName, props, ...children) {
+      if (typeof tagName === 'function') {
+        const options = {
+          input: (props || {})['dd-input'],
+          on,
+          text: path => on(path, res => res),
+          unset: data.unset,
+          set: data.set
+        };
+
+        Object.entries(props || {})
+          .filter(([key]) => key.match(/^dd-input-/))
+          .forEach(([key, value]) =>
+            options[key.split('-').slice(2).join('')] = value
+          );
+
+        return tagName(options);
+      }
+
       const slots = [];
       const hodors = [];
-
-      function createElement() {
-        if (typeof tagName === 'function') {
-          const options = {
-            input: (props || {})['dd-input'],
-            on,
-            text: path => on(path, res => res),
-            unset: data.unset,
-            set: data.set
-          };
-
-          Object.entries(props || {})
-            .filter(([key]) => key.match(/^dd-input-/))
-            .forEach(([key, value]) =>
-              options[key.split('-').slice(2).join('')] = value
-            );
-
-          return tagName(options);
-        } else {
-          return document.createElement(tagName);
-        }
-      }
+      const element = document.createElement(tagName);
 
       function on(path, listener, sort) {
         const listeners = [];
@@ -74,23 +71,28 @@ export default (data = Data()) => {
         return hodor;
       }
 
-      function destroy() {
+      function eachChild(cb) {
         for (let slot of slots) {
           if (slot.destroy) {
-            slot.destroy();
+            cb(slot);
           }
           for (let subSlot of Object.values(slot)) {
             if (subSlot.destroy) {
-              subSlot.destroy();
+              cb(subSlot);
             }
           }
         }
+      }
+
+      function destroy() {
+        eachChild(child => {
+          child.destroy();
+        });
         for (let hodor of hodors) {
           hodor.unlisten();
         }
       }
 
-      const element = createElement();
 
       function appendChild(index, child, path, sort) {
         removeChild(index, path);
@@ -159,6 +161,9 @@ export default (data = Data()) => {
         if (slot && path) {
           const pathSlot = slot[path];
           if (pathSlot) {
+            if (!element.previousSibling) {
+              slot.$first = element.nextSibling;
+            }
             element.removeChild(pathSlot);
             if (pathSlot.destroy) {
               pathSlot.destroy();
@@ -238,11 +243,9 @@ export default (data = Data()) => {
 
       element.destroy = destroy;
       element.onPath = (path) => {
-        for (let slot of slots) {
-          if (slot.onPath) {
-            slot.onPath(path);
-          }
-        }
+        eachChild(child => {
+          child.onPath(path);
+        });
         const bounced = hodors.filter(hodor => hodor.bounce);
         for (let hodor of bounced) {
           hodor.bounce(path);
