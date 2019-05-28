@@ -26,7 +26,7 @@ export default (data = Data()) => {
                 }
                 if (pass) {
                   if (typeof listener === 'function') {
-                    result.push(listener(res, args));
+                    result.push(React.createElement((options) => listener(res, options)));
                   } else {
                     result.push(listener);
                   }

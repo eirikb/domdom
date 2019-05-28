@@ -137,7 +137,21 @@ test.serial('Child listener', t => {
   t.is(document.body.innerHTML, '<main><article>1</article><article>2</article><article>3</article></main>');
 });
 
-test.serial('when', t => {
+test.serial('Simple when', t => {
+  const dd = domdom();
+  const div = ({when}) => <div>
+    {when('test', [
+      'yes', t => `Yes is ${t}`,
+      () => true, <div>Yes!</div>,
+      () => true, (res, {on}) => <div>{on('test', t => t)}</div>,
+    ])}
+  </div>;
+  document.body.appendChild(dd.render(div));
+  dd.data.set('test', 'yes');
+  t.is(document.body.innerHTML, '<div>Yes is yes<div>Yes!</div><div>yes</div></div>');
+});
+
+test.serial('Many whens', t => {
   const dd = domdom();
   const div = ({when}) => <div>
     {when('test', [
