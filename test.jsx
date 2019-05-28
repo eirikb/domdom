@@ -122,3 +122,17 @@ test.serial('on Sort - remove $first', t => {
   dd.data.set('players.1', {name: '1'});
   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
 });
+
+test.serial('Child listener', t => {
+  const dd = domdom();
+  const div = ({on}) => <main>
+    {on('players.$id', player => <article>
+      {on('>.name', name => name)}
+    </article>)}
+  </main>;
+  document.body.appendChild(dd.render(div));
+  dd.data.set('players.1', {name: '1'});
+  dd.data.set('players.2', {name: '2'});
+  dd.data.set('players.3', {name: '3'});
+  t.is(document.body.innerHTML, '<main><article>1</article><article>2</article><article>3</article></main>');
+});
