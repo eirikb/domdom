@@ -9,6 +9,34 @@ export default (data = Data()) => {
           input: (props || {})['dd-input'],
           on,
           text: path => on(path, res => res),
+          when: (path, options) => {
+            if (!Array.isArray(options)) {
+              throw new Error('Second arguments must be an array');
+            }
+            return on(path, (res, args) => {
+              const result = [];
+              for (let i = 0; i < options.length; i += 2) {
+                const cond = options[i];
+                const listener = options[i + 1];
+                let pass = false;
+                if (typeof cond === 'function') {
+                  pass = cond(res, args);
+                } else {
+                  pass = cond === res;
+                }
+                if (pass) {
+                  if (typeof listener === 'function') {
+                    result.push(listener(res, args));
+                  } else {
+                    result.push(listener);
+                  }
+                } else {
+                  result.push(null);
+                }
+              }
+              return result;
+            });
+          },
           unset: data.unset,
           set: data.set
         };
@@ -95,6 +123,12 @@ export default (data = Data()) => {
 
 
       function appendChild(index, child, path, sort) {
+        if (Array.isArray(child)) {
+          child.forEach((child, i) => {
+            appendChild(index, child, (path || '') + i, sort);
+          });
+          return;
+        }
         removeChild(index, path);
         if (!child) return;
 

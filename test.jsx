@@ -136,3 +136,25 @@ test.serial('Child listener', t => {
   dd.data.set('players.3', {name: '3'});
   t.is(document.body.innerHTML, '<main><article>1</article><article>2</article><article>3</article></main>');
 });
+
+test.serial('when', t => {
+  const dd = domdom();
+  const div = ({when}) => <div>
+    {when('test', [
+      'yes', t => t,
+      'no', t => t,
+      true, () => 'Yes!',
+      () => true, 'true',
+      t => t === 'yes', 't === yes',
+      'yes', () => <div>hello</div>,
+      'yes', <div>world</div>
+    ])}
+  </div>;
+  document.body.appendChild(dd.render(div));
+  dd.data.set('test', 'yes');
+  t.is(document.body.innerHTML, '<div>yestruet === yes<div>hello</div><div>world</div></div>');
+  dd.data.set('test', 'no');
+  t.is(document.body.innerHTML, '<div>notrue</div>');
+  dd.data.set('test', 'yes');
+  t.is(document.body.innerHTML, '<div>yestruet === yes<div>hello</div><div>world</div></div>');
+});
