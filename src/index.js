@@ -169,7 +169,7 @@ export default (data = Data()) => {
               pathSlot.destroy();
             }
             delete slot[path];
-            if (Object.keys(slot).filter(k => k !== '$first').length === 2) {
+            if (Object.keys(slot).filter(k => k !== '$first').length === 0) {
               delete slots[index];
             }
           }

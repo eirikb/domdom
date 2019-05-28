@@ -103,3 +103,22 @@ test.serial('Multiple on-siblings', t => {
   dd.data.set('b', 'Hello');
   t.is(document.body.innerHTML, '<div><div>Hello</div><div>World</div></div>');
 });
+
+test.serial('on Sort - remove $first', t => {
+  const dd = domdom();
+  const div = ({on}) => <div>
+    {on('players.$id', player => <p>{player.name}</p>)}
+  </div>;
+  document.body.appendChild(dd.render(div));
+  dd.data.set('players.1', {name: '1'});
+  dd.data.set('players.2', {name: '2'});
+  dd.data.set('players.3', {name: '3'});
+  t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
+
+  dd.data.unset('players.1');
+  t.is(document.body.innerHTML, '<div><p>2</p><p>3</p></div>');
+
+  console.clear();
+  dd.data.set('players.1', {name: '1'});
+  t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
+});
