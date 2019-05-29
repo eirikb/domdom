@@ -172,3 +172,24 @@ test.serial('Many whens', t => {
   dd.data.set('test', 'yes');
   t.is(document.body.innerHTML, '<div>yestruet === yes<div>hello</div><div>world</div></div>');
 });
+
+test.serial('Quirk on + when', t => {
+  const dd = domdom();
+  const div = ({on, when}) => <div>
+    {on('test', t => t)}
+
+    {when('test', [
+      'yes', 'Yes',
+      'no', 'No'
+    ])}
+  </div>;
+  document.body.appendChild(dd.render(div));
+  dd.data.set('test', 'yes');
+  t.is(document.body.innerHTML, '<div>yesYes</div>');
+  dd.data.set('test', 'no');
+  t.is(document.body.innerHTML, '<div>noNo</div>');
+  dd.data.set('test', 'yes');
+  t.is(document.body.innerHTML, '<div>yesYes</div>');
+  dd.data.set('test', 'no');
+  t.is(document.body.innerHTML, '<div>noNo</div>');
+});

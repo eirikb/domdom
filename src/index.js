@@ -195,8 +195,8 @@ export default (data = Data()) => {
         if (slot && path) {
           const pathSlot = slot[path];
           if (pathSlot) {
-            if (!element.previousSibling) {
-              slot.$first = element.nextSibling;
+            if (pathSlot === slot.$first) {
+              slot.$first = pathSlot.nextSibling;
             }
             element.removeChild(pathSlot);
             if (pathSlot.destroy) {
