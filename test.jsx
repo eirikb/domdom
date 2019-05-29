@@ -139,11 +139,16 @@ test.serial('Child listener', t => {
 
 test.serial('Simple when', t => {
   const dd = domdom();
+
+  function Test({on}) {
+    return <div>{on('test', t => t)}</div>;
+  }
+
   const div = ({when}) => <div>
     {when('test', [
       'yes', t => `Yes is ${t}`,
       () => true, <div>Yes!</div>,
-      () => true, (res, {on}) => <div>{on('test', t => t)}</div>,
+      () => true, () => <Test/>,
     ])}
   </div>;
   document.body.appendChild(dd.render(div));

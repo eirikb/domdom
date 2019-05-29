@@ -13,7 +13,8 @@ export default (data = Data()) => {
             if (!Array.isArray(options)) {
               throw new Error('Second arguments must be an array');
             }
-            return on(path, (res, args) => {
+            return on(path, (...args) => {
+              const res = args[0];
               const result = [];
               for (let i = 0; i < options.length; i += 2) {
                 const cond = options[i];
@@ -26,7 +27,7 @@ export default (data = Data()) => {
                 }
                 if (pass) {
                   if (typeof listener === 'function') {
-                    result.push(React.createElement((options) => listener(res, options)));
+                    result.push(listener(...args));
                   } else {
                     result.push(listener);
                   }
