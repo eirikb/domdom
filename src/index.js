@@ -38,7 +38,8 @@ export default (data = Data()) => {
             });
           },
           unset: data.unset,
-          set: data.set
+          set: data.set,
+          trigger: data.trigger
         };
 
         Object.entries(props || {})
