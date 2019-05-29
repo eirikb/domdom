@@ -40,6 +40,7 @@ export default (data = Data()) => {
           },
           unset: data.unset,
           set: data.set,
+          get: data.get,
           trigger: data.trigger
         };
 
