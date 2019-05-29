@@ -68,6 +68,14 @@ export default (data = Data()) => {
           isHodor: true,
           unlisten() {
             data.off(listeners.join(' '));
+          },
+          or: (or) => {
+            hodor.orValue = or;
+            const hasValue = data.get(path);
+            if (!hasValue) {
+              hodor.toAdd.push({res: or, path});
+            }
+            return hodor;
           }
         };
 
@@ -84,6 +92,9 @@ export default (data = Data()) => {
             const path = args[1].path;
             if (hodor.remove) {
               hodor.remove(path);
+            }
+            if (hodor.orValue && hodor.add) {
+              hodor.add({res: hodor.orValue, path, sort});
             }
           }));
           return hodor;

@@ -193,3 +193,18 @@ test.serial('Quirk on + when', t => {
   dd.data.set('test', 'no');
   t.is(document.body.innerHTML, '<div>noNo</div>');
 });
+
+test.serial('Simple or', t => {
+  const dd = domdom();
+  const div = ({on}) => <div>
+    {on('test', t => <div>{t}</div>).or(<div>Nope</div>)}
+  </div>;
+  document.body.appendChild(dd.render(div));
+  t.is(document.body.innerHTML, '<div><div>Nope</div></div>');
+  dd.data.set('test', 'ing');
+  t.is(document.body.innerHTML, '<div><div>ing</div></div>');
+  dd.data.set('test', '');
+  t.is(document.body.innerHTML, '<div><div></div></div>');
+  dd.data.unset('test');
+  t.is(document.body.innerHTML, '<div><div>Nope</div></div>');
+});
