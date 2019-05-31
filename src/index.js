@@ -277,8 +277,12 @@ export default (data = Data()) => {
         const model = props['dd-model'];
         if (model) {
           element.addEventListener('keyup', () => data.set(model, element.value));
-          element.addEventListener('input', () => data.set(model, element.value));
+          element.addEventListener('input', () => {
+            const value = element.type === 'checkbox' ? element.checked : element.value;
+            data.set(model, value)
+          });
           element.addEventListener('value', () => data.set(model, element.value));
+          element.addEventListener('checked', () => data.set(model, element.value));
           on(model, (value) => element.value = value);
         }
 
