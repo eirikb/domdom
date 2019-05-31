@@ -222,5 +222,18 @@ test.serial('on empty res', t => {
   t.is(document.body.innerHTML, '<div>Hello</div>');
   dd.data.set('test', '');
   t.is(document.body.innerHTML, '<div></div>');
+});
 
+test.serial('Multiple child paths', t => {
+  const dd = domdom();
+  const div = ({on, text}) => <div>
+    {on('$id', () => <div>
+      {text('>.text')}
+      test
+      {text('>.text')}
+    </div>)}
+  </div>;
+  document.body.appendChild(dd.render(div));
+  dd.data.set('1', {text: 'ok'});
+  t.pass();
 });

@@ -115,12 +115,14 @@ export default (data = Data()) => {
 
       function eachChild(cb) {
         for (let slot of slots) {
-          if (slot.destroy) {
-            cb(slot);
-          }
-          for (let subSlot of Object.values(slot)) {
-            if (subSlot.destroy) {
-              cb(subSlot);
+          if (slot) {
+            if (slot.destroy) {
+              cb(slot);
+            }
+            for (let subSlot of Object.values(slot)) {
+              if (subSlot.destroy) {
+                cb(subSlot);
+              }
             }
           }
         }
