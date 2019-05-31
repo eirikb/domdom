@@ -213,3 +213,14 @@ test.serial('Simple or', t => {
   dd.data.unset('test');
   t.is(document.body.innerHTML, '<div><div>Nope</div></div>');
 });
+
+test.serial('on empty res', t => {
+  const dd = domdom();
+  const div = ({text}) => <div>{text('test')}</div>;
+  document.body.appendChild(dd.render(div));
+  dd.data.set('test', 'Hello');
+  t.is(document.body.innerHTML, '<div>Hello</div>');
+  dd.data.set('test', '');
+  t.is(document.body.innerHTML, '<div></div>');
+
+});

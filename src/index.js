@@ -86,7 +86,7 @@ export default (data = Data()) => {
             const path = args[1].path;
             const res = listener(...args);
             hodor.toAdd.push({res, path});
-            if (res && hodor.add) {
+            if (typeof res !== 'undefined' && hodor.add) {
               hodor.add({res, path, sort});
             }
           }));
