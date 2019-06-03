@@ -237,3 +237,15 @@ test.serial('Multiple child paths', t => {
   dd.data.set('1', {text: 'ok'});
   t.pass();
 });
+
+test.serial('Have some path with flags', t => {
+  const dd = domdom();
+  const div = ({on}) => {
+    const e = <div></div>;
+    on('!+* wat', wat => e.innerHTML = wat);
+    return e;
+  };
+  document.body.appendChild(dd.render(div));
+  dd.data.set('wat', 'ok');
+  t.is(document.body.innerHTML, '<div>ok</div>');
+});

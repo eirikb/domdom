@@ -61,7 +61,9 @@ export default (data = Data()) => {
         const listeners = [];
 
         const hasFlags = path.match(/ /);
-        if (!hasFlags) {
+        if (hasFlags) {
+          listeners.push(data.on(path, listener));
+          return;
         }
 
         const hodor = {
