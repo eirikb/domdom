@@ -1,5 +1,5 @@
 import Data from '@eirikb/data';
-import {isPlainObject} from '../node_modules/@eirikb/data/src/common';
+import {isPlainObject} from '@eirikb/data/src/common';
 
 export default (data = Data()) => {
   const React = {
