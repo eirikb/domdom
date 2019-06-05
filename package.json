@@ -22,7 +22,7 @@
     "webpack-cli": "3.3.0"
   },
   "dependencies": {
-    "@eirikb/data": "file:../data"
+    "@eirikb/data": "^1.0.0"
   },
   "ava": {
     "require": [
