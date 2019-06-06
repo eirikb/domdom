@@ -147,7 +147,7 @@ export default (data = Data()) => {
           });
           return;
         }
-        removeChild(index, path);
+        if (!removeChild(index, path, child)) return;
         if (!child) return;
 
         let before = slots.slice(index + 1).find(slot => slot);
@@ -175,7 +175,7 @@ export default (data = Data()) => {
         if (selfSlot && sort) {
           const keys = Object.keys(slots[index]).filter(key => key !== '$first');
           keys.push(path);
-          keys.sort((a, b) => sort(data.get(a), data.get(b), a, b));
+          // keys.sort((a, b) => sort(data.get(a), data.get(b), a, b));
           const pos = keys.indexOf(path) + 1;
           isFirst = pos === 1;
           const beforeKey = keys[pos];
@@ -208,7 +208,7 @@ export default (data = Data()) => {
         }
       }
 
-      function removeChild(index, path) {
+      function removeChild(index, path, child) {
         let slot = slots[index];
         if (slot && path) {
           const pathSlot = slot[path];
@@ -216,6 +216,7 @@ export default (data = Data()) => {
             if (pathSlot === slot.$first) {
               slot.$first = pathSlot.nextSibling;
             }
+            if (pathSlot === child) return false;
             element.removeChild(pathSlot);
             if (pathSlot.destroy) {
               pathSlot.destroy();
@@ -225,13 +226,15 @@ export default (data = Data()) => {
               delete slots[index];
             }
           }
-          return;
+          return true;
         }
+        if (slot === child) return false;
         if (slot) {
           element.removeChild(slot);
           slot.destroy();
           delete slots[index];
         }
+        return true;
       }
 
       function setElementValue(key, value) {
