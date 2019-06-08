@@ -166,16 +166,13 @@ export default (data = Data()) => {
         }
 
         const selfSlot = slots[index];
-        if (path && !sort) {
-          sort = (a, b, aPath, bPath) => aPath.localeCompare(bPath)
-        }
 
         let isFirst = true;
         let checkFirst = false;
         if (selfSlot && sort) {
           const keys = Object.keys(slots[index]).filter(key => key !== '$first');
           keys.push(path);
-          // keys.sort((a, b) => sort(data.get(a), data.get(b), a, b));
+          keys.sort((a, b) => sort(data.get(a), data.get(b), a, b));
           const pos = keys.indexOf(path) + 1;
           isFirst = pos === 1;
           const beforeKey = keys[pos];

@@ -62,13 +62,13 @@ test.serial('Multiple paths', t => {
   t.is(document.body.innerHTML, '<div><p>Mr. one</p><p>Mr. two</p></div>');
 
   dd.data.set('players.one', {name: 'Hello'});
-  t.is(document.body.innerHTML, '<div><p>Hello</p><p>Mr. two</p></div>');
+  t.is(document.body.innerHTML, '<div><p>Mr. two</p><p>Hello</p></div>');
 
   dd.data.unset('players.one');
   t.is(document.body.innerHTML, '<div><p>Mr. two</p></div>');
 });
 
-test.serial('on Sort - default by path', t => {
+test.serial('on Sort - no default', t => {
   const dd = domdom();
   const div = ({on}) => <div>
     {on('players.$id', player => <p>{player.name}</p>)}
@@ -77,7 +77,7 @@ test.serial('on Sort - default by path', t => {
   dd.data.set('players.one', {name: '1'});
   dd.data.set('players.two', {name: '2'});
   dd.data.set('players.three', {name: '3'});
-  t.is(document.body.innerHTML, '<div><p>1</p><p>3</p><p>2</p></div>');
+  t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
 });
 
 test.serial('on Sort - by third argument', t => {
@@ -108,6 +108,27 @@ test.serial('on Sort - remove $first', t => {
   const dd = domdom();
   const div = ({on}) => <div>
     {on('players.$id', player => <p>{player.name}</p>)}
+  </div>;
+  document.body.appendChild(dd.render(div));
+  dd.data.set('players.1', {name: '1'});
+  dd.data.set('players.2', {name: '2'});
+  dd.data.set('players.3', {name: '3'});
+  t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
+
+  dd.data.unset('players.1');
+  t.is(document.body.innerHTML, '<div><p>2</p><p>3</p></div>');
+
+  console.clear();
+  dd.data.set('players.1', {name: '1'});
+  t.is(document.body.innerHTML, '<div><p>2</p><p>3</p><p>1</p></div>');
+});
+
+test.serial('on Sort - remove $first - with sort', t => {
+  const dd = domdom();
+  const div = ({on}) => <div>
+    {on('players.$id', player => <p>{player.name}</p>,
+      (a, b, aPath, bPath) => aPath.localeCompare(bPath)
+    )}
   </div>;
   document.body.appendChild(dd.render(div));
   dd.data.set('players.1', {name: '1'});
