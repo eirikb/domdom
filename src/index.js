@@ -166,6 +166,9 @@ export default (data = Data()) => {
         }
 
         const selfSlot = slots[index];
+        if (path && sort === true) {
+          sort = (a, b, aPath, bPath) => aPath.localeCompare(bPath)
+        }
 
         let isFirst = true;
         let checkFirst = false;

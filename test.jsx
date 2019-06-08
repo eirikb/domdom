@@ -80,6 +80,18 @@ test.serial('on Sort - no default', t => {
   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
 });
 
+test.serial('on Sort - if third arg is "true" then use the old default', t => {
+  const dd = domdom();
+  const div = ({on}) => <div>
+    {on('players.$id', player => <p>{player.name}</p>, true)}
+  </div>;
+  document.body.appendChild(dd.render(div));
+  dd.data.set('players.one', {name: '1'});
+  dd.data.set('players.two', {name: '2'});
+  dd.data.set('players.three', {name: '3'});
+  t.is(document.body.innerHTML, '<div><p>1</p><p>3</p><p>2</p></div>');
+});
+
 test.serial('on Sort - by third argument', t => {
   const dd = domdom();
   const div = ({on}) => <div>
