@@ -1,19 +1,32 @@
 import Data from '@eirikb/data';
 import {isPlainObject} from '@eirikb/data/src/common';
 
+let id = 0;
+
 export default (data = Data()) => {
   const React = {
     createElement(tagName, props, ...children) {
+      id++;
       if (typeof tagName === 'function') {
+        class A {
+          constructor() {
+            this.listeners = [];
+            on.bind(this)
+          }
+        }
+
+        const a = new A();
+        const onA = on.bind(a);
+
         const options = {
           input: (props || {})['dd-input'],
-          on,
-          text: path => on(path, res => res),
+          on: onA,
+          text: path => onA(path, res => res),
           when: (path, options) => {
             if (!Array.isArray(options)) {
               throw new Error('Second arguments must be an array');
             }
-            return on(path, (...args) => {
+            return onA(path, (...args) => {
               const res = args[0];
               const result = [];
               for (let i = 0; i < options.length; i += 2) {
@@ -50,7 +63,9 @@ export default (data = Data()) => {
             options[key.split('-').slice(2).join('')] = value
           );
 
-        return tagName(options);
+        const res = tagName(options);
+        res.listeners = a.listeners;
+        return res;
       }
 
       const slots = [];
@@ -58,7 +73,7 @@ export default (data = Data()) => {
       const element = document.createElement(tagName);
 
       function on(path, listener, sort) {
-        const listeners = [];
+        const listeners = this.listeners;
 
         const hasFlags = path.match(/ /);
         if (hasFlags) {
@@ -67,12 +82,11 @@ export default (data = Data()) => {
         }
 
         const hodor = {
+          id,
+          listeners,
           path,
           toAdd: [],
           isHodor: true,
-          unlisten() {
-            data.off(listeners.join(' '));
-          },
           or: (or) => {
             hodor.orValue = or;
             const hasValue = data.get(path);
@@ -135,10 +149,9 @@ export default (data = Data()) => {
           child.destroy();
         });
         for (let hodor of hodors) {
-          hodor.unlisten();
+          data.off(hodor.listeners.join(' '));
         }
       }
-
 
       function appendChild(index, child, path, sort) {
         if (Array.isArray(child)) {

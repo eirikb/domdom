@@ -130,7 +130,6 @@ test.serial('on Sort - remove $first', t => {
   dd.data.unset('players.1');
   t.is(document.body.innerHTML, '<div><p>2</p><p>3</p></div>');
 
-  console.clear();
   dd.data.set('players.1', {name: '1'});
   t.is(document.body.innerHTML, '<div><p>2</p><p>3</p><p>1</p></div>');
 });
@@ -151,7 +150,6 @@ test.serial('on Sort - remove $first - with sort', t => {
   dd.data.unset('players.1');
   t.is(document.body.innerHTML, '<div><p>2</p><p>3</p></div>');
 
-  console.clear();
   dd.data.set('players.1', {name: '1'});
   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
 });
@@ -281,4 +279,58 @@ test.serial('Have some path with flags', t => {
   document.body.appendChild(dd.render(div));
   dd.data.set('wat', 'ok');
   t.is(document.body.innerHTML, '<div>ok</div>');
+});
+
+test.serial('Listeners are cleared', t => {
+  const dd = domdom();
+  let i = 0;
+
+  function Child({on}) {
+    on('* test', () => i++);
+    return <div></div>;
+  }
+
+  dd.data.set('test', 'a');
+  dd.data.set('show', true);
+  const div = ({on}) => <div>
+    {on('show', () =>
+      <Child></Child>
+    )}
+  </div>;
+  document.body.appendChild(dd.render(div));
+  dd.data.set('test', 'b');
+  t.is(1, i);
+
+  dd.data.set('show', false);
+  dd.data.set('test', 'c');
+  t.is(1, i);
+});
+
+test.serial('Listeners are not overcleared', t => {
+  const dd = domdom();
+  let i = 0;
+
+  function Child({on}) {
+    on('* test', () => i++);
+    return <div></div>;
+  }
+
+  dd.data.set('test', 'a');
+  dd.data.set('show', true);
+  const div = ({on}) => <div>
+    {on('show', () =>
+      <Child></Child>
+    )}
+  </div>;
+  document.body.appendChild(dd.render(div));
+  dd.data.set('test', 'b');
+  t.is(1, i);
+
+  dd.data.set('show', false);
+  dd.data.set('test', 'c');
+  t.is(1, i);
+
+  dd.data.set('show', true);
+  dd.data.set('test', 'd');
+  t.is(2, i);
 });
