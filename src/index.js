@@ -148,9 +148,6 @@ export default (data = Data()) => {
         eachChild(child => {
           child.destroy();
         });
-        for (let hodor of hodors) {
-          data.off(hodor.listeners.join(' '));
-        }
         if (element && element.listeners) {
           data.off(element.listeners.join(' '));
         }

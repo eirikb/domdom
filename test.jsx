@@ -29,8 +29,7 @@ test.serial('Double on', t => {
   dd.data.unset('test');
   t.is(document.body.innerHTML, '<div></div>');
   dd.data.set('test', 'hello');
-  // TODO:
-  // t.is(document.body.innerHTML, '<div><div>hello<span>eh world</span></div></div>');
+  t.is(document.body.innerHTML, '<div><div>hello<span>eh world</span></div></div>');
 });
 
 test.serial('text', t => {
