@@ -335,6 +335,33 @@ test.serial('Listeners are not overcleared', t => {
   t.is(3, i);
 });
 
+test.serial('Listeners are support change of parent', t => {
+  const dd = domdom();
+  let i = 0;
+
+  function Child({on}) {
+    on('* test', () => i++);
+    return <p></p>;
+  }
+
+  dd.data.set('test', 'a');
+  dd.data.set('show', 'yes');
+  const div = ({on}) => <div>
+    {on('show', () =>
+      <Child></Child>
+    )}
+  </div>;
+  document.body.appendChild(dd.render(div));
+
+  dd.data.set('show', 'yesyes');
+  dd.data.set('test', 'c');
+  t.is(1, i);
+
+  dd.data.unset('show');
+  dd.data.set('test', 'd');
+  t.is(1, i);
+});
+
 test.serial('Listeners in when', t => {
   const dd = domdom();
   let i = 0;

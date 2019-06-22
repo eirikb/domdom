@@ -136,7 +136,7 @@ export default (data = Data()) => {
               cb(slot);
             }
             for (let subSlot of Object.values(slot)) {
-              if (subSlot.destroy) {
+              if (subSlot && subSlot.destroy) {
                 cb(subSlot);
               }
             }
@@ -160,7 +160,12 @@ export default (data = Data()) => {
           });
           return;
         }
-        if (!removeChild(index, path, child)) return;
+        if (!removeChild(index, path, child)) {
+          if (child.destroy) {
+            child.destroy();
+          }
+          return;
+        }
         if (!child) return;
 
         let before = slots.slice(index + 1).find(slot => slot);
@@ -226,10 +231,15 @@ export default (data = Data()) => {
         if (slot && path) {
           const pathSlot = slot[path];
           if (pathSlot) {
+            const aHTML = (pathSlot || {}).outerHTML;
+            const bHTML = (child || {}).outerHTML;
+            if (aHTML && bHTML && aHTML === bHTML) {
+              return false;
+            }
+
             if (pathSlot === slot.$first) {
               slot.$first = pathSlot.nextSibling;
             }
-            if (pathSlot === child) return false;
             element.removeChild(pathSlot);
             if (pathSlot.destroy) {
               pathSlot.destroy();
