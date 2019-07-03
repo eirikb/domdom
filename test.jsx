@@ -20,15 +20,15 @@ test.serial('Double on', t => {
   document.body.appendChild(dd.render(div));
   t.is(document.body.innerHTML, '<div></div>');
 
-  dd.data.set('test', 'hello');
+  dd.set('test', 'hello');
   t.is(document.body.innerHTML, '<div><div>hello</div></div>');
 
-  dd.data.set('testing', 'world');
+  dd.set('testing', 'world');
   t.is(document.body.innerHTML, '<div><div>hello<span>eh world</span></div></div>');
 
-  dd.data.unset('test');
+  dd.unset('test');
   t.is(document.body.innerHTML, '<div></div>');
-  dd.data.set('test', 'hello');
+  dd.set('test', 'hello');
   t.is(document.body.innerHTML, '<div><div>hello<span>eh world</span></div></div>');
 });
 
@@ -37,13 +37,13 @@ test.serial('text', t => {
   const div = ({text}) => <div>{text('test')}</div>;
   document.body.appendChild(dd.render(div));
 
-  dd.data.set('test', 'hello');
+  dd.set('test', 'hello');
   t.is(document.body.innerHTML, '<div>hello</div>');
 
-  dd.data.set('test', 'world');
+  dd.set('test', 'world');
   t.is(document.body.innerHTML, '<div>world</div>');
 
-  dd.data.unset('test');
+  dd.unset('test');
   t.is(document.body.innerHTML, '<div></div>');
 });
 
@@ -55,16 +55,16 @@ test.serial('Multiple paths', t => {
   document.body.appendChild(dd.render(div));
   t.is(document.body.innerHTML, '<div></div>');
 
-  dd.data.set('players.one', {name: 'Mr. one'});
+  dd.set('players.one', {name: 'Mr. one'});
   t.is(document.body.innerHTML, '<div><p>Mr. one</p></div>');
 
-  dd.data.set('players.two', {name: 'Mr. two'});
+  dd.set('players.two', {name: 'Mr. two'});
   t.is(document.body.innerHTML, '<div><p>Mr. one</p><p>Mr. two</p></div>');
 
-  dd.data.set('players.one', {name: 'Hello'});
+  dd.set('players.one', {name: 'Hello'});
   t.is(document.body.innerHTML, '<div><p>Mr. two</p><p>Hello</p></div>');
 
-  dd.data.unset('players.one');
+  dd.unset('players.one');
   t.is(document.body.innerHTML, '<div><p>Mr. two</p></div>');
 });
 
@@ -74,9 +74,9 @@ test.serial('on Sort - no default', t => {
     {on('players.$id', player => <p>{player.name}</p>)}
   </div>;
   document.body.appendChild(dd.render(div));
-  dd.data.set('players.one', {name: '1'});
-  dd.data.set('players.two', {name: '2'});
-  dd.data.set('players.three', {name: '3'});
+  dd.set('players.one', {name: '1'});
+  dd.set('players.two', {name: '2'});
+  dd.set('players.three', {name: '3'});
   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
 });
 
@@ -86,9 +86,9 @@ test.serial('on Sort - if third arg is "true" then use the old default', t => {
     {on('players.$id', player => <p>{player.name}</p>, true)}
   </div>;
   document.body.appendChild(dd.render(div));
-  dd.data.set('players.one', {name: '1'});
-  dd.data.set('players.two', {name: '2'});
-  dd.data.set('players.three', {name: '3'});
+  dd.set('players.one', {name: '1'});
+  dd.set('players.two', {name: '2'});
+  dd.set('players.three', {name: '3'});
   t.is(document.body.innerHTML, '<div><p>1</p><p>3</p><p>2</p></div>');
 });
 
@@ -98,9 +98,9 @@ test.serial('on Sort - by third argument', t => {
     {on('players.$id', player => <p>{player.name}</p>, (a, b) => a.name.localeCompare(b.name))}
   </div>;
   document.body.appendChild(dd.render(div));
-  dd.data.set('players.one', {name: '1'});
-  dd.data.set('players.two', {name: '2'});
-  dd.data.set('players.three', {name: '3'});
+  dd.set('players.one', {name: '1'});
+  dd.set('players.two', {name: '2'});
+  dd.set('players.three', {name: '3'});
   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
 });
 
@@ -111,8 +111,8 @@ test.serial('Multiple on-siblings', t => {
     {on('a', ing => <div>{ing}</div>)}
   </div>;
   document.body.appendChild(dd.render(div));
-  dd.data.set('a', 'World');
-  dd.data.set('b', 'Hello');
+  dd.set('a', 'World');
+  dd.set('b', 'Hello');
   t.is(document.body.innerHTML, '<div><div>Hello</div><div>World</div></div>');
 });
 
@@ -122,15 +122,15 @@ test.serial('on Sort - remove $first', t => {
     {on('players.$id', player => <p>{player.name}</p>)}
   </div>;
   document.body.appendChild(dd.render(div));
-  dd.data.set('players.1', {name: '1'});
-  dd.data.set('players.2', {name: '2'});
-  dd.data.set('players.3', {name: '3'});
+  dd.set('players.1', {name: '1'});
+  dd.set('players.2', {name: '2'});
+  dd.set('players.3', {name: '3'});
   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
 
-  dd.data.unset('players.1');
+  dd.unset('players.1');
   t.is(document.body.innerHTML, '<div><p>2</p><p>3</p></div>');
 
-  dd.data.set('players.1', {name: '1'});
+  dd.set('players.1', {name: '1'});
   t.is(document.body.innerHTML, '<div><p>2</p><p>3</p><p>1</p></div>');
 });
 
@@ -142,15 +142,15 @@ test.serial('on Sort - remove $first - with sort', t => {
     )}
   </div>;
   document.body.appendChild(dd.render(div));
-  dd.data.set('players.1', {name: '1'});
-  dd.data.set('players.2', {name: '2'});
-  dd.data.set('players.3', {name: '3'});
+  dd.set('players.1', {name: '1'});
+  dd.set('players.2', {name: '2'});
+  dd.set('players.3', {name: '3'});
   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
 
-  dd.data.unset('players.1');
+  dd.unset('players.1');
   t.is(document.body.innerHTML, '<div><p>2</p><p>3</p></div>');
 
-  dd.data.set('players.1', {name: '1'});
+  dd.set('players.1', {name: '1'});
   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
 });
 
@@ -162,9 +162,9 @@ test.serial('Child listener', t => {
     </article>)}
   </main>;
   document.body.appendChild(dd.render(div));
-  dd.data.set('players.1', {name: '1'});
-  dd.data.set('players.2', {name: '2'});
-  dd.data.set('players.3', {name: '3'});
+  dd.set('players.1', {name: '1'});
+  dd.set('players.2', {name: '2'});
+  dd.set('players.3', {name: '3'});
   t.is(document.body.innerHTML, '<main><article>1</article><article>2</article><article>3</article></main>');
 });
 
@@ -183,7 +183,7 @@ test.serial('Simple when', t => {
     ])}
   </div>;
   document.body.appendChild(dd.render(div));
-  dd.data.set('test', 'yes');
+  dd.set('test', 'yes');
   t.is(document.body.innerHTML, '<div>Yes is yes<div>Yes!</div><div>yes</div></div>');
 });
 
@@ -201,11 +201,11 @@ test.serial('Many whens', t => {
     ])}
   </div>;
   document.body.appendChild(dd.render(div));
-  dd.data.set('test', 'yes');
+  dd.set('test', 'yes');
   t.is(document.body.innerHTML, '<div>yestruet === yes<div>hello</div><div>world</div></div>');
-  dd.data.set('test', 'no');
+  dd.set('test', 'no');
   t.is(document.body.innerHTML, '<div>notrue</div>');
-  dd.data.set('test', 'yes');
+  dd.set('test', 'yes');
   t.is(document.body.innerHTML, '<div>yestruet === yes<div>hello</div><div>world</div></div>');
 });
 
@@ -220,13 +220,13 @@ test.serial('Quirk on + when', t => {
     ])}
   </div>;
   document.body.appendChild(dd.render(div));
-  dd.data.set('test', 'yes');
+  dd.set('test', 'yes');
   t.is(document.body.innerHTML, '<div>yesYes</div>');
-  dd.data.set('test', 'no');
+  dd.set('test', 'no');
   t.is(document.body.innerHTML, '<div>noNo</div>');
-  dd.data.set('test', 'yes');
+  dd.set('test', 'yes');
   t.is(document.body.innerHTML, '<div>yesYes</div>');
-  dd.data.set('test', 'no');
+  dd.set('test', 'no');
   t.is(document.body.innerHTML, '<div>noNo</div>');
 });
 
@@ -237,11 +237,11 @@ test.serial('Simple or', t => {
   </div>;
   document.body.appendChild(dd.render(div));
   t.is(document.body.innerHTML, '<div><div>Nope</div></div>');
-  dd.data.set('test', 'ing');
+  dd.set('test', 'ing');
   t.is(document.body.innerHTML, '<div><div>ing</div></div>');
-  dd.data.set('test', '');
+  dd.set('test', '');
   t.is(document.body.innerHTML, '<div><div></div></div>');
-  dd.data.unset('test');
+  dd.unset('test');
   t.is(document.body.innerHTML, '<div><div>Nope</div></div>');
 });
 
@@ -249,9 +249,9 @@ test.serial('on empty res', t => {
   const dd = domdom();
   const div = ({text}) => <div>{text('test')}</div>;
   document.body.appendChild(dd.render(div));
-  dd.data.set('test', 'Hello');
+  dd.set('test', 'Hello');
   t.is(document.body.innerHTML, '<div>Hello</div>');
-  dd.data.set('test', '');
+  dd.set('test', '');
   t.is(document.body.innerHTML, '<div></div>');
 });
 
@@ -265,7 +265,7 @@ test.serial('Multiple child paths', t => {
     </div>)}
   </div>;
   document.body.appendChild(dd.render(div));
-  dd.data.set('1', {text: 'ok'});
+  dd.set('1', {text: 'ok'});
   t.pass();
 });
 
@@ -277,7 +277,7 @@ test.serial('Have some path with flags', t => {
     return e;
   };
   document.body.appendChild(dd.render(div));
-  dd.data.set('wat', 'ok');
+  dd.set('wat', 'ok');
   t.is(document.body.innerHTML, '<div>ok</div>');
 });
 
@@ -290,19 +290,19 @@ test.serial('Listeners are cleared', t => {
     return <div></div>;
   }
 
-  dd.data.set('test', 'a');
-  dd.data.set('show', true);
+  dd.set('test', 'a');
+  dd.set('show', true);
   const div = ({on}) => <div>
     {on('show', () =>
       <Child></Child>
     )}
   </div>;
   document.body.appendChild(dd.render(div));
-  dd.data.set('test', 'b');
+  dd.set('test', 'b');
   t.is(1, i);
 
-  dd.data.unset('show');
-  dd.data.set('test', 'c');
+  dd.unset('show');
+  dd.set('test', 'c');
   t.is(1, i);
 });
 
@@ -315,23 +315,23 @@ test.serial('Listeners are not overcleared', t => {
     return <div></div>;
   }
 
-  dd.data.set('test', 'a');
-  dd.data.set('show', 'yes');
+  dd.set('test', 'a');
+  dd.set('show', 'yes');
   const div = ({on}) => <div>
     {on('show', () =>
       <Child></Child>
     )}
   </div>;
   document.body.appendChild(dd.render(div));
-  dd.data.set('test', 'b');
+  dd.set('test', 'b');
   t.is(1, i);
 
-  dd.data.set('show', 'yesyes');
-  dd.data.set('test', 'c');
+  dd.set('show', 'yesyes');
+  dd.set('test', 'c');
   t.is(2, i);
 
-  dd.data.set('show', 'yesyesyes');
-  dd.data.set('test', 'd');
+  dd.set('show', 'yesyesyes');
+  dd.set('test', 'd');
   t.is(3, i);
 });
 
@@ -344,8 +344,8 @@ test.serial('Listeners are support change of parent', t => {
     return <p></p>;
   }
 
-  dd.data.set('test', 'a');
-  dd.data.set('show', 'yes');
+  dd.set('test', 'a');
+  dd.set('show', 'yes');
   const div = ({on}) => <div>
     {on('show', () =>
       <Child></Child>
@@ -353,12 +353,12 @@ test.serial('Listeners are support change of parent', t => {
   </div>;
   document.body.appendChild(dd.render(div));
 
-  dd.data.set('show', 'yesyes');
-  dd.data.set('test', 'c');
+  dd.set('show', 'yesyes');
+  dd.set('test', 'c');
   t.is(1, i);
 
-  dd.data.unset('show');
-  dd.data.set('test', 'd');
+  dd.unset('show');
+  dd.set('test', 'd');
   t.is(1, i);
 });
 
@@ -371,19 +371,19 @@ test.serial('Listeners in when', t => {
     return <div></div>;
   }
 
-  dd.data.set('test', 'a');
-  dd.data.set('show', true);
+  dd.set('test', 'a');
+  dd.set('show', true);
   const div = ({when}) => <div>
     {when('show', [
       true, () => <Child></Child>
     ])}
   </div>;
   document.body.appendChild(dd.render(div));
-  dd.data.set('test', 'b');
+  dd.set('test', 'b');
   t.is(1, i);
 
-  dd.data.set('show', false);
-  dd.data.set('test', 'c');
+  dd.set('show', false);
+  dd.set('test', 'c');
   t.is(1, i);
 });
 
@@ -396,22 +396,22 @@ test.serial('Listener in when 2', t => {
     return <div></div>;
   }
 
-  dd.data.set('test', 'a');
-  dd.data.set('show', true);
+  dd.set('test', 'a');
+  dd.set('show', true);
   const div = ({when}) => <div>
     {when('show', [
       true, () => <Child></Child>
     ])}
   </div>;
   document.body.appendChild(dd.render(div));
-  dd.data.set('test', 'b');
+  dd.set('test', 'b');
   t.is(1, i);
 
-  dd.data.set('show', false);
-  dd.data.set('test', 'c');
+  dd.set('show', false);
+  dd.set('test', 'c');
   t.is(1, i);
 
-  dd.data.set('show', true);
-  dd.data.set('test', 'd');
+  dd.set('show', true);
+  dd.set('test', 'd');
   t.is(2, i);
 });

@@ -343,9 +343,9 @@ export default (data = Data()) => {
   }
 
   return {
-    data,
     render(template) {
       return React.createElement(template);
-    }
+    },
+    ...data
   }
 }
