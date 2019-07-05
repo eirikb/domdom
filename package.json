@@ -1,6 +1,6 @@
 {
   "name": "@eirikb/domdom",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "scripts": {
     "start": "parcel index.html",
     "build": "webpack",
@@ -22,7 +22,7 @@
     "webpack-cli": "3.3.0"
   },
   "dependencies": {
-    "@eirikb/data": "^1.0.3"
+    "@eirikb/data": "1.0.4"
   },
   "ava": {
     "require": [
