@@ -1,22 +1,12 @@
 import Data from '@eirikb/data';
 import {isPlainObject} from '@eirikb/data/src/common';
 
-let id = 0;
-
 export default (data = Data()) => {
   const React = {
     createElement(tagName, props, ...children) {
-      id++;
       if (typeof tagName === 'function') {
-        class A {
-          constructor() {
-            this.listeners = [];
-            on.bind(this)
-          }
-        }
-
-        const a = new A();
-        const onA = on.bind(a);
+        this.listeners = [];
+        const onA = on.bind(this);
 
         const options = {
           input: (props || {})['dd-input'],
@@ -64,13 +54,14 @@ export default (data = Data()) => {
           );
 
         const res = tagName(options);
-        res.listeners = a.listeners;
+        res.listeners = this.listeners;
         return res;
       }
 
       const slots = [];
       const hodors = [];
       const element = document.createElement(tagName);
+      element.listeners = [];
 
       function on(path, listener, sort) {
         const listeners = this.listeners;
@@ -82,7 +73,6 @@ export default (data = Data()) => {
         }
 
         const hodor = {
-          id,
           listeners,
           path,
           toAdd: [],
@@ -311,7 +301,7 @@ export default (data = Data()) => {
           });
           element.addEventListener('value', () => data.set(model, element.value));
           element.addEventListener('checked', () => data.set(model, element.value));
-          on(model, (value) => element.value = value);
+          on.bind(this)(model, (value) => element.value = value);
         }
 
         const nonSpecialProps = Object.entries(props).filter(([key]) => !key.match(/(^dd-|on[A-Z])/));
