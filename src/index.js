@@ -6,11 +6,14 @@ export default (data = Data()) => {
     createElement(tagName, props, ...children) {
       if (typeof tagName === 'function') {
         this.listeners = [];
+        this.mounteds = [];
         const onA = on.bind(this);
+        const mountedA = mounted.bind(this);
 
         const options = {
           input: (props || {})['dd-input'],
           on: onA,
+          mounted: mountedA,
           text: path => onA(path, res => res),
           when: (path, options) => {
             if (!Array.isArray(options)) {
@@ -62,6 +65,10 @@ export default (data = Data()) => {
       const hodors = [];
       const element = document.createElement(tagName);
       element.listeners = [];
+
+      function mounted(cb) {
+        this.mounteds.push(cb);
+      }
 
       function on(path, listener, sort) {
         const listeners = this.listeners;
@@ -322,6 +329,12 @@ export default (data = Data()) => {
         for (let hodor of bounced) {
           hodor.bounce(path);
         }
+        if (!this.mountedDone) {
+          for (let mounted of this.mounteds) {
+            mounted();
+          }
+        }
+        this.mountedDone = true;
       };
       return element;
     }
