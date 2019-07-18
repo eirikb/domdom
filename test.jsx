@@ -17,7 +17,7 @@ test.serial('Double on', t => {
       </div>
     )}
   </div>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
   t.is(document.body.innerHTML, '<div></div>');
 
   dd.set('test', 'hello');
@@ -35,7 +35,7 @@ test.serial('Double on', t => {
 test.serial('text', t => {
   const dd = domdom();
   const div = ({text}) => <div>{text('test')}</div>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
 
   dd.set('test', 'hello');
   t.is(document.body.innerHTML, '<div>hello</div>');
@@ -52,7 +52,7 @@ test.serial('Multiple paths', t => {
   const div = ({on}) => <div>
     {on('players.$id', player => <p>{player.name}</p>)}
   </div>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
   t.is(document.body.innerHTML, '<div></div>');
 
   dd.set('players.one', {name: 'Mr. one'});
@@ -73,7 +73,7 @@ test.serial('on Sort - no default', t => {
   const div = ({on}) => <div>
     {on('players.$id', player => <p>{player.name}</p>)}
   </div>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
   dd.set('players.one', {name: '1'});
   dd.set('players.two', {name: '2'});
   dd.set('players.three', {name: '3'});
@@ -85,7 +85,7 @@ test.serial('on Sort - if third arg is "true" then use the old default', t => {
   const div = ({on}) => <div>
     {on('players.$id', player => <p>{player.name}</p>, true)}
   </div>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
   dd.set('players.one', {name: '1'});
   dd.set('players.two', {name: '2'});
   dd.set('players.three', {name: '3'});
@@ -97,7 +97,7 @@ test.serial('on Sort - by third argument', t => {
   const div = ({on}) => <div>
     {on('players.$id', player => <p>{player.name}</p>, (a, b) => a.name.localeCompare(b.name))}
   </div>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
   dd.set('players.one', {name: '1'});
   dd.set('players.two', {name: '2'});
   dd.set('players.three', {name: '3'});
@@ -110,7 +110,7 @@ test.serial('Multiple on-siblings', t => {
     {on('b', test => <div>{test}</div>)}
     {on('a', ing => <div>{ing}</div>)}
   </div>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
   dd.set('a', 'World');
   dd.set('b', 'Hello');
   t.is(document.body.innerHTML, '<div><div>Hello</div><div>World</div></div>');
@@ -121,7 +121,7 @@ test.serial('on Sort - remove $first', t => {
   const div = ({on}) => <div>
     {on('players.$id', player => <p>{player.name}</p>)}
   </div>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
   dd.set('players.1', {name: '1'});
   dd.set('players.2', {name: '2'});
   dd.set('players.3', {name: '3'});
@@ -141,7 +141,7 @@ test.serial('on Sort - remove $first - with sort', t => {
       (a, b, aPath, bPath) => aPath.localeCompare(bPath)
     )}
   </div>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
   dd.set('players.1', {name: '1'});
   dd.set('players.2', {name: '2'});
   dd.set('players.3', {name: '3'});
@@ -161,7 +161,7 @@ test.serial('Child listener', t => {
       {on('>.name', name => name)}
     </article>)}
   </main>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
   dd.set('players.1', {name: '1'});
   dd.set('players.2', {name: '2'});
   dd.set('players.3', {name: '3'});
@@ -182,7 +182,7 @@ test.serial('Simple when', t => {
       () => true, () => <Test/>,
     ])}
   </div>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
   dd.set('test', 'yes');
   t.is(document.body.innerHTML, '<div>Yes is yes<div>Yes!</div><div>yes</div></div>');
 });
@@ -200,7 +200,7 @@ test.serial('Many whens', t => {
       'yes', <div>world</div>
     ])}
   </div>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
   dd.set('test', 'yes');
   t.is(document.body.innerHTML, '<div>yestruet === yes<div>hello</div><div>world</div></div>');
   dd.set('test', 'no');
@@ -219,7 +219,7 @@ test.serial('Quirk on + when', t => {
       'no', 'No'
     ])}
   </div>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
   dd.set('test', 'yes');
   t.is(document.body.innerHTML, '<div>yesYes</div>');
   dd.set('test', 'no');
@@ -235,7 +235,7 @@ test.serial('Simple or', t => {
   const div = ({on}) => <div>
     {on('test', t => <div>{t}</div>).or(<div>Nope</div>)}
   </div>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
   t.is(document.body.innerHTML, '<div><div>Nope</div></div>');
   dd.set('test', 'ing');
   t.is(document.body.innerHTML, '<div><div>ing</div></div>');
@@ -248,7 +248,7 @@ test.serial('Simple or', t => {
 test.serial('on empty res', t => {
   const dd = domdom();
   const div = ({text}) => <div>{text('test')}</div>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
   dd.set('test', 'Hello');
   t.is(document.body.innerHTML, '<div>Hello</div>');
   dd.set('test', '');
@@ -264,7 +264,7 @@ test.serial('Multiple child paths', t => {
       {text('>.text')}
     </div>)}
   </div>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
   dd.set('1', {text: 'ok'});
   t.pass();
 });
@@ -276,7 +276,7 @@ test.serial('Have some path with flags', t => {
     on('!+* wat', wat => e.innerHTML = wat);
     return e;
   };
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
   dd.set('wat', 'ok');
   t.is(document.body.innerHTML, '<div>ok</div>');
 });
@@ -297,7 +297,7 @@ test.serial('Listeners are cleared', t => {
       <Child></Child>
     )}
   </div>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
   dd.set('test', 'b');
   t.is(1, i);
 
@@ -322,7 +322,7 @@ test.serial('Listeners are not overcleared', t => {
       <Child></Child>
     )}
   </div>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
   dd.set('test', 'b');
   t.is(1, i);
 
@@ -351,7 +351,7 @@ test.serial('Listeners are support change of parent', t => {
       <Child></Child>
     )}
   </div>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
 
   dd.set('show', 'yesyes');
   dd.set('test', 'c');
@@ -378,7 +378,7 @@ test.serial('Listeners in when', t => {
       true, () => <Child></Child>
     ])}
   </div>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
   dd.set('test', 'b');
   t.is(1, i);
 
@@ -403,7 +403,7 @@ test.serial('Listener in when 2', t => {
       true, () => <Child></Child>
     ])}
   </div>;
-  document.body.appendChild(dd.render(div));
+  dd.append(document.body, div);
   dd.set('test', 'b');
   t.is(1, i);
 
@@ -414,4 +414,34 @@ test.serial('Listener in when 2', t => {
   dd.set('show', true);
   dd.set('test', 'd');
   t.is(2, i);
+});
+
+test.serial('Mounted', t => {
+  const dd = domdom();
+  t.plan(1);
+
+  function Hello({mounted}) {
+    mounted(() => t.pass());
+    return <div></div>;
+  }
+
+  const div = () => <div><Hello></Hello></div>
+  dd.append(document.body, div);
+});
+
+test.serial('Mounted on/off', t => {
+  const dd = domdom();
+  t.plan(2);
+
+  function Hello({mounted}) {
+    mounted(() => t.pass());
+    return <div></div>;
+  }
+
+  const div = ({on}) => <div>{on('test', () => <Hello></Hello>)}</div>
+  dd.append(document.body, div);
+
+  dd.set('test', true);
+  dd.unset('test');
+  dd.set('test', true);
 });

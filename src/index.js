@@ -211,6 +211,9 @@ export default (data = Data()) => {
         } else {
           element.appendChild(toAdd);
         }
+        if (element.isMounted && toAdd.mounted) {
+          toAdd.mounted();
+        }
         const slot = (path && slots[index]) || {};
         if (path) {
           slot[path] = toAdd;
@@ -321,6 +324,15 @@ export default (data = Data()) => {
       }
 
       element.destroy = destroy;
+      element.mounted = () => {
+        if (element.isMounted) return;
+        element.isMounted = true;
+        for (let mounted of this.mounteds) {
+          mounted();
+        }
+        this.mounteds = [];
+        eachChild(child => child.mounted());
+      };
       element.onPath = (path) => {
         eachChild(child => {
           child.onPath(path);
@@ -329,12 +341,6 @@ export default (data = Data()) => {
         for (let hodor of bounced) {
           hodor.bounce(path);
         }
-        if (!this.mountedDone) {
-          for (let mounted of this.mounteds) {
-            mounted();
-          }
-        }
-        this.mountedDone = true;
       };
       return element;
     }
@@ -346,8 +352,10 @@ export default (data = Data()) => {
   }
 
   return {
-    render(template) {
-      return React.createElement(template);
+    append(parent, template) {
+      const element = React.createElement(template);
+      parent.appendChild(element);
+      element.mounted();
     },
     ...data
   }
