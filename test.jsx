@@ -480,3 +480,20 @@ test.serial('Do not remove listener on same level', t => {
   dd.set('hello', 'there');
   t.is(document.body.innerHTML, '<div>there</div>');
 });
+
+test.serial('Whole objects should be populated', t => {
+  const dd = domdom();
+
+  const div = ({ on }) => <div>
+    {on('hello.world', world => <div>{world.test}</div>)}
+  </div>;
+  dd.append(document.body, div);
+
+  dd.set('hello', {
+    world: {
+      test: ':)'
+    }
+  });
+
+  t.is(document.body.innerHTML, '<div><div>:)</div></div>');
+});
