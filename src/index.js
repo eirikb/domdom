@@ -1,132 +1,131 @@
 import Data from '@eirikb/data';
-import {isPlainObject} from '@eirikb/data/src/common';
+import { isPlainObject } from '@eirikb/data/src/common';
+
+function Context(data, tagName, props) {
+  this.listeners = [];
+  this.mounteds = [];
+
+  const options = {
+    input: (props || {})['dd-input'],
+    on: (path, listener, sort) => on(path, listener, sort),
+    mounted: (cb) => {
+      this.mounteds.push(cb);
+    },
+    text: path => on(path, res => res),
+    when: (path, options) => {
+      if (!Array.isArray(options)) {
+        throw new Error('Second arguments must be an array');
+      }
+      return on(path, (...args) => {
+        const res = args[0];
+        const result = [];
+        for (let i = 0; i < options.length; i += 2) {
+          const cond = options[i];
+          const listener = options[i + 1];
+          let pass = false;
+          if (typeof cond === 'function') {
+            pass = cond(res, args);
+          } else {
+            pass = cond === res;
+          }
+          if (pass) {
+            if (typeof listener === 'function') {
+              result.push(listener(...args));
+            } else {
+              result.push(listener);
+            }
+          } else {
+            result.push(null);
+          }
+        }
+        return result;
+      });
+    },
+    unset: data.unset,
+    set: data.set,
+    get: data.get,
+    trigger: data.trigger
+  };
+
+  Object.entries(props || {})
+    .filter(([key]) => key.match(/^dd-input-/))
+    .forEach(([key, value]) =>
+      options[key.split('-').slice(2).join('')] = value
+    );
+
+  const on = (path, listener, sort) => {
+    const listeners = this.listeners;
+
+    const hasFlags = path.match(/ /);
+    if (hasFlags) {
+      listeners.push(data.on(path, listener));
+      return;
+    }
+
+    const hodor = {
+      listeners,
+      path,
+      toAdd: [],
+      isHodor: true,
+      or: (or) => {
+        hodor.orValue = or;
+        const hasValue = data.get(path);
+        if (!hasValue) {
+          hodor.toAdd.push({ res: or, path });
+        }
+        return hodor;
+      }
+    };
+
+    const listen = (path) => {
+      listeners.push(data.on('!+* ' + path, (...args) => {
+        const path = args[1].path;
+        const res = listener(...args);
+        hodor.toAdd.push({ res, path });
+        if (typeof res !== 'undefined' && hodor.add) {
+          hodor.add({ res, path, sort });
+        }
+      }));
+      listeners.push(data.on('- ' + path, (...args) => {
+        const path = args[1].path;
+        if (hodor.remove) {
+          hodor.remove(path);
+        }
+        if (hodor.orValue && hodor.add) {
+          hodor.add({ res: hodor.orValue, path, sort });
+        }
+      }));
+      return hodor;
+    };
+
+    if (path.match(/^>\./)) {
+      hodor.bounce = (parentPath) => {
+        listen(parentPath + path.slice(1));
+      };
+      return hodor;
+    }
+
+    listen(path);
+    return hodor;
+  };
+
+  const res = tagName(options);
+  res.context = this;
+  return res;
+}
 
 export default (data = Data()) => {
   const React = {
     createElement(tagName, props, ...children) {
       if (typeof tagName === 'function') {
-        this.listeners = [];
-        this.mounteds = [];
-        const onA = on.bind(this);
-        const mountedA = mounted.bind(this);
-
-        const options = {
-          input: (props || {})['dd-input'],
-          on: onA,
-          mounted: mountedA,
-          text: path => onA(path, res => res),
-          when: (path, options) => {
-            if (!Array.isArray(options)) {
-              throw new Error('Second arguments must be an array');
-            }
-            return onA(path, (...args) => {
-              const res = args[0];
-              const result = [];
-              for (let i = 0; i < options.length; i += 2) {
-                const cond = options[i];
-                const listener = options[i + 1];
-                let pass = false;
-                if (typeof cond === 'function') {
-                  pass = cond(res, args);
-                } else {
-                  pass = cond === res;
-                }
-                if (pass) {
-                  if (typeof listener === 'function') {
-                    result.push(listener(...args));
-                  } else {
-                    result.push(listener);
-                  }
-                } else {
-                  result.push(null);
-                }
-              }
-              return result;
-            });
-          },
-          unset: data.unset,
-          set: data.set,
-          get: data.get,
-          trigger: data.trigger
-        };
-
-        Object.entries(props || {})
-          .filter(([key]) => key.match(/^dd-input-/))
-          .forEach(([key, value]) =>
-            options[key.split('-').slice(2).join('')] = value
-          );
-
-        const res = tagName(options);
-        res.listeners = this.listeners;
-        return res;
+        return new Context(data, tagName, props);
       }
 
       const slots = [];
       const hodors = [];
       const element = document.createElement(tagName);
-      element.listeners = [];
 
-      function mounted(cb) {
-        this.mounteds.push(cb);
-      }
-
-      function on(path, listener, sort) {
-        const listeners = this.listeners;
-
-        const hasFlags = path.match(/ /);
-        if (hasFlags) {
-          listeners.push(data.on(path, listener));
-          return;
-        }
-
-        const hodor = {
-          listeners,
-          path,
-          toAdd: [],
-          isHodor: true,
-          or: (or) => {
-            hodor.orValue = or;
-            const hasValue = data.get(path);
-            if (!hasValue) {
-              hodor.toAdd.push({res: or, path});
-            }
-            return hodor;
-          }
-        };
-
-        function listen(path) {
-          listeners.push(data.on('!+* ' + path, (...args) => {
-            const path = args[1].path;
-            const res = listener(...args);
-            hodor.toAdd.push({res, path});
-            if (typeof res !== 'undefined' && hodor.add) {
-              hodor.add({res, path, sort});
-            }
-          }));
-          listeners.push(data.on('- ' + path, (...args) => {
-            const path = args[1].path;
-            if (hodor.remove) {
-              hodor.remove(path);
-            }
-            if (hodor.orValue && hodor.add) {
-              hodor.add({res: hodor.orValue, path, sort});
-            }
-          }));
-          return hodor;
-        }
-
-        if (path.match(/^>\./)) {
-          hodor.bounce = (parentPath) => {
-            listen(parentPath + path.slice(1));
-          };
-          return hodor;
-        }
-
-        listen(path);
-        return hodor;
-      }
-
-      function eachChild(cb) {
+      const eachChild = (cb) => {
         for (let slot of slots) {
           if (slot) {
             if (slot.destroy) {
@@ -139,18 +138,19 @@ export default (data = Data()) => {
             }
           }
         }
-      }
+      };
 
-      function destroy() {
+      const destroy = () => {
         eachChild(child => {
           child.destroy();
         });
-        if (element && element.listeners) {
-          data.off(element.listeners.join(' '));
+        const listeners = ((element || {}).context || {}).listeners || [];
+        if (listeners.length > 0) {
+          data.off(listeners.join(' '));
         }
-      }
+      };
 
-      function appendChild(index, child, path, sort) {
+      const appendChild = (index, child, path, sort) => {
         if (Array.isArray(child)) {
           child.forEach((child, i) => {
             appendChild(index, child, (path || '') + i, sort);
@@ -224,9 +224,9 @@ export default (data = Data()) => {
         } else {
           slots[index] = toAdd;
         }
-      }
+      };
 
-      function removeChild(index, path, child) {
+      const removeChild = (index, path, child) => {
         let slot = slots[index];
         if (slot && path) {
           const pathSlot = slot[path];
@@ -258,9 +258,9 @@ export default (data = Data()) => {
           delete slots[index];
         }
         return true;
-      }
+      };
 
-      function setElementValue(key, value) {
+      const setElementValue = (key, value) => {
         if (value && value.then) {
           value.then(res => setElementValue(key, res));
         } else {
@@ -270,7 +270,7 @@ export default (data = Data()) => {
             element[key] = value;
           }
         }
-      }
+      };
 
       let counter = 0;
       for (let child of [].concat(...children)) {
@@ -278,7 +278,7 @@ export default (data = Data()) => {
         if (typeof child === 'undefined') {
         } else if (child.isHodor) {
           hodors.push(child);
-          child.add = ({res, path, sort}) => {
+          child.add = ({ res, path, sort }) => {
             appendChild(index, res, path, sort);
             if (res.onPath) {
               res.onPath(path);
@@ -287,7 +287,7 @@ export default (data = Data()) => {
           child.remove = (path) => {
             removeChild(index, path);
           };
-          for (let {res, path} of child.toAdd) {
+          for (let { res, path } of child.toAdd) {
             appendChild(index, res, path);
           }
         } else {
@@ -327,10 +327,13 @@ export default (data = Data()) => {
       element.mounted = () => {
         if (element.isMounted) return;
         element.isMounted = true;
-        for (let mounted of this.mounteds) {
-          mounted();
+        const context = element.context;
+        if (context) {
+          for (let mounted of context.mounteds) {
+            mounted();
+          }
+          context.mounteds = [];
         }
-        this.mounteds = [];
         eachChild(child => child.mounted());
       };
       element.onPath = (path) => {

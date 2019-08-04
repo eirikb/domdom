@@ -157,7 +157,7 @@ test.serial('on Sort - remove $first - with sort', t => {
 test.serial('Child listener', t => {
   const dd = domdom();
   const div = ({ on }) => <main>
-    {on('players.$id', player => <article>
+    {on('players.$id', () => <article>
       {on('>.name', name => name)}
     </article>)}
   </main>;
@@ -272,7 +272,7 @@ test.serial('Multiple child paths', t => {
 test.serial('Have some path with flags', t => {
   const dd = domdom();
   const div = ({ on }) => {
-    const e = <div></div>;
+    const e = <div/>;
     on('!+* wat', wat => e.innerHTML = wat);
     return e;
   };
@@ -287,14 +287,14 @@ test.serial('Listeners are cleared', t => {
 
   function Child({ on }) {
     on('* test', () => i++);
-    return <div></div>;
+    return <div/>;
   }
 
   dd.set('test', 'a');
   dd.set('show', true);
   const div = ({ on }) => <div>
     {on('show', () =>
-      <Child></Child>
+      <Child/>
     )}
   </div>;
   dd.append(document.body, div);
@@ -312,14 +312,14 @@ test.serial('Listeners are not overcleared', t => {
 
   function Child({ on }) {
     on('* test', () => i++);
-    return <div></div>;
+    return <div/>;
   }
 
   dd.set('test', 'a');
   dd.set('show', 'yes');
   const div = ({ on }) => <div>
     {on('show', () =>
-      <Child></Child>
+      <Child/>
     )}
   </div>;
   dd.append(document.body, div);
@@ -341,14 +341,14 @@ test.serial('Listeners are support change of parent', t => {
 
   function Child({ on }) {
     on('* test', () => i++);
-    return <p></p>;
+    return <p/>;
   }
 
   dd.set('test', 'a');
   dd.set('show', 'yes');
   const div = ({ on }) => <div>
     {on('show', () =>
-      <Child></Child>
+      <Child/>
     )}
   </div>;
   dd.append(document.body, div);
@@ -368,14 +368,14 @@ test.serial('Listeners in when', t => {
 
   function Child({ on }) {
     on('* test', () => i++);
-    return <div></div>;
+    return <div/>;
   }
 
   dd.set('test', 'a');
   dd.set('show', true);
   const div = ({ when }) => <div>
     {when('show', [
-      true, () => <Child></Child>
+      true, () => <Child/>
     ])}
   </div>;
   dd.append(document.body, div);
@@ -393,14 +393,14 @@ test.serial('Listener in when 2', t => {
 
   function Child({ on }) {
     on('* test', () => i++);
-    return <div></div>;
+    return <div/>;
   }
 
   dd.set('test', 'a');
   dd.set('show', true);
   const div = ({ when }) => <div>
     {when('show', [
-      true, () => <Child></Child>
+      true, () => <Child/>
     ])}
   </div>;
   dd.append(document.body, div);
@@ -422,10 +422,10 @@ test.serial('Mounted', t => {
 
   function Hello({ mounted }) {
     mounted(() => t.pass());
-    return <div></div>;
+    return <div/>;
   }
 
-  const div = () => <div><Hello></Hello></div>
+  const div = () => <div><Hello/></div>;
   dd.append(document.body, div);
 });
 
@@ -435,10 +435,10 @@ test.serial('Mounted on/off', t => {
 
   function Hello({ mounted }) {
     mounted(() => t.pass());
-    return <div></div>;
+    return <div/>;
   }
 
-  const div = ({ on }) => <div>{on('test', () => <Hello></Hello>)}</div>
+  const div = ({ on }) => <div>{on('test', () => <Hello/>)}</div>;
   dd.append(document.body, div);
 
   dd.set('test', true);
@@ -449,10 +449,6 @@ test.serial('Mounted on/off', t => {
 test.serial('When with initial false value', t => {
   const dd = domdom();
 
-  function Test({ on }) {
-    return <div>{on('test', t => t)}</div>;
-  }
-
   const div = ({ when }) => <div>
     {when('test', [
       false, () => <div>Hello</div>,
@@ -462,4 +458,25 @@ test.serial('When with initial false value', t => {
   dd.set('test', false);
   dd.append(document.body, div);
   t.is(document.body.innerHTML, '<div><div>Hello</div></div>');
+});
+
+test.serial('Do not remove listener on same level', t => {
+  const dd = domdom();
+
+  function Test() {
+    return <p>test</p>;
+  }
+
+  const div = ({ on, text }) => <div>
+    {on('test', () => <Test/>)}
+    {text('hello')}
+  </div>;
+  dd.set('test', true);
+  dd.set('hello', 'world');
+  dd.append(document.body, div);
+  t.is(document.body.innerHTML, '<div><p>test</p>world</div>');
+  dd.set('test', false);
+  dd.unset('test');
+  dd.set('hello', 'there');
+  t.is(document.body.innerHTML, '<div>there</div>');
 });
