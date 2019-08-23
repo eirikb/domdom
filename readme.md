@@ -24,7 +24,7 @@ import domdom from '@eirikb/domdom'
 
 const dd = domdom()
 
-const view = ({on}) => <div>Hello, {on('a', a => a)}</div>
+const view = ({ on }) => <div>Hello, {on('a', a => a)}</div>
 
 dd.append(document.body, view)
 
@@ -72,10 +72,10 @@ element.style.color = 'red'
 By creating a function you create a component.  
 
 ```jsx harmony
-function MyComponent({on}) {
+function MyComponent({ on }) {
   return <ul>
-    {on('players.$id.name', name=> <li>Player {name}</li>}
-</ul>
+    {on('players.$id.name', name => <li>Player {name}</li>)}
+  </ul>
 }
 ```
 
@@ -87,10 +87,9 @@ Note that `on` triggers on change in accordance with `data.on`, and it's not "tr
 for elements to be removed one must use `dd.unset`.
 
 ```jsx harmony
-const view = ({on}) => <ul>
+const view = ({ on }) => <ul>
   {on('players.$id.name', name => <li>Player {name}</li>)}
 </ul>
-}
 ```
 
 ### when(path, oddEvenArrayOfCheckAndResult)
@@ -98,7 +97,7 @@ const view = ({on}) => <ul>
 Heard of pattern matching? This isn't it
 
 ```jsx harmony
-const view = ({when}) => <div>
+const view = ({ when }) => <div>
   {when('route', [
     'home', <div>Home!</div>,
     'away', () => <div>Away!</div>,
@@ -114,7 +113,7 @@ Neither `on` or `when` will trigger unless there is a value on the path, in orde
 until some value is set `or` must be used.
 
 ```jsx harmony
-const view = ( {when}) => <div>
+const view = ({ when }) => <div>
   {when('routing', [
     'home', <div>Home!</div>
   ]).or(<div>Loading app in the fastest possible way...</div>)}
