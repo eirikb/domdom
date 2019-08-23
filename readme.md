@@ -28,7 +28,7 @@ const view = ({on}) => <div>Hello, {on('a', a => a)}</div>
 
 dd.append(document.body, view)
 
-dd.set('a', 'world!');
+dd.set('a', 'world!')
 ```
 
 Run
@@ -43,8 +43,8 @@ The domdom object (from `domdom()`, called `dd` above) extends from [@eirikb/dat
 All data functions are available, 
 `on` `off` `get` `set` `unset` `trigger` `alias` `unalias`, so it's possible to do things like:
 ```javascript
-dd.on('!+* a', a => console.log(a));
-dd.set('a', 'yes');
+dd.on('!+* a', a => console.log(a))
+dd.set('a', 'yes')
 ```
 
 The only function in addition is `append`, which is for appending a view to a parent element.
