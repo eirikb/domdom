@@ -510,6 +510,5 @@ test.serial('Update array', t => {
   t.is(document.body.innerHTML, '<div><div>["hello","world"]</div></div>');
 
   dd.set('path', ['hello']);
-  console.log(document.body.innerHTML);
   t.is(document.body.innerHTML, '<div><div>["hello"]</div></div>');
 });
