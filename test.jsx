@@ -258,15 +258,15 @@ test.serial('on empty res', t => {
 test.serial('Multiple child paths', t => {
   const dd = domdom();
   const div = ({ on, text }) => <div>
-    {on('$id', () => <div>
+    {on('a', () => <div>
       {text('>.text')}
       test
       {text('>.text')}
     </div>)}
   </div>;
   dd.append(document.body, div);
-  dd.set('1', { text: 'ok' });
-  t.pass();
+  dd.set('a', { text: 'ok' });
+  t.is(document.body.innerHTML, '<div><div>oktestok</div></div>');
 });
 
 test.serial('Have some path with flags', t => {
