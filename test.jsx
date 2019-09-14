@@ -497,3 +497,19 @@ test.serial('Whole objects should be populated', t => {
 
   t.is(document.body.innerHTML, '<div><div>:)</div></div>');
 });
+
+test.serial('Update array', t => {
+  const dd = domdom();
+
+  const div = ({ on }) => <div>
+    {on('path', path => <div>{JSON.stringify(path)}</div>)}
+  </div>;
+  dd.append(document.body, div);
+
+  dd.set('path', ['hello', 'world']);
+  t.is(document.body.innerHTML, '<div><div>["hello","world"]</div></div>');
+
+  dd.set('path', ['hello']);
+  console.log(document.body.innerHTML);
+  t.is(document.body.innerHTML, '<div><div>["hello"]</div></div>');
+});
