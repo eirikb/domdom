@@ -512,3 +512,17 @@ test.serial('Update array', t => {
   dd.set('path', ['hello']);
   t.is(document.body.innerHTML, '<div><div>["hello"]</div></div>');
 });
+
+test.serial('Update array without element', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    {on('path', p => p)}
+  </div>;
+
+  dd.append(document.body, view);
+  dd.set('path', ['hello', 'world']);
+  t.is(document.body.innerHTML, '<div>helloworld</div>');
+
+  dd.set('path', ['hello']);
+  t.is(document.body.innerHTML, '<div>hello</div>');
+});

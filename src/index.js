@@ -38,8 +38,23 @@ export default (data = Data()) => {
         }
       };
 
+      const removeArray = (index, path, startAt) => {
+        if (!slots[index]) return;
+
+        let child;
+        do {
+          let pathWithIndex = path + startAt;
+          child = slots[index][pathWithIndex];
+          if (child) {
+            removeChild(index, pathWithIndex, child);
+          }
+          startAt++;
+        } while (child);
+      };
+
       const appendChild = (index, child, path, sort) => {
         if (Array.isArray(child)) {
+          removeArray(index, path, child.length);
           child.forEach((child, i) => {
             appendChild(index, child, (path || '') + i, sort);
           });
