@@ -3,7 +3,6 @@ export default function Context(data, tagName, props) {
   this.mounteds = [];
 
   const options = {
-    input: (props || {})['dd-input'],
     on: (path, listener, sort) => on(path, listener, sort),
     mounted: (cb) => {
       this.mounteds.push(cb);
@@ -44,11 +43,9 @@ export default function Context(data, tagName, props) {
     trigger: data.trigger
   };
 
-  Object.entries(props || {})
-    .filter(([key]) => key.match(/^dd-input-/))
-    .forEach(([key, value]) =>
-      options[key.split('-').slice(2).join('')] = value
-    );
+  for (let [key, value] of Object.entries(props || {})) {
+    options[key] = value;
+  }
 
   const on = (path, listener, sort) => {
     const listeners = this.listeners;
