@@ -40,16 +40,15 @@ export default (data = Data()) => {
 
       const removeArray = (index, path, startAt) => {
         if (!slots[index]) return;
-
-        let child;
         do {
           let pathWithIndex = path + startAt;
-          child = slots[index][pathWithIndex];
-          if (child) {
-            removeChild(index, pathWithIndex, child);
+          if (slots[index][pathWithIndex]) {
+            removeChild(index, pathWithIndex);
+          } else {
+            break;
           }
           startAt++;
-        } while (child);
+        } while (true);
       };
 
       const appendChild = (index, child, path, sort) => {
