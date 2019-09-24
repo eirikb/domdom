@@ -6,7 +6,7 @@ export default (data = Data()) => {
   const React = {
     createElement(tagName, props, ...children) {
       if (typeof tagName === 'function') {
-        return new Context(data, tagName, props);
+        return new Context(data, tagName, props, children);
       }
 
       const slots = [];

@@ -526,3 +526,19 @@ test.serial('Update array without element', t => {
   dd.set('path', ['hello']);
   t.is(document.body.innerHTML, '<div>hello</div>');
 });
+
+test.serial('Containment', t => {
+  const dd = domdom();
+  const Button = ({ children }) => <button>{children}</button>;
+
+  dd.append(document.body, () => <Button>Test</Button>);
+  t.is(document.body.innerHTML, '<button>Test</button>');
+
+  document.body.innerHTML = '';
+  dd.append(document.body, () => <Button><span>Test</span></Button>);
+  t.is(document.body.innerHTML, '<button><span>Test</span></button>');
+
+  document.body.innerHTML = '';
+  dd.append(document.body, () => <Button><span>Test</span><i>in</i>g</Button>);
+  t.is(document.body.innerHTML, '<button><span>Test</span><i>in</i>g</button>');
+});

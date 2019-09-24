@@ -1,4 +1,4 @@
-export default function Context(data, tagName, props) {
+export default function Context(data, tagName, props, ...children) {
   this.listeners = [];
   this.mounteds = [];
 
@@ -40,7 +40,8 @@ export default function Context(data, tagName, props) {
     unset: data.unset,
     set: data.set,
     get: data.get,
-    trigger: data.trigger
+    trigger: data.trigger,
+    children
   };
 
   for (let [key, value] of Object.entries(props || {})) {
