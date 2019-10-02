@@ -542,3 +542,18 @@ test.serial('Containment', t => {
   dd.append(document.body, () => <Button><span>Test</span><i>in</i>g</Button>);
   t.is(document.body.innerHTML, '<button><span>Test</span><i>in</i>g</button>');
 });
+
+test('Rendering types', t => {
+  const dd = domdom();
+  dd.append(document.body, () => <div>
+    {'a'}
+    {1}
+    {3.6}
+    {({ hello: 'world' })}
+    {undefined}
+    {null}
+    {true}
+    {false}
+  </div>);
+  t.is(document.body.innerHTML, '<div>a13.6{"hello":"world"}truefalse</div>');
+});

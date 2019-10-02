@@ -65,7 +65,7 @@ export default (data = Data()) => {
           }
           return;
         }
-        if (!child) return;
+        if (typeof child !== 'boolean' && !child) return;
 
         let before = slots.slice(index + 1).find(slot => slot);
         if (typeof child === 'function') {
@@ -73,8 +73,12 @@ export default (data = Data()) => {
         }
 
         let toAdd = child;
-        if (typeof child === 'string') {
-          toAdd = document.createTextNode(child);
+        if (!(child instanceof HTMLElement)) {
+          if (isPlainObject(child)) {
+            toAdd = document.createTextNode(JSON.stringify(child));
+          } else {
+            toAdd = document.createTextNode(child);
+          }
         }
 
         let beforeElement;
@@ -104,7 +108,6 @@ export default (data = Data()) => {
         } else {
           checkFirst = true;
         }
-
         if (beforeElement) {
           if (checkFirst && beforeElement.$first) {
             beforeElement = beforeElement.$first;
@@ -177,7 +180,7 @@ export default (data = Data()) => {
       let counter = 0;
       for (let child of [].concat(...children)) {
         const index = counter++;
-        if (typeof child === 'undefined') {
+        if (typeof child === 'undefined' || child === null) {
         } else if (child.isHodor) {
           hodors.push(child);
           child.add = ({ res, path, sort }) => {
