@@ -51,6 +51,22 @@ export default (data = Data()) => {
         } while (true);
       };
 
+      const addHodor = (index, child) => {
+        hodors.push(child);
+        child.add = ({ res, path, sort }) => {
+          appendChild(index, res, path, sort);
+          if (res.onPath) {
+            res.onPath(path);
+          }
+        };
+        child.remove = (path) => {
+          removeChild(index, path);
+        };
+        for (let { res, path } of child.toAdd) {
+          appendChild(index, res, path);
+        }
+      };
+
       const appendChild = (index, child, path, sort) => {
         if (Array.isArray(child)) {
           removeArray(index, path, child.length);
@@ -70,6 +86,11 @@ export default (data = Data()) => {
         let before = slots.slice(index + 1).find(slot => slot);
         if (typeof child === 'function') {
           child = child();
+        }
+
+        if (child.isHodor) {
+          addHodor(index, child);
+          return;
         }
 
         let toAdd = child;
@@ -182,19 +203,7 @@ export default (data = Data()) => {
         const index = counter++;
         if (typeof child === 'undefined' || child === null) {
         } else if (child.isHodor) {
-          hodors.push(child);
-          child.add = ({ res, path, sort }) => {
-            appendChild(index, res, path, sort);
-            if (res.onPath) {
-              res.onPath(path);
-            }
-          };
-          child.remove = (path) => {
-            removeChild(index, path);
-          };
-          for (let { res, path } of child.toAdd) {
-            appendChild(index, res, path);
-          }
+          addHodor(index, child);
         } else {
           appendChild(index, child);
         }
