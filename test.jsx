@@ -543,7 +543,7 @@ test.serial('Containment', t => {
   t.is(document.body.innerHTML, '<button><span>Test</span><i>in</i>g</button>');
 });
 
-test('Rendering types', t => {
+test.serial('Rendering types', t => {
   const dd = domdom();
   dd.append(document.body, () => <div>
     {'a'}
@@ -556,4 +556,15 @@ test('Rendering types', t => {
     {false}
   </div>);
   t.is(document.body.innerHTML, '<div>a13.6{"hello":"world"}truefalse</div>');
+});
+
+test.serial('Remove or on on', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    {on('test.$id', t => t.name).or('Loading...')}
+  </div>;
+  dd.append(document.body, view);
+  t.is(document.body.innerHTML, '<div>Loading...</div>');
+  dd.set('test', { 0: { name: 'hello' } });
+  t.is(document.body.innerHTML, '<div>hello</div>');
 });

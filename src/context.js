@@ -66,7 +66,7 @@ export default function Context(data, tagName, props, ...children) {
         hodor.orValue = or;
         const hasValue = data.get(path);
         if (!hasValue) {
-          hodor.toAdd.push({ res: or, path });
+          hodor.toAdd.push({ res: or, path, isOr: true });
         }
         return hodor;
       }
@@ -76,7 +76,13 @@ export default function Context(data, tagName, props, ...children) {
       listeners.push(data.on('!+* ' + path, (...args) => {
         const path = args[1].path;
         const res = listener(...args);
-        hodor.toAdd.push({ res, path });
+
+        // Remove all 'ors'
+        hodor.toAdd
+          .filter(res => res.isOr)
+          .forEach(({ path }) => hodor.remove(path));
+
+        hodor.toAdd = [{ res, path }];
         if (typeof res !== 'undefined' && hodor.add) {
           hodor.add({ res, path, sort });
         }
