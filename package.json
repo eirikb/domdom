@@ -1,6 +1,6 @@
 {
   "name": "@eirikb/domdom",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "The proactive web framework for the unprofessional",
   "author": {
     "email": "eirikb@eirikb.no",
@@ -26,7 +26,7 @@
     "webpack-cli": "3.3.0"
   },
   "dependencies": {
-    "@eirikb/data": "1.1.1"
+    "@eirikb/data": "1.1.2"
   },
   "ava": {
     "require": [
