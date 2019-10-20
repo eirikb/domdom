@@ -1,6 +1,7 @@
 import Data from '@eirikb/data';
 import { isPlainObject } from '@eirikb/data/src/common';
 import Context from './context';
+import ddProps from './dd-props';
 
 export default (data = Data()) => {
   const React = {
@@ -138,7 +139,7 @@ export default (data = Data()) => {
           element.appendChild(toAdd);
         }
         if (element.isMounted && toAdd.mounted) {
-          toAdd.mounted();
+          toAdd.mounted(element.context);
         }
         const slot = (path && slots[index]) || {};
         if (path) {
@@ -216,18 +217,6 @@ export default (data = Data()) => {
           element.addEventListener(event, value);
         }
 
-        const model = props['dd-model'];
-        if (model) {
-          element.addEventListener('keyup', () => data.set(model, element.value));
-          element.addEventListener('input', () => {
-            const value = element.type === 'checkbox' ? element.checked : element.value;
-            data.set(model, value)
-          });
-          element.addEventListener('value', () => data.set(model, element.value));
-          element.addEventListener('checked', () => data.set(model, element.value));
-          on.bind(this)(model, (value) => element.value = value);
-        }
-
         const nonSpecialProps = Object.entries(props).filter(([key]) => !key.match(/(^dd-|on[A-Z])/));
         for (let [key, value] of nonSpecialProps) {
           if (key === 'class') {
@@ -238,17 +227,19 @@ export default (data = Data()) => {
       }
 
       element.destroy = destroy;
-      element.mounted = () => {
+      element.mounted = (parentContext) => {
         if (element.isMounted) return;
         element.isMounted = true;
-        const context = element.context;
+        const context = element.context || parentContext;
         if (context) {
           for (let mounted of context.mounteds) {
             mounted();
           }
           context.mounteds = [];
+
+          ddProps(data, context, element, props);
         }
-        eachChild(child => child.mounted());
+        eachChild(child => child.mounted(context));
       };
       element.onPath = (path) => {
         eachChild(child => {

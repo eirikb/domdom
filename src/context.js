@@ -110,6 +110,7 @@ export default function Context(data, tagName, props, ...children) {
     return hodor;
   };
 
+  this.on = options.on;
   const res = tagName(options);
   res.context = this;
   return res;
