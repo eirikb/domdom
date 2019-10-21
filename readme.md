@@ -1,9 +1,28 @@
-## domdom
-
 The proactive web framework for the unprofessional
 
 domdom is an alternative to React + Redux or Vue + Vuex, with support for routing.  
 There's no virtual dom.
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [Install](#install)
+- [Getting started](#getting-started)
+- [Recipes](#recipes)
+  - [Routing](#routing)
+  - [Login form](#login-form)
+  - [Split view and data](#split-view-and-data)
+- [API](#api)
+  - [Elements](#elements)
+  - ["Components"](#components)
+  - [Events](#events)
+  - [on(path, callback)](#onpath-callback)
+  - [when(path, oddEvenArrayOfCheckAndResult)](#whenpath-oddevenarrayofcheckandresult)
+  - [or](#or)
+  - [dd-model](#dd-model)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Install
 
@@ -11,7 +30,7 @@ There's no virtual dom.
 npm i @eirikb/domdom
 ```
 
-## Run with parcel
+## Getting started
 
 index.html
 ```html
@@ -36,8 +55,79 @@ Run
 npx parcel index.html
 ```
 
-## The domdom object
+## Recipes
 
+How to handle common tasks with domdom
+
+### Routing
+
+```jsx harmony
+const view = ({ when }) => <div>
+  {when('route', [
+    'login', <Login/>,
+    'welcome', <Welcome/>,
+  ]).or('Loading app...')}
+</div>
+
+function gotoRoute(route) {
+  window.location.hash = route
+}
+
+window.addEventListener('hashchange', () =>
+  dd.set('route', window.location.hash.slice(1))
+)
+```
+
+### Login form
+
+```jsx harmony
+function login(event) {
+  event.preventDefault()
+  fetch('/login', {
+    method: 'post',
+    body: new URLSearchParams(new FormData(event.target))
+  })
+}
+
+const view = () => <form onSubmit={login}>
+  <input name="username"/>
+  <input name="password" type="password"/>
+  <button type="submit">Login</button>
+</form>
+```
+
+### Split view and data
+
+*data.js*
+```js
+export default ({ on, set }) => {
+    on('= search', event => {
+      event.preventDefault()
+      const searchText = event.target.search.value
+      set('result', `Data for ${searchText} here...`)
+    })
+}
+```
+
+*index.jsx*
+```jsx harmony
+import data from './data'
+import domdom from '@eirikb/domdom'
+
+const dd = domdom()
+
+data(dd)
+
+const view = ({ on, trigger }) => <form onSubmit={e => trigger('search', e)}>
+  <input type="search" name="search"/>
+  <button type="submit">Search</button>
+  {on('result', _ => _)}
+</form>
+
+dd.append(document.body, view)
+```
+
+## API
 
 The domdom object (from `domdom()`, called `dd` above) extends from [@eirikb/data](https://www.npmjs.com/package/@eirikb/data).  
 All data functions are available, 
@@ -55,11 +145,7 @@ const parentElement = document.querySelector('#app')
 dd.append(parentElement, viewFunction)
 ```
 
-## Views
-
-All functions below are passed into views. All views are either elements (from jsx) or functions.
-
-### Elements from jsx
+### Elements 
 
 All elements created with jsx, in the context of domdom, are elements which can be instantly referenced.
 ```jsx harmony
@@ -79,7 +165,17 @@ function MyComponent({ on }) {
 }
 ```
 
-### on(path, callback, [sort])
+### Events
+
+All attributes starting with 'on' are added to `addEventListener` on the element.
+
+```jsx harmony
+function MyButton({trigger}) {
+  return <button onClick={() => trigger('Clicked!')}>Click me!</button>
+}
+```
+
+### on(path, callback)
 
 Similar to `data.on`, except without flags.
 
@@ -118,4 +214,29 @@ const view = ({ when }) => <div>
     'home', <div>Home!</div>
   ]).or(<div>Loading app in the fastest possible way...</div>)}
 </div>
+```
+
+### dd-model
+
+This is a convenience hack for putting data into and out of a data path from an input.  
+Similar to v-model and ng-model.  
+Suggest not using this if possible, using forms directly like in recipes is much better.
+
+
+```jsx harmony
+dd.on('= search', event => {
+  event.preventDefault()
+  dd.set('result', `Data for ${dd.get('text')} here...`)
+})
+
+const view = ({ text, when, on, trigger }) => <form onSubmit={e => trigger('search', e)}>
+  <input type="search" dd-model="text"/>
+  <input type="checkbox" dd-model="more"/>
+  {when('more', [
+    true, 'This is more'
+  ])}
+  Current text: {text('text')}
+  <button type="submit">Search</button>
+  {on('result', _ => _)}
+</form>
 ```
