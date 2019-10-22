@@ -16,6 +16,7 @@ There's no virtual dom.
 - [API](#api)
   - [Elements](#elements)
   - ["Components"](#components)
+    - [Children / Composition](#children--composition)
   - [Events](#events)
   - [on(path, callback)](#onpath-callback)
   - [when(path, oddEvenArrayOfCheckAndResult)](#whenpath-oddevenarrayofcheckandresult)
@@ -163,6 +164,23 @@ function MyComponent({ on }) {
     {on('players.$id.name', name => <li>Player {name}</li>)}
   </ul>
 }
+```
+
+
+#### Children / Composition
+
+Content of a component is passed as `children`.
+
+```jsx harmony
+function Button({ children }) {
+  return <button>{children}</button>
+}
+
+const view = () => <div>
+  <Button>
+    <b>Hello</b>
+  </Button>
+</div>
 ```
 
 ### Events
