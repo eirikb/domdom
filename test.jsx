@@ -32,9 +32,9 @@ test.serial('Double on', t => {
   t.is(document.body.innerHTML, '<div><div>hello<span>eh world</span></div></div>');
 });
 
-test.serial('text', t => {
+test.serial('on without callback', t => {
   const dd = domdom();
-  const div = ({ text }) => <div>{text('test')}</div>;
+  const div = ({ on }) => <div>{on('test')}</div>;
   dd.append(document.body, div);
 
   dd.set('test', 'hello');
@@ -247,7 +247,7 @@ test.serial('Simple or', t => {
 
 test.serial('on empty res', t => {
   const dd = domdom();
-  const div = ({ text }) => <div>{text('test')}</div>;
+  const div = ({ on }) => <div>{on('test')}</div>;
   dd.append(document.body, div);
   dd.set('test', 'Hello');
   t.is(document.body.innerHTML, '<div>Hello</div>');
@@ -257,11 +257,11 @@ test.serial('on empty res', t => {
 
 test.serial('Multiple child paths', t => {
   const dd = domdom();
-  const div = ({ on, text }) => <div>
+  const div = ({ on }) => <div>
     {on('a', () => <div>
-      {text('>.text')}
+      {on('>.text')}
       test
-      {text('>.text')}
+      {on('>.text')}
     </div>)}
   </div>;
   dd.append(document.body, div);
@@ -467,9 +467,9 @@ test.serial('Do not remove listener on same level', t => {
     return <p>test</p>;
   }
 
-  const div = ({ on, text }) => <div>
+  const div = ({ on }) => <div>
     {on('test', () => <Test/>)}
-    {text('hello')}
+    {on('hello')}
   </div>;
   dd.set('test', true);
   dd.set('hello', 'world');

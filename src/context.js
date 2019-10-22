@@ -7,7 +7,6 @@ export default function Context(data, tagName, props, ...children) {
     mounted: (cb) => {
       this.mounteds.push(cb);
     },
-    text: path => on(path, res => res),
     when: (path, options) => {
       if (!Array.isArray(options)) {
         throw new Error('Second arguments must be an array');
@@ -49,6 +48,9 @@ export default function Context(data, tagName, props, ...children) {
   }
 
   const on = (path, listener, sort) => {
+    if (!listener) {
+      listener = _ => _;
+    }
     const listeners = this.listeners;
 
     const hasFlags = path.match(/ /);

@@ -200,9 +200,13 @@ Similar to `data.on`, except without flags.
 Note that `on` triggers on change in accordance with `data.on`, and it's not "truey"/"falsey", in order
 for elements to be removed one must use `dd.unset`.
 
+`callback` is optional, if omitted the result will be returned as-is,  
+either as string or JSON of object.
+
 ```jsx harmony
 const view = ({ on }) => <ul>
   {on('players.$id.name', name => <li>Player {name}</li>)}
+  {on('info')}
 </ul>
 ```
 
@@ -247,13 +251,13 @@ dd.on('= search', event => {
   dd.set('result', `Data for ${dd.get('text')} here...`)
 })
 
-const view = ({ text, when, on, trigger }) => <form onSubmit={e => trigger('search', e)}>
+const view = ({ when, on, trigger }) => <form onSubmit={e => trigger('search', e)}>
   <input type="search" dd-model="text"/>
   <input type="checkbox" dd-model="more"/>
   {when('more', [
     true, 'This is more'
   ])}
-  Current text: {text('text')}
+  Current text: {on('text')}
   <button type="submit">Search</button>
   {on('result', _ => _)}
 </form>
