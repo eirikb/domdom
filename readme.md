@@ -13,6 +13,7 @@ There's no virtual dom.
   - [Routing](#routing)
   - [Login form](#login-form)
   - [Split view and data](#split-view-and-data)
+  - [Animation (garbage collection)](#animation-garbage-collection)
 - [API](#api)
   - [Elements](#elements)
   - ["Components"](#components)
@@ -126,6 +127,35 @@ const view = ({ on, trigger }) => <form onSubmit={e => trigger('search', e)}>
 </form>
 
 dd.append(document.body, view)
+```
+
+### Animation (garbage collection)
+
+At writing moment domdom doesn't have any unmount callback.  
+I'm not a big fan of destructors, unmounted, dispose or similar.  
+This might seem silly, and it might not be obvious how to use say `setInterval`, 
+without this preventing the element from ever being cleaned up by garbage collector.  
+The idea is to use `dd` for such things, as these listeners are automatically cleaned up.
+
+```jsx harmony
+const view = ({ on, get, set }) => {
+  const img = <img src="https://i.imgur.com/rsD0RUq.jpg"/>
+
+  on('tick', time => img.style.transform = `rotate(${time % 180}deg)`)
+
+  return <div>
+    <button onClick={() => set('run', !get('run'))}>Start/Stop</button>
+    {img}
+  </div>
+}
+
+(function loop(time) {
+  if (dd.get('run')) {
+    dd.set('tick', time)
+  }
+  requestAnimationFrame(loop)
+})(0)
+
 ```
 
 ## API
