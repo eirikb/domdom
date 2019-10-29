@@ -568,3 +568,23 @@ test.serial('Remove or on on', t => {
   dd.set('test', { 0: { name: 'hello' } });
   t.is(document.body.innerHTML, '<div>hello</div>');
 });
+
+test.serial('on on attributes', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    <button disabled={on('canClick', res => !res).or(true)}/>
+    <button disabled={on('canNotClick').or(true)}/>
+  </div>;
+
+  dd.append(document.body, view);
+
+  t.is(document.body.innerHTML, '<div><button disabled=""></button><button disabled=""></button></div>');
+
+  dd.set('canClick', true);
+  dd.set('canNotClick', false);
+  t.is(document.body.innerHTML, '<div><button></button><button></button></div>');
+
+  dd.set('canClick', false);
+  dd.set('canNotClick', true);
+  t.is(document.body.innerHTML, '<div><button disabled=""></button><button disabled=""></button></div>');
+});

@@ -24,5 +24,18 @@ export default (data, context, element, props) => {
       onChange(value => data.set(model, value));
       context.on(model, setValue);
     }
+    for (let [key, value] of Object.entries(props)) {
+      if (value && value.isHodor) {
+        element[key] = value.or();
+        value.remove = () => 0;
+        value.add = ({ res }) => {
+          element[key] = res;
+        };
+        const first = value.toAdd[0];
+        if (first) {
+          element[key] = first.res;
+        }
+      }
+    }
   }
 }

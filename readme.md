@@ -292,3 +292,16 @@ const view = ({ when, on, trigger }) => <form onSubmit={e => trigger('search', e
   {on('result', _ => _)}
 </form>
 ```
+
+### Attributes
+
+It's possible to use `on` directly on attributes.  
+It might feel and look a bit quirky, but there it is.
+
+```jsx harmony
+  const view = ({ on, set, get }) => <div>
+    <button onClick={() => set('toggle', !get('toggle'))}>Toggle</button>
+    <button disabled={on('toggle').or(true)}>A</button>
+    <button disabled={on('toggle', res => !res)}>B</button>
+  </div>;
+```
