@@ -222,7 +222,9 @@ export default (data = Data()) => {
           if (key === 'class') {
             key = 'className';
           }
-          setElementValue(key, value);
+          if (!(value && value.isHodor)) {
+            setElementValue(key, value);
+          }
         }
       }
 
