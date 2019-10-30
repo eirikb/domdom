@@ -26,14 +26,19 @@ export default (data, context, element, props) => {
     }
     for (let [key, value] of Object.entries(props)) {
       if (value && value.isHodor) {
-        element[key] = value.or();
+        function setValue(value) {
+          if (typeof element[key] === 'object') {
+            Object.assign(element[key], value);
+          } else {
+            element[key] = value;
+          }
+        }
+
         value.remove = () => 0;
-        value.add = ({ res }) => {
-          element[key] = res;
-        };
+        value.add = ({ res }) => setValue(res);
         const first = value.toAdd[0];
         if (first) {
-          element[key] = first.res;
+          setValue(first.res);
         }
       }
     }

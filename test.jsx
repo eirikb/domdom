@@ -588,3 +588,14 @@ test.serial('on on attributes', t => {
   dd.set('canNotClick', true);
   t.is(document.body.innerHTML, '<div><button disabled=""></button><button disabled=""></button></div>');
 });
+
+test.serial('on on object attributes', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    <p style={on('style')}>Test</p>
+  </div>;
+
+  dd.append(document.body, view);
+  dd.set('style', { color: 'red' });
+  t.is(document.body.innerHTML, '<div><p style="color: red;">Test</p></div>');
+});
