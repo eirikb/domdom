@@ -1,7 +1,10 @@
 import Data from '@eirikb/data';
-import { isPlainObject } from '@eirikb/data/src/common';
 import Context from './context';
 import ddProps from './dd-props';
+
+function isProbablyPlainObject(obj) {
+  return typeof obj === 'object' && obj !== null && obj.constructor === Object;
+}
 
 export default (data = Data()) => {
   const React = {
@@ -43,7 +46,7 @@ export default (data = Data()) => {
         if (!slots[index]) return;
         do {
           let pathWithIndex = path + startAt;
-          if (slots[index][pathWithIndex]) {
+          if (slots[index] && slots[index][pathWithIndex]) {
             removeChild(index, pathWithIndex);
           } else {
             break;
@@ -96,7 +99,7 @@ export default (data = Data()) => {
 
         let toAdd = child;
         if (!(child instanceof HTMLElement)) {
-          if (isPlainObject(child)) {
+          if (isProbablyPlainObject(child)) {
             toAdd = document.createTextNode(JSON.stringify(child));
           } else {
             toAdd = document.createTextNode(child);
@@ -191,7 +194,7 @@ export default (data = Data()) => {
         if (value && value.then) {
           value.then(res => setElementValue(key, res));
         } else {
-          if (isPlainObject(value) && element[key]) {
+          if (isProbablyPlainObject(value) && element[key]) {
             Object.assign(element[key], value);
           } else {
             element[key] = value;
