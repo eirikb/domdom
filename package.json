@@ -9,40 +9,18 @@
   "license": "MIT",
   "scripts": {
     "build": "webpack",
-    "test": "ava",
     "prepublish": "webpack"
   },
   "module": "src/index.js",
   "main": "lib/domdom.js",
   "devDependencies": {
-    "@babel/core": "7.4.5",
-    "@babel/polyfill": "7.4.4",
-    "@babel/preset-env": "7.4.5",
-    "@babel/preset-react": "7.0.0",
-    "@babel/register": "7.4.4",
-    "ava": "1.4.1",
-    "browser-env": "3.2.6",
-    "webpack": "4.30.0",
-    "webpack-cli": "3.3.0"
+    "@babel/core": "7.7.5",
+    "@babel/preset-env": "7.7.6",
+    "webpack": "4.41.2",
+    "webpack-cli": "3.3.10",
+    "babel-loader": "8.0.6"
   },
   "dependencies": {
     "@eirikb/data": "2.0.3"
-  },
-  "ava": {
-    "require": [
-      "@babel/register",
-      "@babel/polyfill"
-    ],
-    "babel": {
-      "extensions": [
-        "js",
-        "jsx"
-      ],
-      "testOptions": {
-        "presets": [
-          "@babel/preset-react"
-        ]
-      }
-    }
   }
 }
