@@ -237,6 +237,7 @@ export default (data = Data()) => {
         element.isMounted = true;
         const context = element.context || parentContext;
         if (context) {
+          element.context = context;
           for (let mounted of context.mounteds) {
             mounted();
           }
