@@ -1,6 +1,6 @@
 {
   "name": "@eirikb/domdom",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "The proactive web framework for the unprofessional",
   "author": {
     "email": "eirikb@eirikb.no",
@@ -8,10 +8,8 @@
   },
   "license": "MIT",
   "main": "src/index.js",
-  "browserslist": [
-    "ie >= 11"
-  ],
+  "source": true,
   "dependencies": {
-    "@eirikb/data": "2.0.4"
+    "@eirikb/data": "2.0.5"
   }
 }
