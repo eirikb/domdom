@@ -1,26 +1,17 @@
 {
   "name": "@eirikb/domdom",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "The proactive web framework for the unprofessional",
   "author": {
     "email": "eirikb@eirikb.no",
     "name": "Eirik Brandtzæg"
   },
   "license": "MIT",
-  "scripts": {
-    "build": "webpack",
-    "prepublish": "webpack"
-  },
-  "module": "src/index.js",
-  "main": "lib/domdom.js",
-  "devDependencies": {
-    "@babel/core": "7.7.5",
-    "@babel/preset-env": "7.7.6",
-    "webpack": "4.41.2",
-    "webpack-cli": "3.3.10",
-    "babel-loader": "8.0.6"
-  },
+  "main": "src/index.js",
+  "browserslist": [
+    "ie >= 11"
+  ],
   "dependencies": {
-    "@eirikb/data": "2.0.3"
+    "@eirikb/data": "2.0.4"
   }
 }
