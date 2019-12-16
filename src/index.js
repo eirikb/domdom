@@ -13,8 +13,8 @@ export default (data = Data()) => {
         return new Context(data, tagName, props, children);
       }
 
-      const slots = [];
-      const hodors = [];
+      let slots = [];
+      let hodors = [];
       const element = document.createElement(tagName);
 
       const eachChild = (cb) => {
@@ -36,10 +36,13 @@ export default (data = Data()) => {
         eachChild(child => {
           child.destroy();
         });
-        const listeners = ((element || {}).context || {}).listeners || [];
-        if (listeners.length > 0) {
-          data.off(listeners.join(' '));
+        for (let hodor of hodors) {
+          if (hodor.listeners.length > 0) {
+            data.off(hodor.listeners.join(' '));
+          }
         }
+        slots = [];
+        hodors = [];
       };
 
       const removeArray = (index, path, startAt) => {
@@ -238,10 +241,6 @@ export default (data = Data()) => {
         const context = element.context || parentContext;
         if (context) {
           element.context = context;
-          for (let mounted of context.mounteds) {
-            mounted();
-          }
-          context.mounteds = [];
 
           ddProps(data, context, element, props);
         }

@@ -1,12 +1,8 @@
 export default function Context(data, tagName, props, ...children) {
-  this.listeners = [];
-  this.mounteds = [];
+  const listeners = [];
 
   const options = {
     on: (path, listener, sort) => on(path, listener, sort),
-    mounted: (cb) => {
-      this.mounteds.push(cb);
-    },
     when: (path, options) => {
       if (!Array.isArray(options)) {
         throw new Error('Second arguments must be an array');
@@ -51,8 +47,6 @@ export default function Context(data, tagName, props, ...children) {
     if (!listener) {
       listener = _ => _;
     }
-    const listeners = this.listeners;
-
     const hasFlags = path.match(/ /);
     if (hasFlags) {
       listeners.push(data.on(path, listener));
@@ -60,7 +54,7 @@ export default function Context(data, tagName, props, ...children) {
     }
 
     const hodor = {
-      listeners,
+      listeners: [],
       path,
       toAdd: [],
       isHodor: true,
@@ -75,7 +69,7 @@ export default function Context(data, tagName, props, ...children) {
     };
 
     const listen = (path) => {
-      listeners.push(data.on('!+* ' + path, (...args) => {
+      hodor.listeners.push(data.on('!+* ' + path, (...args) => {
         const path = args[1].path;
         const res = listener(...args);
 
@@ -89,7 +83,7 @@ export default function Context(data, tagName, props, ...children) {
           hodor.add({ res, path, sort });
         }
       }));
-      listeners.push(data.on('- ' + path, (...args) => {
+      hodor.listeners.push(data.on('- ' + path, (...args) => {
         const path = args[1].path;
         if (hodor.remove) {
           hodor.remove(path);
@@ -115,5 +109,10 @@ export default function Context(data, tagName, props, ...children) {
   this.on = options.on;
   const res = tagName(options);
   res.context = this;
+  const destroy = res.destroy;
+  res.destroy = () => {
+    data.off(listeners.join(' '));
+    destroy();
+  };
   return res;
 }
