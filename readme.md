@@ -162,7 +162,7 @@ const view = ({ on, get, set }) => {
 
 The domdom object (from `domdom()`, called `dd` above) extends from [@eirikb/data](https://www.npmjs.com/package/@eirikb/data).  
 All data functions are available, 
-`on` `off` `get` `set` `unset` `trigger` `alias` `unalias`, so it's possible to do things like:
+`on` `off` `get` `set` `unset` `trigger`, so it's possible to do things like:
 ```javascript
 dd.on('!+* a', a => console.log(a))
 dd.set('a', 'yes')
