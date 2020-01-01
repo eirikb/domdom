@@ -1,5 +1,6 @@
 export default function Context(data, tagName, props, ...children) {
   const listeners = [];
+  const mounteds = [];
 
   const options = {
     on: (path, listener, sort) => on(path, listener, sort),
@@ -36,7 +37,10 @@ export default function Context(data, tagName, props, ...children) {
     set: data.set,
     get: data.get,
     trigger: data.trigger,
-    children
+    children,
+    mounted(cb) {
+      mounteds.push(cb)
+    }
   };
 
   for (let [key, value] of Object.entries(props || {})) {
@@ -107,6 +111,11 @@ export default function Context(data, tagName, props, ...children) {
   };
 
   this.on = options.on;
+  this.mounted = () => {
+    for (let mounted of mounteds) {
+      mounted();
+    }
+  };
   const res = tagName(options);
   res.context = this;
   const destroy = res.destroy;

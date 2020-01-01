@@ -507,10 +507,10 @@ test.serial('Update array', t => {
   dd.append(document.body, div);
 
   dd.set('path', ['hello', 'world']);
-  t.is(document.body.innerHTML, '<div><div>["hello","world"]</div></div>');
+  t.is(document.body.innerHTML, '<div><div>{"0":"hello","1":"world"}</div></div>');
 
   dd.set('path', ['hello']);
-  t.is(document.body.innerHTML, '<div><div>["hello"]</div></div>');
+  t.is(document.body.innerHTML, '<div><div>{"0":"hello"}</div></div>');
 });
 
 test.serial('Update array without element', t => {
@@ -521,10 +521,10 @@ test.serial('Update array without element', t => {
 
   dd.append(document.body, view);
   dd.set('path', ['hello', 'world']);
-  t.is(document.body.innerHTML, '<div>helloworld</div>');
+  t.is(document.body.innerHTML, '<div>{"0":"hello","1":"world"}</div>');
 
   dd.set('path', ['hello']);
-  t.is(document.body.innerHTML, '<div>hello</div>');
+  t.is(document.body.innerHTML, '<div>{"0":"hello"}</div>');
 });
 
 test.serial('Containment', t => {

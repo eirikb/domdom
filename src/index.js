@@ -240,6 +240,7 @@ export default (data = Data()) => {
         element.isMounted = true;
         const context = element.context || parentContext;
         if (context) {
+          context.mounted();
           element.context = context;
 
           ddProps(data, context, element, props);
