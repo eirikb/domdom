@@ -45,17 +45,13 @@ export default (data = Data()) => {
         hodors = [];
       };
 
-      const removeArray = (index, path, startAt) => {
+      const removeAllInSlot = (index) => {
         if (!slots[index]) return;
-        do {
-          let pathWithIndex = path + startAt;
-          if (slots[index] && slots[index][pathWithIndex]) {
-            removeChild(index, pathWithIndex);
-          } else {
-            break;
-          }
-          startAt++;
-        } while (true);
+        const keys = Object.keys(slots[index]).filter(key => !key.startsWith('$')).reverse();
+        for (let key of keys) {
+          removeChild(index, key);
+        }
+        delete slots[index];
       };
 
       const addHodor = (index, child) => {
@@ -76,7 +72,7 @@ export default (data = Data()) => {
 
       const appendChild = (index, child, path, sort) => {
         if (Array.isArray(child)) {
-          removeArray(index, path, child.length);
+          removeAllInSlot(index);
           child.forEach((child, i) => {
             appendChild(index, child, (path || '') + i, sort);
           });

@@ -599,3 +599,16 @@ test.serial('on on object attributes', t => {
   dd.set('style', { color: 'red' });
   t.is(document.body.innerHTML, '<div><p style="color: red;">Test</p></div>');
 });
+
+test.serial('recursive wildcard change', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    {on('test.**', (_, { values }) => values.map(val => <div>{val}</div>))}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('test', { one: '1', two: '2' });
+  t.is(document.body.innerHTML, '<div><div>1</div><div>2</div></div>');
+  dd.set('test.one', '3');
+  t.is(document.body.innerHTML, '<div><div>3</div><div>2</div></div>');
+  t.pass();
+});
