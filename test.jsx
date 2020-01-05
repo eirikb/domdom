@@ -589,7 +589,7 @@ test.serial('on on attributes', t => {
   t.is(document.body.innerHTML, '<div><button disabled=""></button><button disabled=""></button></div>');
 });
 
-test.serial('on on object attributes', t => {
+test.serial('On on object attributes', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
     <p style={on('style')}>Test</p>
@@ -600,7 +600,7 @@ test.serial('on on object attributes', t => {
   t.is(document.body.innerHTML, '<div><p style="color: red;">Test</p></div>');
 });
 
-test.serial('recursive wildcard change', t => {
+test.serial('Recursive wildcard change', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
     {on('test.**', (_, { values }) => values.map(val => <div>{val}</div>))}
@@ -610,5 +610,18 @@ test.serial('recursive wildcard change', t => {
   t.is(document.body.innerHTML, '<div><div>1</div><div>2</div></div>');
   dd.set('test.one', '3');
   t.is(document.body.innerHTML, '<div><div>3</div><div>2</div></div>');
-  t.pass();
+});
+
+test.serial('Recursive non-wild change', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    {on('test.*', (_, { values }) => values.map(val => <div>{val}</div>))}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('test', { one: { a: 1 }, two: { a: 2 } });
+  t.is(document.body.innerHTML, '<div><div>{"a":1}</div><div>{"a":2}</div></div>');
+  dd.set('test.one', { a: 3 });
+  t.is(document.body.innerHTML, '<div><div>{"a":3}</div><div>{"a":2}</div></div>');
+  dd.set('test.one.a', 4);
+  t.is(document.body.innerHTML, '<div><div>{"a":3}</div><div>{"a":2}</div></div>');
 });
