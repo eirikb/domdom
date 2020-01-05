@@ -1,6 +1,6 @@
 {
   "name": "@eirikb/domdom",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "The proactive web framework for the unprofessional",
   "author": {
     "email": "eirikb@eirikb.no",
@@ -13,9 +13,10 @@
   "main": "src/index.js",
   "source": true,
   "dependencies": {
-    "@eirikb/data": "2.0.7"
+    "@eirikb/data": "2.0.8"
   },
   "devDependencies": {
+    "@babel/core": "^7.7.7",
     "@babel/preset-env": "7.7.7",
     "@babel/preset-react": "7.7.4",
     "@babel/register": "7.7.7",
