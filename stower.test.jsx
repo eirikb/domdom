@@ -28,7 +28,7 @@ test('add by index', t => {
 });
 
 test('add by index 2', t => {
-  const { element, stower, div, span, a, b } = t.context;
+  const { element, stower, div, span, b } = t.context;
   stower.add(b, 3);
   stower.add(div, 0);
 
@@ -68,4 +68,29 @@ test('remove and add by index', t => {
   t.deepEqual(element.innerHTML, '<div></div><b></b>');
   stower.add(span, 1);
   t.deepEqual(element.innerHTML, '<div></div><span></span><b></b>');
+});
+
+test('Add array', t => {
+  const { element, stower, a, b } = t.context;
+  stower.add([a, b], 1);
+  t.deepEqual(element.innerHTML, '<a></a><b></b>');
+});
+
+test('Add array 2', t => {
+  const { element, stower, span, div, a, b } = t.context;
+  stower.add(span, 2);
+  stower.add([a, b], 1);
+  t.deepEqual(element.innerHTML, '<a></a><b></b><span></span>');
+  stower.add(div, 0);
+  t.deepEqual(element.innerHTML, '<div></div><a></a><b></b><span></span>');
+});
+
+test('Add and remove array', t => {
+  const { element, stower, span, div, a, b } = t.context;
+  stower.add(div, 0);
+  stower.add([a, b], 1);
+  stower.add(span, 2);
+  t.deepEqual(element.innerHTML, '<div></div><a></a><b></b><span></span>');
+  stower.remove(1);
+  t.deepEqual(element.innerHTML, '<div></div><span></span>');
 });
