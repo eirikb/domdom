@@ -2,6 +2,7 @@ export default function Stower(element) {
   const self = {};
   const slots = [];
   const first = [];
+  const pathifiers = [];
 
   function add(child, before) {
     if (before) {
@@ -11,32 +12,78 @@ export default function Stower(element) {
     }
   }
 
-  self.add = (child, index) => {
+  function addSingle(child, index) {
     const before = first.slice(index).find(element => element);
+    add(child, before);
+    first[index] = child;
+    slots[index] = child;
+  }
 
-    if (Array.isArray(child)) {
-      for (let child of child) {
-        add(child, before);
-      }
-      first[index] = child[0];
-    } else {
+  function addArray(children, index) {
+    const before = first.slice(index).find(element => element);
+    for (let child of children) {
       add(child, before);
+    }
+    first[index] = children[0];
+    slots[index] = children;
+  }
+
+  function addWithPath(child, index, path) {
+    const before = first.slice(index + 1).find(element => element);
+    add(child, before);
+    if (!first[index]) {
       first[index] = child;
     }
-    slots[index] = child;
+    slots[index] = slots[index] || {};
+    slots[index][path] = child;
+  }
+
+  self.add = (child, index, path) => {
+    if (path) {
+      addWithPath(child, index, path);
+    } else if (Array.isArray(child)) {
+      addArray(child, index);
+    } else {
+      addSingle(child, index);
+    }
   };
 
-  self.remove = (index) => {
-    const child = slots[index];
-    if (Array.isArray(child)) {
-      for (let child of child) {
-        element.removeChild(child);
-      }
-    } else {
-      element.removeChild(slots[index]);
+  function removeSingle(child, index) {
+    element.removeChild(child);
+    delete slots[index];
+    delete first[index];
+  }
+
+  function removeArray(children, index) {
+    for (let child of children) {
+      element.removeChild(child);
     }
     delete slots[index];
     delete first[index];
+  }
+
+  function removeWithPath(index, path) {
+    console.log('what');
+    const child = (slots[index] || {})[path];
+    // TODO: Test
+    if (!child) return;
+
+    element.removeChild(child);
+    delete slots[index][path];
+    // TODO: First
+  }
+
+  self.remove = (index, path) => {
+    if (path) {
+      removeWithPath(index, path);
+    } else {
+      const child = slots[index];
+      if (Array.isArray(child)) {
+        removeArray(child, index);
+      } else {
+        removeSingle(child, index);
+      }
+    }
   };
 
   return self;

@@ -19,7 +19,6 @@ test('add', t => {
   t.deepEqual(element.innerHTML, '<div></div>');
 });
 
-
 test('add by index', t => {
   const { element, stower, div, span } = t.context;
   stower.add(span, 1);
@@ -93,4 +92,33 @@ test('Add and remove array', t => {
   t.deepEqual(element.innerHTML, '<div></div><a></a><b></b><span></span>');
   stower.remove(1);
   t.deepEqual(element.innerHTML, '<div></div><span></span>');
+});
+
+test('add path, by default no sorting', t => {
+  const { element, stower, div, span } = t.context;
+  stower.add(div, 0, 'a');
+  stower.add(span, 0, 'b');
+  t.deepEqual(element.innerHTML, '<div></div><span></span>');
+});
+
+test('add by path and normal', t => {
+  const { element, stower, div, span, a, b } = t.context;
+  stower.add(div, 1, 'a');
+  stower.add(span, 1, 'b');
+  t.deepEqual(element.innerHTML, '<div></div><span></span>');
+  stower.add(a, 0);
+  t.deepEqual(element.innerHTML, '<a></a><div></div><span></span>');
+  stower.add(b, 2);
+  t.deepEqual(element.innerHTML, '<a></a><div></div><span></span><b></b>');
+});
+
+test('add and remove by path', t => {
+  const { element, stower, div, span, a, b } = t.context;
+  stower.add(a, 0);
+  stower.add(b, 2);
+  stower.add(div, 1, 'a');
+  stower.add(span, 1, 'b');
+  t.deepEqual(element.innerHTML, '<a></a><div></div><span></span><b></b>');
+  stower.remove(1, 'b');
+  t.deepEqual(element.innerHTML, '<a></a><div></div><b></b>');
 });
