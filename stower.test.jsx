@@ -122,3 +122,27 @@ test('add and remove by path', t => {
   stower.remove(1, 'b');
   t.deepEqual(element.innerHTML, '<a></a><div></div><b></b>');
 });
+
+test('remove unknown by path', t => {
+  const { stower } = t.context;
+  stower.remove(0, 'x');
+  t.pass();
+});
+
+test('first on remove by path', t => {
+  const { element, stower, div, a, b } = t.context;
+  stower.add(a, 1, 'a');
+  stower.add(b, 1, 'b');
+  stower.remove(1, 'a');
+  t.deepEqual(element.innerHTML, '<b></b>');
+  stower.add(div, 0);
+  t.deepEqual(element.innerHTML, '<div></div><b></b>');
+});
+
+test('remove first by path for all', t => {
+  const { element, stower, a, b } = t.context;
+  stower.add(b, 1, 'a');
+  stower.remove(1, 'a');
+  stower.add(a, 2);
+  t.deepEqual(element.innerHTML, '<a></a>');
+});

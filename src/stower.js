@@ -63,14 +63,14 @@ export default function Stower(element) {
   }
 
   function removeWithPath(index, path) {
-    console.log('what');
     const child = (slots[index] || {})[path];
-    // TODO: Test
     if (!child) return;
 
     element.removeChild(child);
     delete slots[index][path];
-    // TODO: First
+    if (first[index] === child) {
+      first[index] = Object.values(slots[index])[0];
+    }
   }
 
   self.remove = (index, path) => {

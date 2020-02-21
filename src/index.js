@@ -2,7 +2,7 @@ import Data from '@eirikb/data';
 import Context from './context';
 import ddProps from './dd-props';
 
-function isProbablyPlainObject(obj) {
+export function isProbablyPlainObject(obj) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
 }
 
