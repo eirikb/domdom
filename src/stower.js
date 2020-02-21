@@ -2,7 +2,6 @@ export default function Stower(element) {
   const self = {};
   const slots = [];
   const first = [];
-  const pathifiers = [];
 
   function add(child, before) {
     if (before) {
@@ -28,9 +27,19 @@ export default function Stower(element) {
     slots[index] = children;
   }
 
-  function addWithPath(child, index, path) {
-    const before = first.slice(index + 1).find(element => element);
+  function addWithPath(child, index, path, pathOrder = []) {
+    let before = first.slice(index + 1).find(element => element);
+
+    if (slots[index]) {
+      const pathIndex = pathOrder.indexOf(path);
+      const nextPathWithElement = pathOrder.slice(pathIndex + 1).find(p => slots[index][p]);
+      if (nextPathWithElement) {
+        before = slots[index][nextPathWithElement];
+      }
+    }
+
     add(child, before);
+    // TODO: This can't always work, especially with sorting?!
     if (!first[index]) {
       first[index] = child;
     }
@@ -38,9 +47,9 @@ export default function Stower(element) {
     slots[index][path] = child;
   }
 
-  self.add = (child, index, path) => {
+  self.add = (child, index, path, pathOrder) => {
     if (path) {
-      addWithPath(child, index, path);
+      addWithPath(child, index, path, pathOrder);
     } else if (Array.isArray(child)) {
       addArray(child, index);
     } else {
@@ -84,6 +93,24 @@ export default function Stower(element) {
         removeSingle(child, index);
       }
     }
+  };
+
+  self.reorder = (index, pathOrder) => {
+    const slot = slots[index];
+    if (!slot) return;
+
+    const before = first.slice(index + 1).find(element => element);
+    let firstChild;
+    for (let path of pathOrder) {
+      const child = slot[path];
+      if (child) {
+        if (!firstChild) {
+          firstChild = child;
+        }
+        add(child, before);
+      }
+    }
+    first[index] = firstChild;
   };
 
   return self;

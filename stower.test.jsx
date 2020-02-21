@@ -146,3 +146,19 @@ test('remove first by path for all', t => {
   stower.add(a, 2);
   t.deepEqual(element.innerHTML, '<a></a>');
 });
+
+test('path by order', t => {
+  const { element, stower, a, b } = t.context;
+  stower.add(a, 1, 'a', ['b', 'a']);
+  stower.add(b, 1, 'b', ['b', 'a']);
+  t.deepEqual(element.innerHTML, '<b></b><a></a>');
+});
+
+test('path reorder', t => {
+  const { element, stower, a, b } = t.context;
+  stower.add(a, 1, 'a');
+  stower.add(b, 1, 'b');
+  t.deepEqual(element.innerHTML, '<a></a><b></b>');
+  stower.reorder(1, ['b', 'a']);
+  t.deepEqual(element.innerHTML, '<b></b><a></a>');
+});
