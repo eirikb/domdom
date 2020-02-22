@@ -9,6 +9,7 @@ test.beforeEach(t => {
   t.context.stower = new Stower(t.context.element);
   t.context.a = document.createElement('a');
   t.context.b = document.createElement('b');
+  t.context.c = document.createElement('c');
   t.context.span = document.createElement('span');
   t.context.div = document.createElement('div');
 });
@@ -155,10 +156,46 @@ test('path by order', t => {
 });
 
 test('path reorder', t => {
-  const { element, stower, a, b } = t.context;
+  const { element, stower, a, b, c } = t.context;
   stower.add(a, 1, 'a');
   stower.add(b, 1, 'b');
+  stower.add(c, 1, 'c');
+  t.deepEqual(element.innerHTML, '<a></a><b></b><c></c>');
+  stower.reorder(1, ['c', 'b', 'a']);
+  t.deepEqual(element.innerHTML, '<c></c><b></b><a></a>');
+});
+
+test('path order updated first', t => {
+  const { element, stower, div, a, b } = t.context;
+  const order = ['a', 'b'];
+  stower.add(b, 1, 'b', order);
+  stower.add(a, 1, 'a', order);
   t.deepEqual(element.innerHTML, '<a></a><b></b>');
-  stower.reorder(1, ['b', 'a']);
-  t.deepEqual(element.innerHTML, '<b></b><a></a>');
+  stower.add(div, 0);
+  t.deepEqual(element.innerHTML, '<div></div><a></a><b></b>');
+});
+
+test('path order updated first with remove', t => {
+  const { element, stower, div, a, b, c, span } = t.context;
+  const order = ['a', 'b', 'c'];
+  stower.add(c, 1, 'c', order);
+  stower.add(b, 1, 'b', order);
+  stower.add(a, 1, 'a', order);
+  t.deepEqual(element.innerHTML, '<a></a><b></b><c></c>');
+  stower.remove(1, 'a');
+  t.deepEqual(element.innerHTML, '<b></b><c></c>');
+  stower.add(div, 0);
+  t.deepEqual(element.innerHTML, '<div></div><b></b><c></c>');
+  stower.add(span, 2);
+  stower.add(a, 1, 'a', ['a', 'b', 'c']);
+  t.deepEqual(element.innerHTML, '<div></div><a></a><b></b><c></c><span></span>');
+});
+
+test('path re-order on add if order changes', t => {
+  const { element, stower, a, b, c } = t.context;
+  stower.add(a, 1, 'a', ['a', 'b']);
+  stower.add(b, 1, 'b', ['a', 'b']);
+  t.deepEqual(element.innerHTML, '<a></a><b></b>');
+  stower.add(c, 1, 'c', ['c', 'b', 'a']);
+  t.deepEqual(element.innerHTML, '<c></c><b></b><a></a>');
 });
