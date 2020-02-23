@@ -199,3 +199,39 @@ test('path re-order on add if order changes', t => {
   stower.add(c, 1, 'c', ['c', 'b', 'a']);
   t.deepEqual(element.innerHTML, '<c></c><b></b><a></a>');
 });
+
+test('strings', t => {
+  const { element, stower, } = t.context;
+  stower.add('Hello, world!');
+  t.deepEqual(element.innerHTML, 'Hello, world!');
+});
+
+test('JSON.stringify', t => {
+  const { element, stower, } = t.context;
+  stower.add({ hello: 'world' });
+  t.deepEqual(element.innerHTML, '{"hello":"world"}');
+});
+
+test('replace single', t => {
+  const { element, stower, a, b } = t.context;
+  stower.add(a, 0);
+  t.deepEqual(element.innerHTML, '<a></a>');
+  stower.add(b, 0);
+  t.deepEqual(element.innerHTML, '<b></b>');
+});
+
+test('replace array', t => {
+  const { element, stower, a, b, div, span } = t.context;
+  stower.add([a, b], 0);
+  t.deepEqual(element.innerHTML, '<a></a><b></b>');
+  stower.add([div, span], 0);
+  t.deepEqual(element.innerHTML, '<div></div><span></span>');
+});
+
+test('replace path', t => {
+  const { element, stower, a, b, c } = t.context;
+  stower.add(a, 1, 'a');
+  t.deepEqual(element.innerHTML, '<a></a>');
+  stower.add(b, 1, 'a');
+  t.deepEqual(element.innerHTML, '<b></b>');
+});

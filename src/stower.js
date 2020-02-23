@@ -1,3 +1,5 @@
+import { isProbablyPlainObject } from './index';
+
 export default function Stower(element) {
   const self = {};
   const slots = [];
@@ -5,6 +7,12 @@ export default function Stower(element) {
   const pathOrders = [];
 
   function add(child, before) {
+    if (typeof child === 'string') {
+      child = document.createTextNode(child);
+    } else if (isProbablyPlainObject(child)) {
+      child = document.createTextNode(JSON.stringify(child));
+    }
+
     if (before) {
       element.insertBefore(child, before);
     } else {
@@ -13,6 +21,9 @@ export default function Stower(element) {
   }
 
   function addSingle(child, index) {
+    if (slots[index]) {
+      removeSingle(slots[index], index);
+    }
     const before = first.slice(index).find(element => element);
     add(child, before);
     first[index] = child;
@@ -20,6 +31,9 @@ export default function Stower(element) {
   }
 
   function addArray(children, index) {
+    if (slots[index]) {
+      removeArray(slots[index], index);
+    }
     const before = first.slice(index).find(element => element);
     for (let child of children) {
       add(child, before);
@@ -29,6 +43,9 @@ export default function Stower(element) {
   }
 
   function addWithPath(child, index, path, pathOrder) {
+    if (slots[index] && slots[index][path]) {
+      removeWithPath(index, path);
+    }
     const oPathOrder = pathOrders[index];
     if (pathOrder && oPathOrder) {
       const isSame = pathOrder.length === oPathOrder && pathOrder.every((val, i) => oPathOrder[i] === val);
