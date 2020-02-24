@@ -18,6 +18,8 @@ export default function Stower(element) {
     } else {
       element.appendChild(child);
     }
+
+    return child;
   }
 
   function addSingle(child, index) {
@@ -25,7 +27,7 @@ export default function Stower(element) {
       removeSingle(slots[index], index);
     }
     const before = first.slice(index).find(element => element);
-    add(child, before);
+    child = add(child, before);
     first[index] = child;
     slots[index] = child;
   }
@@ -35,9 +37,7 @@ export default function Stower(element) {
       removeArray(slots[index], index);
     }
     const before = first.slice(index).find(element => element);
-    for (let child of children) {
-      add(child, before);
-    }
+    children = children.map(child => add(child, before));
     first[index] = children[0];
     slots[index] = children;
   }
@@ -78,12 +78,13 @@ export default function Stower(element) {
       }
     }
 
-    add(child, before);
+    child = add(child, before);
     slots[index] = slots[index] || {};
     slots[index][path] = child;
   }
 
   self.add = (child, index, path, pathOrder) => {
+    console.log('add', child, '::', index, '::', path, '::', pathOrder);
     if (path) {
       addWithPath(child, index, path, pathOrder);
     } else if (Array.isArray(child)) {

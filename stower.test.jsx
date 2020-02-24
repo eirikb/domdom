@@ -206,11 +206,42 @@ test('strings', t => {
   t.deepEqual(element.innerHTML, 'Hello, world!');
 });
 
+test('string remove', t => {
+  const { element, stower, } = t.context;
+  stower.add('Hello, world!', 0);
+  stower.remove(0);
+  t.deepEqual(element.innerHTML, '');
+});
+
+test('strings as array', t => {
+  const { element, stower, } = t.context;
+  stower.add(['Hello', 'world!'], 0);
+  t.deepEqual(element.innerHTML, 'Helloworld!');
+  stower.remove(0);
+  t.deepEqual(element.innerHTML, '');
+});
+
+test('strings with path', t => {
+  const { element, stower, } = t.context;
+  stower.add('Hello', 0, 'world');
+  t.deepEqual(element.innerHTML, 'Hello');
+  stower.remove(0, 'world');
+  t.deepEqual(element.innerHTML, '');
+});
+
 test('JSON.stringify', t => {
   const { element, stower, } = t.context;
   stower.add({ hello: 'world' });
   t.deepEqual(element.innerHTML, '{"hello":"world"}');
 });
+
+test('JSON.stringify remove', t => {
+  const { element, stower, } = t.context;
+  stower.add({ hello: 'world' }, 0);
+  stower.remove(0);
+  t.deepEqual(element.innerHTML, '');
+});
+
 
 test('replace single', t => {
   const { element, stower, a, b } = t.context;
