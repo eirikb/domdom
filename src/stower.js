@@ -7,6 +7,7 @@ export default function Stower(element) {
   const pathOrders = [];
 
   function add(child, before) {
+    const origChild = child;
     if (typeof child === 'string') {
       child = document.createTextNode(child);
     } else if (isProbablyPlainObject(child)) {
@@ -17,6 +18,10 @@ export default function Stower(element) {
       element.insertBefore(child, before);
     } else {
       element.appendChild(child);
+    }
+
+    if (origChild.mounted) {
+      origChild.mounted();
     }
 
     return child;
@@ -84,7 +89,6 @@ export default function Stower(element) {
   }
 
   self.add = (child, index, path, pathOrder) => {
-    console.log('add', child, '::', index, '::', path, '::', pathOrder);
     if (path) {
       addWithPath(child, index, path, pathOrder);
     } else if (Array.isArray(child)) {

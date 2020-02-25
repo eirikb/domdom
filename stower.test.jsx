@@ -260,9 +260,38 @@ test('replace array', t => {
 });
 
 test('replace path', t => {
-  const { element, stower, a, b, c } = t.context;
+  const { element, stower, a, b } = t.context;
   stower.add(a, 1, 'a');
   t.deepEqual(element.innerHTML, '<a></a>');
   stower.add(b, 1, 'a');
   t.deepEqual(element.innerHTML, '<b></b>');
+});
+
+test('mounted single', t => {
+  const { element, stower, } = t.context;
+  const a = document.createElement('a');
+  a.mounted = () => t.pass();
+  t.plan(1);
+  stower.add(a, 0);
+});
+
+test('mounted array', t => {
+  const { element, stower, } = t.context;
+  const a = document.createElement('a');
+  const b = document.createElement('b');
+  a.mounted = () => t.pass();
+  b.mounted = () => t.pass();
+  t.plan(2);
+  stower.add([a, b], 0);
+});
+
+test('mounted path', t => {
+  const { element, stower, } = t.context;
+  const a = document.createElement('a');
+  const b = document.createElement('b');
+  a.mounted = () => t.pass();
+  b.mounted = () => t.pass();
+  t.plan(2);
+  stower.add(a, 0, 'a');
+  stower.add(b, 0, 'b');
 });
