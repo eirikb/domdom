@@ -32,6 +32,11 @@ export default function Stower(element) {
     return child;
   }
 
+  function remove(child) {
+    element.removeChild(child);
+    if (child.destroy) child.destroy();
+  }
+
   function addSingle(child, index) {
     if (slots[index]) {
       removeSingle(slots[index], index);
@@ -104,14 +109,14 @@ export default function Stower(element) {
   };
 
   function removeSingle(child, index) {
-    element.removeChild(child);
+    remove(child);
     delete slots[index];
     delete first[index];
   }
 
   function removeArray(children, index) {
     for (let child of children) {
-      element.removeChild(child);
+      remove(child);
     }
     delete slots[index];
     delete first[index];
@@ -121,7 +126,7 @@ export default function Stower(element) {
     const child = (slots[index] || {})[path];
     if (!child) return;
 
-    element.removeChild(child);
+    remove(child);
     delete slots[index][path];
     const pathOrderIndex = pathOrders[index].indexOf(path);
     pathOrders[index].splice(pathOrderIndex, 1);
