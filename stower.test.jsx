@@ -295,3 +295,50 @@ test('mounted path', t => {
   stower.add(a, 0, 'a');
   stower.add(b, 0, 'b');
 });
+
+test('destroy single', t => {
+  const { element, stower, } = t.context;
+  const a = document.createElement('a');
+  stower.add(a, 0);
+  a.destroy = () => t.pass();
+  t.plan(1);
+  stower.remove(0);
+});
+
+test('destroy array', t => {
+  const { element, stower, } = t.context;
+  const a = document.createElement('a');
+  const b = document.createElement('b');
+  stower.add([a, b], 0);
+  a.destroy = () => t.pass();
+  b.destroy = () => t.pass();
+  t.plan(2);
+  stower.remove(0);
+});
+
+test('destroy path', t => {
+  const { element, stower, } = t.context;
+  const a = document.createElement('a');
+  const b = document.createElement('b');
+  stower.add(a, 0, 'a');
+  stower.add(b, 0, 'b');
+  a.destroy = () => t.pass();
+  b.destroy = () => t.pass();
+  t.plan(2);
+  stower.remove(0, 'a');
+  stower.remove(0, 'b');
+});
+
+test('types', t => {
+  const { element, stower } = t.context;
+  stower.add('a', 0);
+  stower.add(1, 1);
+  stower.add(3.6, 2);
+  stower.add({ hello: 'world' }, 4);
+  stower.add(undefined, 5);
+  stower.add(null, 6);
+  stower.add(true, 7);
+  stower.add(false, 8);
+  t.is(element.outerHTML, '<div>a13.6{"hello":"world"}truefalse</div>');
+});
+

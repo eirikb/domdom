@@ -8,8 +8,13 @@ export default function Stower(element) {
 
   function add(child, before) {
     const origChild = child;
-    if (typeof child === 'string') {
-      child = document.createTextNode(child);
+    if (child === null || typeof child === 'undefined') {
+      child = '';
+    }
+    if (typeof child === 'string'
+      || typeof child === 'number'
+      || typeof child === 'boolean') {
+      child = document.createTextNode(`${child}`);
     } else if (isProbablyPlainObject(child)) {
       child = document.createTextNode(JSON.stringify(child));
     }
@@ -20,7 +25,7 @@ export default function Stower(element) {
       element.appendChild(child);
     }
 
-    if (origChild.mounted) {
+    if (origChild && origChild.mounted) {
       origChild.mounted();
     }
 
