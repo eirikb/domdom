@@ -20,8 +20,6 @@ export default function Stower(element) {
   }
 
   function add(child, before) {
-    console.log('add', child, before);
-
     if (before) {
       element.insertBefore(child, before);
     } else {
