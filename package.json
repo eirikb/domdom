@@ -7,7 +7,7 @@
     "name": "Eirik Brandtzæg"
   },
   "scripts": {
-    "test": "ava test.jsx"
+    "test": "ava"
   },
   "license": "MIT",
   "main": "src/index.js",
