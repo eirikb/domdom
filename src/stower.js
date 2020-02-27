@@ -6,18 +6,21 @@ export default function Stower(element) {
   const first = [];
   const pathOrders = [];
 
-  function add(child, before) {
-    const origChild = child;
+  function escapeChild(child) {
     if (child === null || typeof child === 'undefined') {
-      child = '';
-    }
-    if (typeof child === 'string'
+      return document.createTextNode('');
+    } else if (typeof child === 'string'
       || typeof child === 'number'
       || typeof child === 'boolean') {
-      child = document.createTextNode(`${child}`);
+      return document.createTextNode(`${child}`);
     } else if (isProbablyPlainObject(child)) {
-      child = document.createTextNode(JSON.stringify(child));
+      return document.createTextNode(JSON.stringify(child));
     }
+    return child;
+  }
+
+  function add(child, before) {
+    console.log('add', child, before);
 
     if (before) {
       element.insertBefore(child, before);
@@ -25,11 +28,9 @@ export default function Stower(element) {
       element.appendChild(child);
     }
 
-    if (origChild && origChild.mounted) {
-      origChild.mounted();
+    if (child.mounted) {
+      child.mounted();
     }
-
-    return child;
   }
 
   function remove(child) {
@@ -38,26 +39,29 @@ export default function Stower(element) {
   }
 
   function addSingle(child, index) {
+    child = escapeChild(child);
     if (slots[index]) {
       removeSingle(slots[index], index);
     }
     const before = first.slice(index).find(element => element);
-    child = add(child, before);
+    add(child, before);
     first[index] = child;
     slots[index] = child;
   }
 
   function addArray(children, index) {
+    children = children.map(escapeChild);
     if (slots[index]) {
       removeArray(slots[index], index);
     }
     const before = first.slice(index).find(element => element);
-    children = children.map(child => add(child, before));
+    children.map(child => add(child, before));
     first[index] = children[0];
     slots[index] = children;
   }
 
   function addWithPath(child, index, path, pathOrder) {
+    child = escapeChild(child);
     if (slots[index] && slots[index][path]) {
       removeWithPath(index, path);
     }
@@ -93,7 +97,7 @@ export default function Stower(element) {
       }
     }
 
-    child = add(child, before);
+    add(child, before);
     slots[index] = slots[index] || {};
     slots[index][path] = child;
   }

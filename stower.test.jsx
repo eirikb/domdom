@@ -268,7 +268,7 @@ test('replace path', t => {
 });
 
 test('mounted single', t => {
-  const { element, stower, } = t.context;
+  const { stower, } = t.context;
   const a = document.createElement('a');
   a.mounted = () => t.pass();
   t.plan(1);
@@ -276,7 +276,7 @@ test('mounted single', t => {
 });
 
 test('mounted array', t => {
-  const { element, stower, } = t.context;
+  const { stower, } = t.context;
   const a = document.createElement('a');
   const b = document.createElement('b');
   a.mounted = () => t.pass();
@@ -286,7 +286,7 @@ test('mounted array', t => {
 });
 
 test('mounted path', t => {
-  const { element, stower, } = t.context;
+  const { stower, } = t.context;
   const a = document.createElement('a');
   const b = document.createElement('b');
   a.mounted = () => t.pass();
@@ -297,7 +297,7 @@ test('mounted path', t => {
 });
 
 test('destroy single', t => {
-  const { element, stower, } = t.context;
+  const { stower, } = t.context;
   const a = document.createElement('a');
   stower.add(a, 0);
   a.destroy = () => t.pass();
@@ -306,7 +306,7 @@ test('destroy single', t => {
 });
 
 test('destroy array', t => {
-  const { element, stower, } = t.context;
+  const { stower, } = t.context;
   const a = document.createElement('a');
   const b = document.createElement('b');
   stower.add([a, b], 0);
@@ -317,7 +317,7 @@ test('destroy array', t => {
 });
 
 test('destroy path', t => {
-  const { element, stower, } = t.context;
+  const { stower, } = t.context;
   const a = document.createElement('a');
   const b = document.createElement('b');
   stower.add(a, 0, 'a');
@@ -342,3 +342,16 @@ test('types', t => {
   t.is(element.outerHTML, '<div>a13.6{"hello":"world"}truefalse</div>');
 });
 
+test('add before string', t => {
+  const { element, stower, a } = t.context;
+  stower.add('b', 1);
+  stower.add(a, 0);
+  t.deepEqual(element.innerHTML, '<a></a>b');
+});
+
+test('add before path of string', t => {
+  const { element, stower, a } = t.context;
+  stower.add('b', 1, 'b');
+  stower.add(a, 0);
+  t.deepEqual(element.innerHTML, '<a></a>b');
+});
