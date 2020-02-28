@@ -14,46 +14,18 @@ export default (data = Data()) => {
         return new Context(data, tagName, props, children);
       }
 
-      let slots = [];
       let hodors = [];
       const element = document.createElement(tagName);
       const stower = Stower(element);
 
-      const eachChild = (cb) => {
-        for (let slot of slots) {
-          if (slot) {
-            if (slot.destroy) {
-              cb(slot);
-            }
-            for (let subSlot of Object.values(slot)) {
-              if (subSlot && subSlot.destroy) {
-                cb(subSlot);
-              }
-            }
-          }
-        }
-      };
-
       const destroy = () => {
-        eachChild(child => {
-          child.destroy();
-        });
+        element.childNodes.forEach(child => child.destroy && child.destroy());
         for (let hodor of hodors) {
           if (hodor.listeners.length > 0) {
             data.off(hodor.listeners.join(' '));
           }
         }
-        slots = [];
         hodors = [];
-      };
-
-      const removeAllInSlot = (index) => {
-        if (!slots[index]) return;
-        const keys = Object.keys(slots[index]).filter(key => !key.startsWith('$')).reverse();
-        for (let key of keys) {
-          removeChild(index, key);
-        }
-        delete slots[index];
       };
 
       const addHodor = (index, child) => {
@@ -132,12 +104,10 @@ export default (data = Data()) => {
 
           ddProps(data, context, element, props);
         }
-        eachChild(child => child.mounted(context));
+        element.childNodes.forEach(child => child.mounted && child.mounted(context));
       };
       element.onPath = (path) => {
-        eachChild(child => {
-          child.onPath(path);
-        });
+        element.childNodes.forEach(child => child.onPath && child.onPath(path));
         const bounced = hodors.filter(hodor => hodor.bounce);
         for (let hodor of bounced) {
           hodor.bounce(path);

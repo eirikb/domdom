@@ -570,36 +570,49 @@ test.serial('Remove or on on', t => {
   t.is(document.body.innerHTML, '<div>hello</div>');
 });
 
-// test.serial('on on attributes', t => {
-//   const dd = domdom();
-//   const view = ({ on }) => <div>
-//     <button disabled={on('canClick', res => !res).or(true)}/>
-//     <button disabled={on('canNotClick').or(true)}/>
-//   </div>;
-//
-//   dd.append(document.body, view);
-//
-//   t.is(document.body.innerHTML, '<div><button disabled=""></button><button disabled=""></button></div>');
-//
-//   dd.set('canClick', true);
-//   dd.set('canNotClick', false);
-//   t.is(document.body.innerHTML, '<div><button></button><button></button></div>');
-//
-//   dd.set('canClick', false);
-//   dd.set('canNotClick', true);
-//   t.is(document.body.innerHTML, '<div><button disabled=""></button><button disabled=""></button></div>');
-// });
+test.serial('on attributes', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    <button disabled={on('disable', res => res)}/>
+  </div>;
 
-// test.serial('On on object attributes', t => {
-//   const dd = domdom();
-//   const view = ({ on }) => <div>
-//     <p style={on('style')}>Test</p>
-//   </div>;
-//
-//   dd.append(document.body, view);
-//   dd.set('style', { color: 'red' });
-//   t.is(document.body.innerHTML, '<div><p style="color: red;">Test</p></div>');
-// });
+  dd.append(document.body, view);
+
+  t.is(document.body.innerHTML, '<div><button></button></div>');
+  dd.set('disable', true);
+  t.is(document.body.innerHTML, '<div><button disabled=""></button></div>');
+});
+
+test.serial('on on attributes', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    <button disabled={on('canClick', res => !res).or(true)}/>
+    <button disabled={on('canNotClick').or(true)}/>
+  </div>;
+
+  dd.append(document.body, view);
+
+  t.is(document.body.innerHTML, '<div><button disabled=""></button><button disabled=""></button></div>');
+
+  dd.set('canClick', true);
+  dd.set('canNotClick', false);
+  t.is(document.body.innerHTML, '<div><button></button><button></button></div>');
+
+  dd.set('canClick', false);
+  dd.set('canNotClick', true);
+  t.is(document.body.innerHTML, '<div><button disabled=""></button><button disabled=""></button></div>');
+});
+
+test.serial('On on object attributes', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    <p style={on('style')}>Test</p>
+  </div>;
+
+  dd.append(document.body, view);
+  dd.set('style', { color: 'red' });
+  t.is(document.body.innerHTML, '<div><p style="color: red;">Test</p></div>');
+});
 
 // test.serial('Recursive wildcard change', t => {
 //   const dd = domdom();

@@ -26,8 +26,8 @@ export default function Stower(element) {
       element.appendChild(child);
     }
 
-    if (child.mounted) {
-      child.mounted();
+    if (child.mounted && element.isMounted) {
+      child.mounted(element.context);
     }
   }
 

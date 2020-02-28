@@ -268,7 +268,8 @@ test('replace path', t => {
 });
 
 test('mounted single', t => {
-  const { stower, } = t.context;
+  const { stower, element } = t.context;
+  element.isMounted = true;
   const a = document.createElement('a');
   a.mounted = () => t.pass();
   t.plan(1);
@@ -276,7 +277,8 @@ test('mounted single', t => {
 });
 
 test('mounted array', t => {
-  const { stower, } = t.context;
+  const { stower, element } = t.context;
+  element.isMounted = true;
   const a = document.createElement('a');
   const b = document.createElement('b');
   a.mounted = () => t.pass();
@@ -286,7 +288,8 @@ test('mounted array', t => {
 });
 
 test('mounted path', t => {
-  const { stower, } = t.context;
+  const { stower, element } = t.context;
+  element.isMounted = true;
   const a = document.createElement('a');
   const b = document.createElement('b');
   a.mounted = () => t.pass();
