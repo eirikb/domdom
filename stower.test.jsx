@@ -358,3 +358,21 @@ test('add before path of string', t => {
   stower.add(a, 0);
   t.deepEqual(element.innerHTML, '<a></a>b');
 });
+
+test('path with array', t => {
+  const { element, stower, a, b } = t.context;
+  stower.add([a, b], 0, 'ab');
+  t.deepEqual(element.innerHTML, '<a></a><b></b>');
+});
+
+test('path with array remove', t => {
+  const { element, stower, a, b, div, span } = t.context;
+  stower.add(div, 0);
+  stower.add([a, b], 1, 'ab');
+  stower.add(span, 2);
+  t.deepEqual(element.innerHTML, '<div></div><a></a><b></b><span></span>');
+  stower.remove(1, 'ab');
+  t.deepEqual(element.innerHTML, '<div></div><span></span>');
+  stower.add([a, b], 1, 'ab');
+  t.deepEqual(element.innerHTML, '<div></div><a></a><b></b><span></span>');
+});

@@ -59,7 +59,8 @@ export default function Stower(element) {
   }
 
   function addWithPath(child, index, path, pathOrder) {
-    child = escapeChild(child);
+    const isArray = Array.isArray(child);
+    child = isArray ? child.map(escapeChild) : escapeChild(child);
     if (slots[index] && slots[index][path]) {
       removeWithPath(index, path);
     }
@@ -86,7 +87,7 @@ export default function Stower(element) {
       pathIndex = pathOrder.length - 1;
     }
     if (pathIndex === 0) {
-      first[index] = child;
+      first[index] = isArray ? child[0] : child;
     }
     if (slots[index]) {
       const nextPathWithElement = pathOrder.slice(pathIndex + 1).find(p => slots[index][p]);
@@ -95,7 +96,11 @@ export default function Stower(element) {
       }
     }
 
-    add(child, before);
+    if (isArray) {
+      child.forEach(child => add(child, before));
+    } else {
+      add(child, before);
+    }
     slots[index] = slots[index] || {};
     slots[index][path] = child;
   }
@@ -128,7 +133,11 @@ export default function Stower(element) {
     const child = (slots[index] || {})[path];
     if (!child) return;
 
-    remove(child);
+    if (Array.isArray(child)) {
+      child.forEach(remove);
+    } else {
+      remove(child);
+    }
     delete slots[index][path];
     const pathOrderIndex = pathOrders[index].indexOf(path);
     pathOrders[index].splice(pathOrderIndex, 1);
