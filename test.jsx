@@ -68,20 +68,19 @@ test.serial('Multiple paths', t => {
   t.is(document.body.innerHTML, '<div><p>Mr. two</p></div>');
 });
 
-// test.serial('on Sort - no default', t => {
-//   const dd = domdom();
-//   const div = ({ on }) => <div>
-//     {on('players.$id', player => <p>{player.name}</p>)}
-//   </div>;
-//   dd.append(document.body, div);
-//   dd.set('players.one', { name: '1' });
-//   dd.set('players.two', { name: '2' });
-//   dd.set('players.three', { name: '3' });
-//   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
-// });
+test.serial('on Sort - no default', t => {
+  const dd = domdom();
+  const div = ({ on }) => <div>
+    {on('players.$id', player => <p>{player.name}</p>)}
+  </div>;
+  dd.append(document.body, div);
+  dd.set('players.one', { name: '1' });
+  dd.set('players.two', { name: '2' });
+  dd.set('players.three', { name: '3' });
+  t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
+});
 
-// TODO: Sorting
-// test.serial('on Sort - if third arg is "true" then use the old default', t => {
+// test.serial('on Sort - if third arg is true then use the old default', t => {
 //   const dd = domdom();
 //   const div = ({ on }) => <div>
 //     {on('players.$id', player => <p>{player.name}</p>, true)}
@@ -93,17 +92,17 @@ test.serial('Multiple paths', t => {
 //   t.is(document.body.innerHTML, '<div><p>1</p><p>3</p><p>2</p></div>');
 // });
 
-// test.serial('on Sort - by third argument', t => {
-//   const dd = domdom();
-//   const div = ({ on }) => <div>
-//     {on('players.$id', player => <p>{player.name}</p>, (a, b) => a.name.localeCompare(b.name))}
-//   </div>;
-//   dd.append(document.body, div);
-//   dd.set('players.one', { name: '1' });
-//   dd.set('players.two', { name: '2' });
-//   dd.set('players.three', { name: '3' });
-//   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
-// });
+test.serial('on Sort - by third argument', t => {
+  const dd = domdom();
+  const div = ({ on }) => <div>
+    {on('players.$id', player => <p>{player.name}</p>, (a, b) => a.name.localeCompare(b.name))}
+  </div>;
+  dd.append(document.body, div);
+  dd.set('players.one', { name: '1' });
+  dd.set('players.two', { name: '2' });
+  dd.set('players.three', { name: '3' });
+  t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
+});
 
 test.serial('Multiple on-siblings', t => {
   const dd = domdom();
@@ -117,23 +116,23 @@ test.serial('Multiple on-siblings', t => {
   t.is(document.body.innerHTML, '<div><div>Hello</div><div>World</div></div>');
 });
 
-// test.serial('on Sort - remove $first', t => {
-//   const dd = domdom();
-//   const div = ({ on }) => <div>
-//     {on('players.$id', player => <p>{player.name}</p>)}
-//   </div>;
-//   dd.append(document.body, div);
-//   dd.set('players.1', { name: '1' });
-//   dd.set('players.2', { name: '2' });
-//   dd.set('players.3', { name: '3' });
-//   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
-//
-//   dd.unset('players.1');
-//   t.is(document.body.innerHTML, '<div><p>2</p><p>3</p></div>');
-//
-//   dd.set('players.1', { name: '1' });
-//   t.is(document.body.innerHTML, '<div><p>2</p><p>3</p><p>1</p></div>');
-// });
+test.serial('on Sort - remove $first', t => {
+  const dd = domdom();
+  const div = ({ on }) => <div>
+    {on('players.$id', player => <p>{player.name}</p>)}
+  </div>;
+  dd.append(document.body, div);
+  dd.set('players.1', { name: '1' });
+  dd.set('players.2', { name: '2' });
+  dd.set('players.3', { name: '3' });
+  t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
+
+  dd.unset('players.1');
+  t.is(document.body.innerHTML, '<div><p>2</p><p>3</p></div>');
+
+  dd.set('players.1', { name: '1' });
+  t.is(document.body.innerHTML, '<div><p>2</p><p>3</p><p>1</p></div>');
+});
 
 // test.serial('on Sort - remove $first - with sort', t => {
 //   const dd = domdom();
