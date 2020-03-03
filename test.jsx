@@ -638,3 +638,14 @@ test.serial('Recursive non-wild change', t => {
   dd.set('test.one.a', 4);
   t.is(document.body.innerHTML, '<div><div>{"a":3}</div><div>{"a":2}</div></div>');
 });
+
+test.serial('Filter array', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    {on('users.$id', user => <span>{user.name}</span>)
+      .filter(user => user.name !== 'One!')}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  t.is(document.body.innerHTML, '<div><span>Two!</span></div>');
+});

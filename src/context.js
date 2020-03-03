@@ -69,6 +69,10 @@ export default function Context(data, tagName, props, ...children) {
           hodor.toAdd.push({ res: or, path, isOr: true });
         }
         return hodor;
+      },
+      filter: (filter) => {
+        hodor._filter = filter;
+        return hodor;
       }
     };
 
@@ -76,6 +80,10 @@ export default function Context(data, tagName, props, ...children) {
       hodor.listeners.push(data.on('!+* ' + path, (...args) => {
         const path = args[1].path;
         const res = listener(...args);
+
+        if (hodor._filter && !hodor._filter(args[0])) {
+          return;
+        }
 
         // Remove all 'ors'
         hodor.toAdd
