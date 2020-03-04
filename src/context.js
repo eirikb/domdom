@@ -1,6 +1,14 @@
+import hodor from './hodor';
+
 export default function Context(data, tagName, props, ...children) {
-  const listeners = [];
+  const hodors = [];
   const mounteds = [];
+
+  function on(path, listener, sort) {
+    const h = hodor(data, path, listener, sort);
+    hodors.push(h);
+    return h;
+  }
 
   const options = {
     on: (path, listener, sort) => on(path, listener, sort),
@@ -47,77 +55,6 @@ export default function Context(data, tagName, props, ...children) {
     options[key] = value;
   }
 
-  const on = (path, listener, sort) => {
-    if (!listener) {
-      listener = _ => _;
-    }
-    const hasFlags = path.match(/ /);
-    if (hasFlags) {
-      listeners.push(data.on(path, listener));
-      return;
-    }
-
-    const hodor = {
-      listeners: [],
-      path,
-      toAdd: [],
-      isHodor: true,
-      or: (or) => {
-        hodor.orValue = or;
-        const hasValue = data.get(path);
-        if (!hasValue) {
-          hodor.toAdd.push({ res: or, path, isOr: true });
-        }
-        return hodor;
-      },
-      filter: (filter) => {
-        hodor._filter = filter;
-        return hodor;
-      }
-    };
-
-    const listen = (path) => {
-      hodor.listeners.push(data.on('!+* ' + path, (...args) => {
-        const path = args[1].path;
-        const res = listener(...args);
-
-        if (hodor._filter && !hodor._filter(args[0])) {
-          return;
-        }
-
-        // Remove all 'ors'
-        hodor.toAdd
-          .filter(res => res.isOr)
-          .forEach(({ path }) => hodor.remove(path));
-
-        hodor.toAdd = [{ res, path }];
-        if (typeof res !== 'undefined' && hodor.add) {
-          hodor.add({ res, path, sort });
-        }
-      }));
-      hodor.listeners.push(data.on('- ' + path, (...args) => {
-        const path = args[1].path;
-        if (hodor.remove) {
-          hodor.remove(path);
-        }
-        if (hodor.orValue && hodor.add) {
-          hodor.add({ res: hodor.orValue, path, sort });
-        }
-      }));
-      return hodor;
-    };
-
-    if (path.match(/^>\./)) {
-      hodor.bounce = (parentPath) => {
-        listen(parentPath + path.slice(1));
-      };
-      return hodor;
-    }
-
-    listen(path);
-    return hodor;
-  };
-
   this.on = options.on;
   this.mounted = () => {
     for (let mounted of mounteds) {
@@ -128,7 +65,9 @@ export default function Context(data, tagName, props, ...children) {
   res.context = this;
   const destroy = res.destroy;
   res.destroy = () => {
-    data.off(listeners.join(' '));
+    for (let hodor of hodors) {
+      hodor.destroy();
+    }
     destroy();
   };
   return res;
