@@ -1,13 +1,13 @@
-import hodor from './hodor';
+import Hodor from './hodor';
 
 export default function Context(data, tagName, props, ...children) {
   const hodors = [];
   const mounteds = [];
 
   function on(path, listener, sort) {
-    const h = hodor(data, path, listener, sort);
-    hodors.push(h);
-    return h;
+    const hodor = Hodor(data, path, listener, sort);
+    hodors.push(hodor);
+    return hodor;
   }
 
   const options = {

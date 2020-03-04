@@ -1,4 +1,4 @@
-export default (data, path, listener, sort) => {
+export default (data, path, listener) => {
   if (!listener) {
     listener = _ => _;
   }
@@ -46,7 +46,7 @@ export default (data, path, listener, sort) => {
 
       hodor.toAdd = [{ res, path }];
       if (typeof res !== 'undefined' && hodor.add) {
-        hodor.add({ res, path, sort });
+        hodor.add({ res, path });
       }
     }));
     hodor.listeners.push(data.on('- ' + path, (...args) => {
@@ -55,7 +55,7 @@ export default (data, path, listener, sort) => {
         hodor.remove(path);
       }
       if (hodor.orValue && hodor.add) {
-        hodor.add({ res: hodor.orValue, path, sort });
+        hodor.add({ res: hodor.orValue, path });
       }
     }));
     return hodor;
