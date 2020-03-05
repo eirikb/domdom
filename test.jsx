@@ -255,19 +255,19 @@ test.serial('on empty res', t => {
   t.is(document.body.innerHTML, '<div></div>');
 });
 
-test.serial('Multiple child paths', t => {
-  const dd = domdom();
-  const div = ({ on }) => <div>
-    {on('a', () => <div>
-      {on('>.text')}
-      test
-      {on('>.text')}
-    </div>)}
-  </div>;
-  dd.append(document.body, div);
-  dd.set('a', { text: 'ok' });
-  t.is(document.body.innerHTML, '<div><div>oktestok</div></div>');
-});
+// test.serial('Multiple child paths', t => {
+//   const dd = domdom();
+//   const div = ({ on }) => <div>
+//     {on('a', () => <div>
+//       {on('>.text')}
+//       test
+//       {on('>.text')}
+//     </div>)}
+//   </div>;
+//   dd.append(document.body, div);
+//   dd.set('a', { text: 'ok' });
+//   t.is(document.body.innerHTML, '<div><div>oktestok</div></div>');
+// });
 
 test.serial('Have some path with flags', t => {
   const dd = domdom();

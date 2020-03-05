@@ -21,9 +21,7 @@ export default (data = Data()) => {
       const destroy = () => {
         element.childNodes.forEach(child => child.destroy && child.destroy());
         for (let hodor of hodors) {
-          if (hodor.listeners.length > 0) {
-            data.off(hodor.listeners.join(' '));
-          }
+          hodor.destroy();
         }
         hodors = [];
       };
