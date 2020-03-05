@@ -2,21 +2,30 @@ export default (data, path, listener) => {
   if (!listener) {
     listener = _ => _;
   }
+  let filter, sort, stower, or, index;
+
   const hodor = {
     listeners: [],
     path,
-    toAdd: [],
     isHodor: true,
-    or: (or) => {
-      hodor.orValue = or;
-      const hasValue = data.get(path);
-      if (!hasValue) {
-        hodor.toAdd.push({ res: or, path, isOr: true });
-      }
+    or(o) {
+      or = o;
       return hodor;
     },
-    filter: (filter) => {
-      hodor._filter = filter;
+    filter(f) {
+      filter = f;
+      return hodor;
+    },
+    sort(s) {
+      sort = s;
+      return hodor;
+    },
+    stower(i, s) {
+      index = i;
+      stower = s;
+      if (or) {
+        stower.add(or, index);
+      }
       return hodor;
     },
     destroy() {
@@ -31,31 +40,30 @@ export default (data, path, listener) => {
   }
 
   const listen = (path) => {
+    let first = true;
     hodor.listeners.push(data.on('!+* ' + path, (...args) => {
       const path = args[1].path;
       const res = listener(...args);
 
-      if (hodor._filter && !hodor._filter(args[0])) {
+      if (filter && !filter(args[0])) {
         return;
       }
 
-      // Remove all 'ors'
-      hodor.toAdd
-        .filter(res => res.isOr)
-        .forEach(({ path }) => hodor.remove(path));
-
-      hodor.toAdd = [{ res, path }];
-      if (typeof res !== 'undefined' && hodor.add) {
-        hodor.add({ res, path });
+      if (typeof res !== 'undefined' && stower) {
+        if (first && or) {
+          stower.remove(index);
+          first = false;
+        }
+        stower.add(res, index, path);
       }
     }));
     hodor.listeners.push(data.on('- ' + path, (...args) => {
-      const path = args[1].path;
-      if (hodor.remove) {
-        hodor.remove(path);
-      }
-      if (hodor.orValue && hodor.add) {
-        hodor.add({ res: hodor.orValue, path });
+      if (stower) {
+        const path = args[1].path;
+        stower.remove(index, path);
+        if (or) {
+          hodor.add(or, index);
+        }
       }
     }));
     return hodor;

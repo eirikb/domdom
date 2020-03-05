@@ -154,19 +154,19 @@ test.serial('on Sort - remove $first', t => {
 //   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
 // });
 
-test.serial('Child listener', t => {
-  const dd = domdom();
-  const div = ({ on }) => <main>
-    {on('players.$id', () => <article>
-      {on('>.name', name => name)}
-    </article>)}
-  </main>;
-  dd.append(document.body, div);
-  dd.set('players.1', { name: '1' });
-  dd.set('players.2', { name: '2' });
-  dd.set('players.3', { name: '3' });
-  t.is(document.body.innerHTML, '<main><article>1</article><article>2</article><article>3</article></main>');
-});
+// test.serial('Child listener', t => {
+//   const dd = domdom();
+//   const div = ({ on }) => <main>
+//     {on('players.$id', () => <article>
+//       {on('>.name', name => name)}
+//     </article>)}
+//   </main>;
+//   dd.append(document.body, div);
+//   dd.set('players.1', { name: '1' });
+//   dd.set('players.2', { name: '2' });
+//   dd.set('players.3', { name: '3' });
+//   t.is(document.body.innerHTML, '<main><article>1</article><article>2</article><article>3</article></main>');
+// });
 
 test.serial('Simple when', t => {
   const dd = domdom();

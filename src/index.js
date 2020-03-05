@@ -28,28 +28,13 @@ export default (data = Data()) => {
         hodors = [];
       };
 
-      const addHodor = (index, child) => {
-        hodors.push(child);
-        child.add = ({ res, path, sort }) => {
-          appendChild(index, res, path, sort);
-          if (res.onPath) {
-            res.onPath(path);
-          }
-        };
-        child.remove = (path) => {
-          removeChild(index, path);
-        };
-        for (let { res, path } of child.toAdd) {
-          appendChild(index, res, path);
-        }
+      const addHodor = (index, hodor) => {
+        hodors.push(hodor);
+        hodor.stower(index, stower);
       };
 
-      const appendChild = (index, child, path, sort) => {
+      const appendChild = (index, child, path) => {
         stower.add(child, index, path);
-      };
-
-      const removeChild = (index, path, child) => {
-        stower.remove(index, path);
       };
 
       const setElementValue = (key, value) => {

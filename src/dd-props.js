@@ -34,12 +34,10 @@ export default (data, context, element, props) => {
           }
         }
 
-        value.remove = () => 0;
-        value.add = ({ res }) => setValue(res);
-        const first = value.toAdd[0];
-        if (first) {
-          setValue(first.res);
-        }
+        value.stower(0, {
+          add: (s) => setValue(s),
+          remove: () => 0
+        });
       }
     }
   }
