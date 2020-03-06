@@ -20,15 +20,15 @@ test('Hodor or', t => {
   data.set('yes', 3);
 });
 
-// test('Hodor should pass an position index', t => {
-//   const data = Data();
-//   const hodor = Hodor(data, 'users.$id');
-//   hodor.add = res => console.log('res', res);
-//   data.set('users', {
-//     1: { name: 'one' },
-//     2: { name: 'two' },
-//     3: { name: 'three' }
-//   });
-//   t.pass();
-// });
-//
+test('Hodor should pass a position index', t => {
+  const data = Data();
+  const hodor = Hodor(data, 'users.$id');
+  t.plan(3);
+  hodor.stower(0, { add: (o, index, subIndex) => t.deepEqual([index, subIndex], [0, 0]) });
+  data.set('users.1', { name: 'one' });
+  hodor.stower(0, { add: (o, index, subIndex) => t.deepEqual([index, subIndex], [0, 1]) });
+  data.set('users.2', { name: 'two' });
+  hodor.stower(0, { add: (o, index, subIndex) => t.deepEqual([index, subIndex], [0, 2]) });
+  data.set('users.3', { name: 'three' });
+});
+

@@ -51,6 +51,7 @@ export default (data, path, listener) => {
 
   const listen = (path) => {
     let first = true;
+    let subIndex = 0;
     hodor.listeners.push(data.on('!+* ' + path, (...args) => {
       const path = args[1].path;
       const res = listener(...args);
@@ -61,17 +62,20 @@ export default (data, path, listener) => {
 
       if (typeof res !== 'undefined') {
         if (first && or) {
-          stower.remove(index, '_');
+          stower.remove(index, 0);
           first = false;
         }
-        stower.add(res, index, path);
+        stower.add(res, index, subIndex);
+        subIndex++;
       }
     }));
     hodor.listeners.push(data.on('- ' + path, (...args) => {
       const path = args[1].path;
-      stower.remove(index, path);
+      // TODO: deprecating is bad
+      subIndex--;
+      stower.remove(index, subIndex);
       if (or) {
-        stower.add(or, index, '_');
+        stower.add(or, index, 0);
       }
     }));
     return hodor;
