@@ -1,6 +1,6 @@
 import test from 'ava';
 import browserEnv from 'browser-env';
-import Stower from './src/stower';
+import Stower from '../src/stower';
 
 browserEnv();
 

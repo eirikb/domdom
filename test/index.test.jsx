@@ -2,7 +2,7 @@ import test from 'ava';
 import browserEnv from 'browser-env';
 
 browserEnv();
-import domdom from './src';
+import domdom from '../src';
 
 test.beforeEach(() => {
   document.body.innerHTML = '';

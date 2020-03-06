@@ -1,5 +1,5 @@
 import test from 'ava';
-import Hodor from './src/hodor';
+import Hodor from '../src/hodor';
 import Data from '@eirikb/data';
 
 test('Hold door', t => {
