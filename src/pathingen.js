@@ -1,5 +1,6 @@
 export default () => {
   const self = {};
+  const allPaths = new Set();
 
   function sortedIndex(path) {
     const { paths } = self;
@@ -19,15 +20,31 @@ export default () => {
   }
 
   self.paths = [];
+
   self.sorter = (a, b) => a.localeCompare(b);
+
+  self.filterer = () => true;
+
   self.addPath = (path) => {
+    allPaths.add(path);
+    if (!self.filterer(path)) return -1;
+
     const { paths } = self;
     const index = sortedIndex(path);
     paths.splice(index, 0, path);
     return index;
   };
-  self.resort = () => {
-    self.paths.sort(self.sorter);
+
+  self.removePath = (path) => {
+    allPaths.delete(path);
+    const { paths } = self;
+    const index = sortedIndex(path);
+    paths.splice(index, 1);
+    return index;
+  };
+
+  self.update = () => {
+    self.paths = Array.from(allPaths).filter(self.filterer).sort(self.sorter);
   };
 
   return self;

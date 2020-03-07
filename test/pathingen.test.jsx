@@ -38,7 +38,7 @@ test('Custom resort', t => {
   t.is(pathingen.addPath('c'), 2);
   t.deepEqual(pathingen.paths, ['a', 'b', 'c']);
   pathingen.sorter = (a, b) => b.localeCompare(a);
-  pathingen.resort();
+  pathingen.update();
   t.deepEqual(pathingen.paths, ['c', 'b', 'a']);
 });
 
@@ -59,6 +59,52 @@ test('Custom objects', t => {
   t.deepEqual(pathingen.paths, ['a', 'b', 'c']);
 
   pathingen.sorter = (a, b) => data[b].level - data[a].level;
-  pathingen.resort();
+  pathingen.update();
   t.deepEqual(pathingen.paths, ['c', 'b', 'a']);
+});
+
+test('Remove path', t => {
+  const pathingen = Pathingen();
+  t.is(pathingen.addPath('c'), 0);
+  t.is(pathingen.addPath('b'), 0);
+  t.is(pathingen.addPath('a'), 0);
+  t.deepEqual(pathingen.paths, ['a', 'b', 'c']);
+  pathingen.removePath('b');
+  t.deepEqual(pathingen.paths, ['a', 'c']);
+  t.is(pathingen.addPath('d'), 2);
+  t.deepEqual(pathingen.paths, ['a', 'c', 'd']);
+});
+
+test('Filterer', t => {
+  const pathingen = Pathingen();
+  pathingen.filterer = path => path !== 'b';
+  t.is(pathingen.addPath('c'), 0);
+  t.is(pathingen.addPath('b'), -1);
+  t.is(pathingen.addPath('a'), 0);
+  t.deepEqual(pathingen.paths, ['a', 'c']);
+});
+
+test('Filterer change', t => {
+  const pathingen = Pathingen();
+  pathingen.filterer = path => path !== 'b';
+  pathingen.addPath('c');
+  pathingen.addPath('b');
+  pathingen.addPath('a');
+  pathingen.filterer = path => path !== 'a';
+  pathingen.update();
+  t.deepEqual(pathingen.paths, ['b', 'c']);
+});
+
+test('Filterer and sorter change', t => {
+  const pathingen = Pathingen();
+  pathingen.filterer = path => path !== 'b';
+  pathingen.sorter = (a, b) => b.localeCompare(a);
+  pathingen.addPath('c');
+  pathingen.addPath('b');
+  pathingen.addPath('a');
+  t.deepEqual(pathingen.paths, ['c', 'a']);
+  pathingen.filterer = path => path !== 'a';
+  pathingen.sorter = (a, b) => a.localeCompare(b);
+  pathingen.update();
+  t.deepEqual(pathingen.paths, ['b', 'c']);
 });
