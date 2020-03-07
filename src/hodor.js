@@ -1,8 +1,11 @@
+import Pathingen from './pathingen';
+
 export default (data, path, listener) => {
   if (!listener) {
     listener = _ => _;
   }
-  let filter, sort, stower, or, index;
+  let stower, or, index;
+  const pathingen = Pathingen();
 
   const stowerPlayback = [];
   stower = {
@@ -18,12 +21,12 @@ export default (data, path, listener) => {
       or = o;
       return hodor;
     },
-    filter(f) {
-      filter = f;
+    filter(filter) {
+      pathingen.filterer = (a, b) => filter(data.get(a), data.get(b));
       return hodor;
     },
-    sort(s) {
-      sort = s;
+    sort(sort) {
+      pathingen.sorter = (a, b) => sort(data.get(a), data.get(b));
       return hodor;
     },
     stower(i, s) {
@@ -51,14 +54,12 @@ export default (data, path, listener) => {
 
   const listen = (path) => {
     let first = true;
-    let subIndex = 0;
     hodor.listeners.push(data.on('!+* ' + path, (...args) => {
       const path = args[1].path;
       const res = listener(...args);
 
-      if (filter && !filter(args[0])) {
-        return;
-      }
+      const subIndex = pathingen.addPath(path);
+      if (subIndex < 0) return;
 
       if (typeof res !== 'undefined') {
         if (first && or) {
@@ -66,13 +67,11 @@ export default (data, path, listener) => {
           first = false;
         }
         stower.add(res, index, subIndex);
-        subIndex++;
       }
     }));
     hodor.listeners.push(data.on('- ' + path, (...args) => {
       const path = args[1].path;
-      // TODO: deprecating is bad
-      subIndex--;
+      const subIndex = pathingen.removePath(path);
       stower.remove(index, subIndex);
       if (or) {
         stower.add(or, index, 0);

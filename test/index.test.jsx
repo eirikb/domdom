@@ -68,7 +68,7 @@ test.serial('Multiple paths', t => {
   t.is(document.body.innerHTML, '<div><p>Mr. two</p></div>');
 });
 
-test.serial('on Sort - no default', t => {
+test.serial.skip('on Sort - no default', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.$id', player => <p>{player.name}</p>)}
@@ -80,19 +80,19 @@ test.serial('on Sort - no default', t => {
   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
 });
 
-// test.serial('on Sort - if third arg is true then use the old default', t => {
-//   const dd = domdom();
-//   const div = ({ on }) => <div>
-//     {on('players.$id', player => <p>{player.name}</p>, true)}
-//   </div>;
-//   dd.append(document.body, div);
-//   dd.set('players.one', { name: '1' });
-//   dd.set('players.two', { name: '2' });
-//   dd.set('players.three', { name: '3' });
-//   t.is(document.body.innerHTML, '<div><p>1</p><p>3</p><p>2</p></div>');
-// });
+test.serial.skip('on Sort - if third arg is true then use the old default', t => {
+  const dd = domdom();
+  const div = ({ on }) => <div>
+    {on('players.$id', player => <p>{player.name}</p>, true)}
+  </div>;
+  dd.append(document.body, div);
+  dd.set('players.one', { name: '1' });
+  dd.set('players.two', { name: '2' });
+  dd.set('players.three', { name: '3' });
+  t.is(document.body.innerHTML, '<div><p>1</p><p>3</p><p>2</p></div>');
+});
 
-test.serial('on Sort - by third argument', t => {
+test.serial.skip('on Sort - by third argument', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.$id', player => <p>{player.name}</p>, (a, b) => a.name.localeCompare(b.name))}
@@ -116,7 +116,7 @@ test.serial('Multiple on-siblings', t => {
   t.is(document.body.innerHTML, '<div><div>Hello</div><div>World</div></div>');
 });
 
-test.serial('on Sort - remove $first', t => {
+test.serial.skip('on Sort - remove $first', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.$id', player => <p>{player.name}</p>)}
@@ -134,39 +134,39 @@ test.serial('on Sort - remove $first', t => {
   t.is(document.body.innerHTML, '<div><p>2</p><p>3</p><p>1</p></div>');
 });
 
-// test.serial('on Sort - remove $first - with sort', t => {
-//   const dd = domdom();
-//   const div = ({ on }) => <div>
-//     {on('players.$id', player => <p>{player.name}</p>,
-//       (a, b, aPath, bPath) => aPath.localeCompare(bPath)
-//     )}
-//   </div>;
-//   dd.append(document.body, div);
-//   dd.set('players.1', { name: '1' });
-//   dd.set('players.2', { name: '2' });
-//   dd.set('players.3', { name: '3' });
-//   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
-//
-//   dd.unset('players.1');
-//   t.is(document.body.innerHTML, '<div><p>2</p><p>3</p></div>');
-//
-//   dd.set('players.1', { name: '1' });
-//   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
-// });
+test.serial.skip('on Sort - remove $first - with sort', t => {
+  const dd = domdom();
+  const div = ({ on }) => <div>
+    {on('players.$id', player => <p>{player.name}</p>,
+      (a, b, aPath, bPath) => aPath.localeCompare(bPath)
+    )}
+  </div>;
+  dd.append(document.body, div);
+  dd.set('players.1', { name: '1' });
+  dd.set('players.2', { name: '2' });
+  dd.set('players.3', { name: '3' });
+  t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
 
-// test.serial('Child listener', t => {
-//   const dd = domdom();
-//   const div = ({ on }) => <main>
-//     {on('players.$id', () => <article>
-//       {on('>.name', name => name)}
-//     </article>)}
-//   </main>;
-//   dd.append(document.body, div);
-//   dd.set('players.1', { name: '1' });
-//   dd.set('players.2', { name: '2' });
-//   dd.set('players.3', { name: '3' });
-//   t.is(document.body.innerHTML, '<main><article>1</article><article>2</article><article>3</article></main>');
-// });
+  dd.unset('players.1');
+  t.is(document.body.innerHTML, '<div><p>2</p><p>3</p></div>');
+
+  dd.set('players.1', { name: '1' });
+  t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
+});
+
+test.serial.skip('Child listener', t => {
+  const dd = domdom();
+  const div = ({ on }) => <main>
+    {on('players.$id', () => <article>
+      {on('>.name', name => name)}
+    </article>)}
+  </main>;
+  dd.append(document.body, div);
+  dd.set('players.1', { name: '1' });
+  dd.set('players.2', { name: '2' });
+  dd.set('players.3', { name: '3' });
+  t.is(document.body.innerHTML, '<main><article>1</article><article>2</article><article>3</article></main>');
+});
 
 test.serial('Simple when', t => {
   const dd = domdom();
@@ -209,7 +209,7 @@ test.serial('Many whens', t => {
   t.is(document.body.innerHTML, '<div>yestruet === yes<div>hello</div><div>world</div></div>');
 });
 
-test.serial('Quirk on + when', t => {
+test.serial.skip('Quirk on + when', t => {
   const dd = domdom();
   const div = ({ on, when }) => <div>
     {on('test', t => t)}
@@ -230,7 +230,7 @@ test.serial('Quirk on + when', t => {
   t.is(document.body.innerHTML, '<div>noNo</div>');
 });
 
-test.serial('Simple or', t => {
+test.serial.skip('Simple or', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('test', t => <div>{t}</div>).or(<div>Nope</div>)}
@@ -255,19 +255,19 @@ test.serial('on empty res', t => {
   t.is(document.body.innerHTML, '<div></div>');
 });
 
-// test.serial('Multiple child paths', t => {
-//   const dd = domdom();
-//   const div = ({ on }) => <div>
-//     {on('a', () => <div>
-//       {on('>.text')}
-//       test
-//       {on('>.text')}
-//     </div>)}
-//   </div>;
-//   dd.append(document.body, div);
-//   dd.set('a', { text: 'ok' });
-//   t.is(document.body.innerHTML, '<div><div>oktestok</div></div>');
-// });
+test.serial.skip('Multiple child paths', t => {
+  const dd = domdom();
+  const div = ({ on }) => <div>
+    {on('a', () => <div>
+      {on('>.text')}
+      test
+      {on('>.text')}
+    </div>)}
+  </div>;
+  dd.append(document.body, div);
+  dd.set('a', { text: 'ok' });
+  t.is(document.body.innerHTML, '<div><div>oktestok</div></div>');
+});
 
 test.serial('Have some path with flags', t => {
   const dd = domdom();
@@ -558,7 +558,7 @@ test.serial('Rendering types', t => {
   t.is(document.body.innerHTML, '<div>a13.6{"hello":"world"}truefalse</div>');
 });
 
-test.serial('Remove or on on', t => {
+test.serial.skip('Remove or on on', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
     {on('test.$id', t => t.name).or('Loading...')}
