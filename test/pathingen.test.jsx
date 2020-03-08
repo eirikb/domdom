@@ -109,7 +109,7 @@ test('Filterer and sorter change', t => {
   t.deepEqual(pathingen.paths, ['b', 'c']);
 });
 
-test('Update gives data stower can use to reorder without needing to reorder all', t => {
+test('Update gives data stower can use to reorder without needing to reorder all - filter', t => {
   const pathingen = Pathingen();
   pathingen.addPath('a');
   pathingen.addPath('b');
@@ -120,4 +120,30 @@ test('Update gives data stower can use to reorder without needing to reorder all
   pathingen.filterer = path => path !== 'b' && path !== 'd';
   t.deepEqual(pathingen.update(), [0, -1, 1, -1, 2]);
   t.deepEqual(pathingen.paths, ['a', 'c', 'e']);
+});
+
+test('Update gives data stower can use to reorder without needing to reorder all - sort', t => {
+  const pathingen = Pathingen();
+  pathingen.addPath('a');
+  pathingen.addPath('b');
+  pathingen.addPath('c');
+  pathingen.addPath('d');
+  t.deepEqual(pathingen.paths, ['a', 'b', 'c', 'd']);
+  pathingen.sorter = (a, b) => b.localeCompare(a);
+  t.deepEqual(pathingen.update(), [3, 2, 1, 0]);
+  t.deepEqual(pathingen.paths, ['d', 'c', 'b', 'a']);
+});
+
+test('Update gives data stower can use to reorder without needing to reorder all - filter and sort', t => {
+  const pathingen = Pathingen();
+  pathingen.addPath('a');
+  pathingen.addPath('b');
+  pathingen.addPath('c');
+  pathingen.addPath('d');
+  pathingen.addPath('e');
+  t.deepEqual(pathingen.paths, ['a', 'b', 'c', 'd', 'e']);
+  pathingen.filterer = path => path !== 'b' && path !== 'd';
+  pathingen.sorter = (a, b) => b.localeCompare(a);
+  t.deepEqual(pathingen.update(), [2, -1, 1, -1, 0]);
+  t.deepEqual(pathingen.paths, ['e', 'c', 'a']);
 });
