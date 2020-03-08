@@ -259,14 +259,6 @@ test('replace array', t => {
   t.deepEqual(element.innerHTML, '<div></div><span></span>');
 });
 
-test('replace subIndex', t => {
-  const { element, stower, a, b } = t.context;
-  stower.add(a, 1, 0);
-  t.deepEqual(element.innerHTML, '<a></a>');
-  stower.add(b, 1, 0);
-  t.deepEqual(element.innerHTML, '<b></b>');
-});
-
 test('mounted single', t => {
   const { stower, element } = t.context;
   element.isMounted = true;
@@ -386,5 +378,19 @@ test('first is updated when removing by subIndex', t => {
   t.deepEqual(element.innerHTML, '<b></b>');
   stower.add(div, 0);
   t.deepEqual(element.innerHTML, '<div></div><b></b>');
+});
+
+test('inserting over another index should push the rest', t => {
+  const { element, stower, div, a, b, c } = t.context;
+  stower.add(a, 1, 0);
+  stower.add(b, 1, 0);
+  stower.add(c, 1, 0);
+  t.deepEqual(element.innerHTML, '<c></c><b></b><a></a>');
+  stower.remove(1, 0);
+  t.deepEqual(element.innerHTML, '<b></b><a></a>');
+  stower.add(div, 0);
+  t.deepEqual(element.innerHTML, '<div></div><b></b><a></a>');
+  stower.remove(1, 0);
+  t.deepEqual(element.innerHTML, '<div></div><a></a>');
 });
 

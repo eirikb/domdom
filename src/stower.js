@@ -60,10 +60,13 @@ export default function Stower(element) {
   function addWithSubIndex(child, index, subIndex) {
     const isArray = Array.isArray(child);
     child = isArray ? child.map(escapeChild) : escapeChild(child);
-    if (slots[index] && slots[index][subIndex]) {
-      removeWithSubIndex(index, subIndex);
+    let before;
+    if (first[index]) {
+      before = slots[index][subIndex];
     }
-    let before = first.slice(index + 1).find(element => element);
+    if (!before) {
+      before = first.slice(index + 1).find(element => element);
+    }
 
     if (isArray) {
       child.forEach(child => add(child, before));
@@ -71,7 +74,11 @@ export default function Stower(element) {
       add(child, before);
     }
     slots[index] = slots[index] || [];
-    slots[index][subIndex] = child;
+    if (slots[index][subIndex]) {
+      slots[index].splice(subIndex, 0, child);
+    } else {
+      slots[index][subIndex] = child;
+    }
     if (subIndex === 0) {
       first[index] = child;
     }
@@ -111,7 +118,9 @@ export default function Stower(element) {
       remove(child);
     }
     slots[index].splice(subIndex, 1);
-    first[index] = slots[index][subIndex];
+    if (subIndex === 0) {
+      first[index] = slots[index][0];
+    }
   }
 
   self.remove = (index, subIndex) => {
@@ -126,25 +135,6 @@ export default function Stower(element) {
       }
     }
   };
-
-  // self.reorder = (index, pathOrder) => {
-  //   const slot = slots[index];
-  //   if (!slot) return;
-  //
-  //   pathOrders[index] = pathOrder;
-  //   const before = first.slice(index + 1).find(element => element);
-  //   let firstChild;
-  //   for (let path of pathOrder) {
-  //     const child = slot[path];
-  //     if (child) {
-  //       if (!firstChild) {
-  //         firstChild = child;
-  //       }
-  //       add(child, before);
-  //     }
-  //   }
-  //   first[index] = firstChild;
-  // };
 
   return self;
 };

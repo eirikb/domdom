@@ -68,40 +68,31 @@ test.serial('Multiple paths', t => {
   t.is(document.body.innerHTML, '<div><p>Mr. two</p></div>');
 });
 
-test.serial.skip('on Sort - no default', t => {
+test.serial('on Sort - default sort by key', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.$id', player => <p>{player.name}</p>)}
   </div>;
   dd.append(document.body, div);
-  dd.set('players.one', { name: '1' });
-  dd.set('players.two', { name: '2' });
-  dd.set('players.three', { name: '3' });
+  dd.set('players.aone', { name: '1' });
+  dd.set('players.btwo', { name: '2' });
+  dd.set('players.cthree', { name: '3' });
   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
 });
 
-test.serial.skip('on Sort - if third arg is true then use the old default', t => {
+test.serial('on Sort - sort method', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
-    {on('players.$id', player => <p>{player.name}</p>, true)}
+    {on('players.$id', player =>
+      <p>{player.name}</p>, (a, b) => a.name.localeCompare(b.name)
+    ).sort((a, b) => b.name.localeCompare(a.name))}
   </div>;
   dd.append(document.body, div);
-  dd.set('players.one', { name: '1' });
-  dd.set('players.two', { name: '2' });
-  dd.set('players.three', { name: '3' });
-  t.is(document.body.innerHTML, '<div><p>1</p><p>3</p><p>2</p></div>');
-});
-
-test.serial.skip('on Sort - by third argument', t => {
-  const dd = domdom();
-  const div = ({ on }) => <div>
-    {on('players.$id', player => <p>{player.name}</p>, (a, b) => a.name.localeCompare(b.name))}
-  </div>;
-  dd.append(document.body, div);
-  dd.set('players.one', { name: '1' });
-  dd.set('players.two', { name: '2' });
-  dd.set('players.three', { name: '3' });
-  t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
+  dd.set('players.aone', { name: '1' });
+  dd.set('players.btwo', { name: '2' });
+  dd.set('players.cthree', { name: '3' });
+  console.log(document.body.innerHTML);
+  t.is(document.body.innerHTML, '<div><p>3</p><p>2</p><p>1</p></div>');
 });
 
 test.serial('Multiple on-siblings', t => {
