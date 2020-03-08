@@ -44,7 +44,16 @@ export default () => {
   };
 
   self.update = () => {
+    const paths = self.paths.slice();
     self.paths = Array.from(allPaths).filter(self.filterer).sort(self.sorter);
+    const indexByPath = self.paths.reduce((res, path, index) => {
+      res[path] = index;
+      return res;
+    }, {});
+    return paths.map(path => {
+      const res = indexByPath[path];
+      return typeof res !== 'undefined' ? res : -1
+    });
   };
 
   return self;

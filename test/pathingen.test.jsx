@@ -108,3 +108,16 @@ test('Filterer and sorter change', t => {
   pathingen.update();
   t.deepEqual(pathingen.paths, ['b', 'c']);
 });
+
+test('Update gives data stower can use to reorder without needing to reorder all', t => {
+  const pathingen = Pathingen();
+  pathingen.addPath('a');
+  pathingen.addPath('b');
+  pathingen.addPath('c');
+  pathingen.addPath('d');
+  pathingen.addPath('e');
+  t.deepEqual(pathingen.paths, ['a', 'b', 'c', 'd', 'e']);
+  pathingen.filterer = path => path !== 'b' && path !== 'd';
+  t.deepEqual(pathingen.update(), [0, -1, 1, -1, 2]);
+  t.deepEqual(pathingen.paths, ['a', 'c', 'e']);
+});
