@@ -91,7 +91,6 @@ test.serial('on Sort - sort method', t => {
   dd.set('players.aone', { name: '1' });
   dd.set('players.btwo', { name: '2' });
   dd.set('players.cthree', { name: '3' });
-  console.log(document.body.innerHTML);
   t.is(document.body.innerHTML, '<div><p>3</p><p>2</p><p>1</p></div>');
 });
 
