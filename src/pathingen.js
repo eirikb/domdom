@@ -43,6 +43,8 @@ export default () => {
     return index;
   };
 
+  self.indexOfPath = (path) => sortedIndex(path);
+
   self.update = () => {
     const paths = self.paths.slice();
     self.paths = Array.from(allPaths).filter(self.filterer).sort(self.sorter);

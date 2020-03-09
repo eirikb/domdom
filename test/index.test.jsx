@@ -55,16 +55,16 @@ test.serial('Multiple paths', t => {
   dd.append(document.body, div);
   t.is(document.body.innerHTML, '<div></div>');
 
-  dd.set('players.one', { name: 'Mr. one' });
+  dd.set('players.aone', { name: 'Mr. one' });
   t.is(document.body.innerHTML, '<div><p>Mr. one</p></div>');
 
-  dd.set('players.two', { name: 'Mr. two' });
+  dd.set('players.btwo', { name: 'Mr. two' });
   t.is(document.body.innerHTML, '<div><p>Mr. one</p><p>Mr. two</p></div>');
 
-  dd.set('players.one', { name: 'Hello' });
-  t.is(document.body.innerHTML, '<div><p>Mr. two</p><p>Hello</p></div>');
+  dd.set('players.aone', { name: 'Hello' });
+  t.is(document.body.innerHTML, '<div><p>Hello</p><p>Mr. two</p></div>');
 
-  dd.unset('players.one');
+  dd.unset('players.aone');
   t.is(document.body.innerHTML, '<div><p>Mr. two</p></div>');
 });
 

@@ -52,13 +52,21 @@ export default (data, path, listener) => {
     return hodor;
   }
 
+  const elements = {};
   const listen = (path) => {
     let first = true;
     hodor.listeners.push(data.on('!+* ' + path, (...args) => {
       const path = args[1].path;
       const res = listener(...args);
 
-      const subIndex = pathingen.addPath(path);
+      let subIndex;
+      if (elements[path]) {
+        subIndex = pathingen.indexOfPath(path);
+        stower.remove(index, subIndex);
+      } else {
+        subIndex = pathingen.addPath(path);
+      }
+
       if (subIndex < 0) return;
 
       if (typeof res !== 'undefined') {
@@ -67,10 +75,15 @@ export default (data, path, listener) => {
           first = false;
         }
         stower.add(res, index, subIndex);
+        elements[path] = res;
+      } else {
+        pathingen.removePath(path);
+        delete elements[path];
       }
     }));
     hodor.listeners.push(data.on('- ' + path, (...args) => {
       const path = args[1].path;
+      delete elements[path];
       const subIndex = pathingen.removePath(path);
       stower.remove(index, subIndex);
       if (or) {
