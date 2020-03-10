@@ -33,7 +33,7 @@ export default (data, path, listener) => {
       index = i;
       stower = s;
       if (or) {
-        stower.add(or, index, '_');
+        stower.add(or, index, 0);
       }
       for (let { type, args } of stowerPlayback) {
         args[1] = index;
@@ -54,7 +54,6 @@ export default (data, path, listener) => {
 
   const elements = {};
   const listen = (path) => {
-    let first = true;
     hodor.listeners.push(data.on('!+* ' + path, (...args) => {
       const path = args[1].path;
       const res = listener(...args);
@@ -70,9 +69,8 @@ export default (data, path, listener) => {
       if (subIndex < 0) return;
 
       if (typeof res !== 'undefined') {
-        if (first && or) {
-          stower.remove(index, 0);
-          first = false;
+        if (Object.keys(elements).length === 0 && or) {
+          stower.remove(index, 0, 0);
         }
         stower.add(res, index, subIndex);
         elements[path] = res;
@@ -86,7 +84,7 @@ export default (data, path, listener) => {
       delete elements[path];
       const subIndex = pathingen.removePath(path);
       stower.remove(index, subIndex);
-      if (or) {
+      if (Object.keys(elements).length === 0 && or) {
         stower.add(or, index, 0);
       }
     }));

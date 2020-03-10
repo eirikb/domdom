@@ -239,7 +239,7 @@ test.serial.skip('Quirk on + when', t => {
   t.is(document.body.innerHTML, '<div>noNo</div>');
 });
 
-test.serial.skip('Simple or', t => {
+test.serial('Simple or', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('test', t => <div>{t}</div>).or(<div>Nope</div>)}
@@ -567,7 +567,7 @@ test.serial('Rendering types', t => {
   t.is(document.body.innerHTML, '<div>a13.6{"hello":"world"}truefalse</div>');
 });
 
-test.serial.skip('Remove or on on', t => {
+test.serial('Remove or on on', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
     {on('test.$id', t => t.name).or('Loading...')}
