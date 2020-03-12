@@ -80,7 +80,7 @@ export default function Stower(element) {
       slots[index][subIndex] = child;
     }
     if (subIndex === 0) {
-      first[index] = child;
+      first[index] = isArray ? child[0] : child;
     }
   }
 

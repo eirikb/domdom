@@ -218,7 +218,7 @@ test.serial('Many whens', t => {
   t.is(document.body.innerHTML, '<div>yestruet === yes<div>hello</div><div>world</div></div>');
 });
 
-test.serial.skip('Quirk on + when', t => {
+test.serial('Quirk on + when', t => {
   const dd = domdom();
   const div = ({ on, when }) => <div>
     {on('test', t => t)}

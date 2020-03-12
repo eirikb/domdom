@@ -394,3 +394,9 @@ test('inserting over another index should push the rest', t => {
   t.deepEqual(element.innerHTML, '<div></div><a></a>');
 });
 
+test('subIndex with array and before', t => {
+  const { element, stower, a, b, c } = t.context;
+  stower.add([a, b], 1, 0);
+  t.deepEqual(element.innerHTML, '<a></a><b></b>');
+  stower.add(c, 0);
+});
