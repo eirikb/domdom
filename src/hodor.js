@@ -22,11 +22,30 @@ export default (data, path, listener) => {
       return hodor;
     },
     filter(filter) {
-      pathingen.filterer = (a, b) => filter(data.get(a), data.get(b));
+      pathingen.filterer = (a) => filter(data.get(a));
+      return hodor;
+    },
+    filterOn(path, filter) {
+      pathingen.filterer = (a) => filter(data.get(path), data.get(a));
+      hodor.listeners.push(
+        data.on(`!+* ${path}`, () => pathingen.update())
+      );
       return hodor;
     },
     sort(sort) {
       pathingen.sorter = (a, b) => sort(data.get(a), data.get(b));
+      return hodor;
+    },
+    sortOn(path, sort) {
+      pathingen.sorter = (a, b) => sort(data.get(path), data.get(a), data.get(b));
+      hodor.listeners.push(
+        data.on(`!+* ${path}`, () => {
+          const res = pathingen.update();
+          for (let i = 0; i < res.length; i++) {
+            // TODO: SORT
+          }
+        })
+      );
       return hodor;
     },
     stower(i, s) {

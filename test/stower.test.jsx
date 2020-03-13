@@ -400,3 +400,4 @@ test('subIndex with array and before', t => {
   t.deepEqual(element.innerHTML, '<a></a><b></b>');
   stower.add(c, 0);
 });
+

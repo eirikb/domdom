@@ -94,6 +94,20 @@ test.serial('on Sort - sort method', t => {
   t.is(document.body.innerHTML, '<div><p>3</p><p>2</p><p>1</p></div>');
 });
 
+test.serial('on Sort - sort method2', t => {
+  const dd = domdom();
+  const div = ({ on }) => <div>
+    {on('players.$id', player =>
+      <p>{player.name}</p>, (a, b) => a.name.localeCompare(b.name)
+    ).sort((a, b) => a.name.localeCompare(b.name))}
+  </div>;
+  dd.append(document.body, div);
+  dd.set('players.aone', { name: '1' });
+  dd.set('players.btwo', { name: '2' });
+  dd.set('players.cthree', { name: '3' });
+  t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
+});
+
 test.serial('Multiple on-siblings', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
@@ -657,4 +671,96 @@ test.serial('Filter array', t => {
   dd.append(document.body, view);
   dd.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
   t.is(document.body.innerHTML, '<div><span>Two!</span></div>');
+});
+
+test.serial('Update filter on update filter', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    {on('users.$id', user => <span>{user.name}</span>)
+      .filter(user => user.name !== 'One!')}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  t.is(document.body.innerHTML, '<div><span>Two!</span></div>');
+});
+
+test.serial('Update filterOn on update filter', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    {on('users.$id', user => <span>{user.name}</span>)
+      .filterOn('test', (filter, user) => user.name !== 'One!')}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('test', { search: 'it' });
+  dd.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  t.is(document.body.innerHTML, '<div><span>Two!</span></div>');
+});
+
+test.serial('Update filterOn on update filter refresh', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    {on('users.$id', user => <span>{user.name}</span>)
+      .filterOn('test', (filter, user) => user.name !== 'One!')}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('test', { search: 'it' });
+  dd.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  t.is(document.body.innerHTML, '<div><span>Two!</span></div>');
+});
+
+test.serial('on sortOn - custom order', t => {
+  const dd = domdom();
+  const div = ({ on }) => <div>
+    {on('players.$id', player => <p>{player.name}</p>)
+      .sortOn('test', (val, a, b) => b.name.localeCompare(a.name))}
+  </div>;
+  dd.append(document.body, div);
+  dd.set('test', 'yes');
+  dd.set('players.1', { name: '1' });
+  dd.set('players.2', { name: '2' });
+  dd.set('players.3', { name: '3' });
+  t.is(document.body.innerHTML, '<div><p>3</p><p>2</p><p>1</p></div>');
+
+  dd.unset('players.1');
+  t.is(document.body.innerHTML, '<div><p>3</p><p>2</p></div>');
+
+  dd.set('players.1', { name: '7' });
+  t.is(document.body.innerHTML, '<div><p>7</p><p>3</p><p>2</p></div>');
+});
+
+test.serial('on sortOn - custom order update', t => {
+  const dd = domdom();
+  const div = ({ on }) => <div>
+    {on('players.$id', player => <p>{player.name}</p>)
+      .sortOn('test', (val, a, b) => b.name.localeCompare(a.name))}
+  </div>;
+  dd.append(document.body, div);
+  dd.set('players.1', { name: '1' });
+  dd.set('players.2', { name: '2' });
+  dd.set('players.3', { name: '3' });
+  dd.set('test', 'yes');
+  t.is(document.body.innerHTML, '<div><p>3</p><p>2</p><p>1</p></div>');
+
+  dd.unset('players.1');
+  t.is(document.body.innerHTML, '<div><p>3</p><p>2</p></div>');
+
+  dd.set('players.1', { name: '7' });
+  t.is(document.body.innerHTML, '<div><p>7</p><p>3</p><p>2</p></div>');
+});
+
+test.serial.skip('onFilter and onSort', t => {
+  const dd = domdom();
+  const div = ({ on }) => <div>
+    {on('players.$id', player => <p>{player.name}</p>)
+      .sortOn('filter.by', (val, a, b) => a[val].localeCompare(b[val])
+      )}
+  </div>;
+  dd.set('filter.by', 'name');
+  dd.append(document.body, div);
+  dd.set('players.1', { name: '1', age: '3' });
+  dd.set('players.2', { name: '2', age: '2' });
+  dd.set('players.3', { name: '3', age: '1' });
+  t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
+  dd.set('filter.by', 'age');
+  t.is(document.body.innerHTML, '<div><p>3</p><p>2</p><p>1</p></div>');
 });
