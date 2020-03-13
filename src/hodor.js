@@ -73,6 +73,9 @@ export default (data, path, listener) => {
           stower.remove(index, 0, 0);
         }
         stower.add(res, index, subIndex);
+        if (res.onPath) {
+          res.onPath(path);
+        }
         elements[path] = res;
       } else {
         pathingen.removePath(path);

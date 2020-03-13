@@ -163,7 +163,7 @@ test.serial('on Sort - remove $first - with sort', t => {
   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
 });
 
-test.serial.skip('Child listener', t => {
+test.serial('Child listener', t => {
   const dd = domdom();
   const div = ({ on }) => <main>
     {on('players.$id', () => <article>
@@ -264,7 +264,7 @@ test.serial('on empty res', t => {
   t.is(document.body.innerHTML, '<div></div>');
 });
 
-test.serial.skip('Multiple child paths', t => {
+test.serial('Multiple child paths', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('a', () => <div>
