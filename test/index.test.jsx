@@ -748,7 +748,7 @@ test.serial('on sortOn - custom order update', t => {
   t.is(document.body.innerHTML, '<div><p>7</p><p>3</p><p>2</p></div>');
 });
 
-test.serial.skip('onFilter and onSort', t => {
+test.serial('onFilter and onSort', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.$id', player => <p>{player.name}</p>)

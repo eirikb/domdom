@@ -52,9 +52,10 @@ export default () => {
       res[path] = index;
       return res;
     }, {});
-    return paths.map(path => {
-      const res = indexByPath[path];
-      return typeof res !== 'undefined' ? res : -1
+    return paths.map((path, from) => {
+      let to = indexByPath[path];
+      if (typeof to === 'undefined') to = null;
+      return { path, from, to };
     });
   };
 

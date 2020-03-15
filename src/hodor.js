@@ -10,9 +10,11 @@ export default (data, path, listener) => {
   const stowerPlayback = [];
   stower = {
     add: (...args) => stowerPlayback.push({ type: 'add', args }),
-    remove: (...args) => stowerPlayback.push({ type: 'remove', args })
+    remove: (...args) => stowerPlayback.push({ type: 'remove', args }),
+    reorderSubIndexes: () => true
   };
 
+  const elements = {};
   const hodor = {
     listeners: [],
     path,
@@ -41,9 +43,7 @@ export default (data, path, listener) => {
       hodor.listeners.push(
         data.on(`!+* ${path}`, () => {
           const res = pathingen.update();
-          for (let i = 0; i < res.length; i++) {
-            // TODO: SORT
-          }
+          stower.reorderSubIndexes(index, res);
         })
       );
       return hodor;
@@ -71,7 +71,6 @@ export default (data, path, listener) => {
     return hodor;
   }
 
-  const elements = {};
   const listen = (path) => {
     hodor.listeners.push(data.on('!+* ' + path, (...args) => {
       const path = args[1].path;

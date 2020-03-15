@@ -136,5 +136,20 @@ export default function Stower(element) {
     }
   };
 
+  self.reorderSubIndexes = (index, res) => {
+    const sorted = res.sort((a, b) => a.to - b.to);
+    const elements = (slots[index] || []).slice();
+    slots[index] = [];
+    sorted.forEach(({ from, to }) => {
+      const child = elements[from];
+      if (to !== null) {
+        element.appendChild(child);
+        slots[index].push(child);
+      } else {
+        element.removeChild(child);
+      }
+    })
+  };
+
   return self;
 };

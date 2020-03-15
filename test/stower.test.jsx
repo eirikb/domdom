@@ -148,58 +148,6 @@ test('remove first by subIndex for all', t => {
   t.deepEqual(element.innerHTML, '<a></a>');
 });
 
-// test('subIndex by order', t => {
-//   const { element, stower, a, b } = t.context;
-//   stower.add(a, 1, 'a', ['b', 'a']);
-//   stower.add(b, 1, 'b', ['b', 'a']);
-//   t.deepEqual(element.innerHTML, '<b></b><a></a>');
-// });
-
-// test('path reorder', t => {
-//   const { element, stower, a, b, c } = t.context;
-//   stower.add(a, 1, 'a');
-//   stower.add(b, 1, 'b');
-//   stower.add(c, 1, 'c');
-//   t.deepEqual(element.innerHTML, '<a></a><b></b><c></c>');
-//   stower.reorder(1, ['c', 'b', 'a']);
-//   t.deepEqual(element.innerHTML, '<c></c><b></b><a></a>');
-// });
-//
-// test('path order updated first', t => {
-//   const { element, stower, div, a, b } = t.context;
-//   const order = ['a', 'b'];
-//   stower.add(b, 1, 'b', order);
-//   stower.add(a, 1, 'a', order);
-//   t.deepEqual(element.innerHTML, '<a></a><b></b>');
-//   stower.add(div, 0);
-//   t.deepEqual(element.innerHTML, '<div></div><a></a><b></b>');
-// });
-//
-// test('path order updated first with remove', t => {
-//   const { element, stower, div, a, b, c, span } = t.context;
-//   const order = ['a', 'b', 'c'];
-//   stower.add(c, 1, 'c', order);
-//   stower.add(b, 1, 'b', order);
-//   stower.add(a, 1, 'a', order);
-//   t.deepEqual(element.innerHTML, '<a></a><b></b><c></c>');
-//   stower.remove(1, 'a');
-//   t.deepEqual(element.innerHTML, '<b></b><c></c>');
-//   stower.add(div, 0);
-//   t.deepEqual(element.innerHTML, '<div></div><b></b><c></c>');
-//   stower.add(span, 2);
-//   stower.add(a, 1, 'a', ['a', 'b', 'c']);
-//   t.deepEqual(element.innerHTML, '<div></div><a></a><b></b><c></c><span></span>');
-// });
-//
-// test('path re-order on add if order changes', t => {
-//   const { element, stower, a, b, c } = t.context;
-//   stower.add(a, 1, 'a', ['a', 'b']);
-//   stower.add(b, 1, 'b', ['a', 'b']);
-//   t.deepEqual(element.innerHTML, '<a></a><b></b>');
-//   stower.add(c, 1, 'c', ['c', 'b', 'a']);
-//   t.deepEqual(element.innerHTML, '<c></c><b></b><a></a>');
-// });
-
 test('strings', t => {
   const { element, stower, } = t.context;
   stower.add('Hello, world!');
@@ -399,5 +347,19 @@ test('subIndex with array and before', t => {
   stower.add([a, b], 1, 0);
   t.deepEqual(element.innerHTML, '<a></a><b></b>');
   stower.add(c, 0);
+});
+
+test('Reorder subindex', t => {
+  const { element, stower, div, a, b, c } = t.context;
+  stower.add(a, 0, 0);
+  stower.add(b, 0, 1);
+  stower.add(c, 0, 2);
+  t.deepEqual(element.innerHTML, '<a></a><b></b><c></c>');
+  stower.reorderSubIndexes(0, [
+    { from: 2, to: 0 },
+    { from: 1, to: 1 },
+    { from: 0, to: 2 }
+  ]);
+  t.deepEqual(element.innerHTML, '<c></c><b></b><a></a>');
 });
 

@@ -118,7 +118,13 @@ test('Update gives data stower can use to reorder without needing to reorder all
   pathingen.addPath('e');
   t.deepEqual(pathingen.paths, ['a', 'b', 'c', 'd', 'e']);
   pathingen.filterer = path => path !== 'b' && path !== 'd';
-  t.deepEqual(pathingen.update(), [0, -1, 1, -1, 2]);
+  t.deepEqual(pathingen.update(), [
+    { path: 'a', from: 0, to: 0 },
+    { path: 'b', from: 1, to: null },
+    { path: 'c', from: 2, to: 1 },
+    { path: 'd', from: 3, to: null },
+    { path: 'e', from: 4, to: 2 }
+  ]);
   t.deepEqual(pathingen.paths, ['a', 'c', 'e']);
 });
 
@@ -130,7 +136,12 @@ test('Update gives data stower can use to reorder without needing to reorder all
   pathingen.addPath('d');
   t.deepEqual(pathingen.paths, ['a', 'b', 'c', 'd']);
   pathingen.sorter = (a, b) => b.localeCompare(a);
-  t.deepEqual(pathingen.update(), [3, 2, 1, 0]);
+  t.deepEqual(pathingen.update(), [
+    { path: 'a', from: 0, to: 3 },
+    { path: 'b', from: 1, to: 2 },
+    { path: 'c', from: 2, to: 1 },
+    { path: 'd', from: 3, to: 0 }
+  ]);
   t.deepEqual(pathingen.paths, ['d', 'c', 'b', 'a']);
 });
 
@@ -144,6 +155,12 @@ test('Update gives data stower can use to reorder without needing to reorder all
   t.deepEqual(pathingen.paths, ['a', 'b', 'c', 'd', 'e']);
   pathingen.filterer = path => path !== 'b' && path !== 'd';
   pathingen.sorter = (a, b) => b.localeCompare(a);
-  t.deepEqual(pathingen.update(), [2, -1, 1, -1, 0]);
+  t.deepEqual(pathingen.update(), [
+    { path: 'a', from: 0, to: 2 },
+    { path: 'b', from: 1, to: null },
+    { path: 'c', from: 2, to: 1 },
+    { path: 'd', from: 3, to: null },
+    { path: 'e', from: 4, to: 0 },
+  ]);
   t.deepEqual(pathingen.paths, ['e', 'c', 'a']);
 });
