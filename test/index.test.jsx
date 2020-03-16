@@ -1,4 +1,4 @@
-import test from 'ava';
+import { serial as test } from 'ava';
 import browserEnv from 'browser-env';
 
 browserEnv();
@@ -8,7 +8,7 @@ test.beforeEach(() => {
   document.body.innerHTML = '';
 });
 
-test.serial('Double on', t => {
+test('Double on', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('test', (test) => <div>
@@ -32,7 +32,7 @@ test.serial('Double on', t => {
   t.is(document.body.innerHTML, '<div><div>hello<span>eh world</span></div></div>');
 });
 
-test.serial('on without callback', t => {
+test('on without callback', t => {
   const dd = domdom();
   const div = ({ on }) => <div>{on('test')}</div>;
   dd.append(document.body, div);
@@ -47,7 +47,7 @@ test.serial('on without callback', t => {
   t.is(document.body.innerHTML, '<div></div>');
 });
 
-test.serial('Multiple paths', t => {
+test('Multiple paths', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.$id', player => <p>{player.name}</p>)}
@@ -68,7 +68,7 @@ test.serial('Multiple paths', t => {
   t.is(document.body.innerHTML, '<div><p>Mr. two</p></div>');
 });
 
-test.serial('on Sort - default sort by key', t => {
+test('on Sort - default sort by key', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.$id', player => <p>{player.name}</p>)}
@@ -80,7 +80,7 @@ test.serial('on Sort - default sort by key', t => {
   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
 });
 
-test.serial('on Sort - sort method', t => {
+test('on Sort - sort method', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.$id', player =>
@@ -94,7 +94,7 @@ test.serial('on Sort - sort method', t => {
   t.is(document.body.innerHTML, '<div><p>3</p><p>2</p><p>1</p></div>');
 });
 
-test.serial('on Sort - sort method2', t => {
+test('on Sort - sort method2', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.$id', player =>
@@ -108,7 +108,7 @@ test.serial('on Sort - sort method2', t => {
   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
 });
 
-test.serial('Multiple on-siblings', t => {
+test('Multiple on-siblings', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('b', test => <div>{test}</div>)}
@@ -120,7 +120,7 @@ test.serial('Multiple on-siblings', t => {
   t.is(document.body.innerHTML, '<div><div>Hello</div><div>World</div></div>');
 });
 
-test.serial('on Sort - keep order', t => {
+test('on Sort - keep order', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.$id', player => <p>{player.name}</p>)}
@@ -138,7 +138,7 @@ test.serial('on Sort - keep order', t => {
   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
 });
 
-test.serial('on Sort - custom order', t => {
+test('on Sort - custom order', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.$id', player => <p>{player.name}</p>)
@@ -157,7 +157,7 @@ test.serial('on Sort - custom order', t => {
   t.is(document.body.innerHTML, '<div><p>7</p><p>3</p><p>2</p></div>');
 });
 
-test.serial('on Sort - remove $first - with sort', t => {
+test('on Sort - remove $first - with sort', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.$id', player => <p>{player.name}</p>,
@@ -177,7 +177,7 @@ test.serial('on Sort - remove $first - with sort', t => {
   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
 });
 
-test.serial('Child listener', t => {
+test('Child listener', t => {
   const dd = domdom();
   const div = ({ on }) => <main>
     {on('players.$id', () => <article>
@@ -191,7 +191,7 @@ test.serial('Child listener', t => {
   t.is(document.body.innerHTML, '<main><article>1</article><article>2</article><article>3</article></main>');
 });
 
-test.serial('Simple when', t => {
+test('Simple when', t => {
   const dd = domdom();
 
   function Test({ on }) {
@@ -210,7 +210,7 @@ test.serial('Simple when', t => {
   t.is(document.body.innerHTML, '<div>Yes is yes<div>Yes!</div><div>yes</div></div>');
 });
 
-test.serial('Many whens', t => {
+test('Many whens', t => {
   const dd = domdom();
   const div = ({ when }) => <div>
     {when('test', [
@@ -232,7 +232,7 @@ test.serial('Many whens', t => {
   t.is(document.body.innerHTML, '<div>yestruet === yes<div>hello</div><div>world</div></div>');
 });
 
-test.serial('Quirk on + when', t => {
+test('Quirk on + when', t => {
   const dd = domdom();
   const div = ({ on, when }) => <div>
     {on('test', t => t)}
@@ -253,7 +253,7 @@ test.serial('Quirk on + when', t => {
   t.is(document.body.innerHTML, '<div>noNo</div>');
 });
 
-test.serial('Simple or', t => {
+test('Simple or', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('test', t => <div>{t}</div>).or(<div>Nope</div>)}
@@ -268,7 +268,7 @@ test.serial('Simple or', t => {
   t.is(document.body.innerHTML, '<div><div>Nope</div></div>');
 });
 
-test.serial('on empty res', t => {
+test('on empty res', t => {
   const dd = domdom();
   const div = ({ on }) => <div>{on('test')}</div>;
   dd.append(document.body, div);
@@ -278,7 +278,7 @@ test.serial('on empty res', t => {
   t.is(document.body.innerHTML, '<div></div>');
 });
 
-test.serial('Multiple child paths', t => {
+test('Multiple child paths', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('a', () => <div>
@@ -292,7 +292,7 @@ test.serial('Multiple child paths', t => {
   t.is(document.body.innerHTML, '<div><div>oktestok</div></div>');
 });
 
-test.serial('Have some path with flags', t => {
+test('Have some path with flags', t => {
   const dd = domdom();
   const div = ({ on }) => {
     const e = <div/>;
@@ -304,7 +304,7 @@ test.serial('Have some path with flags', t => {
   t.is(document.body.innerHTML, '<div>ok</div>');
 });
 
-test.serial('Listeners are cleared', t => {
+test('Listeners are cleared', t => {
   const dd = domdom();
   let i = 0;
 
@@ -329,7 +329,7 @@ test.serial('Listeners are cleared', t => {
   t.is(1, i);
 });
 
-test.serial('Listeners are not overcleared', t => {
+test('Listeners are not overcleared', t => {
   const dd = domdom();
   let i = 0;
 
@@ -358,7 +358,7 @@ test.serial('Listeners are not overcleared', t => {
   t.is(3, i);
 });
 
-test.serial('Listeners are support change of parent', t => {
+test('Listeners are support change of parent', t => {
   const dd = domdom();
   let i = 0;
 
@@ -385,7 +385,7 @@ test.serial('Listeners are support change of parent', t => {
   t.is(1, i);
 });
 
-test.serial('Listeners in when', t => {
+test('Listeners in when', t => {
   const dd = domdom();
   let i = 0;
 
@@ -410,7 +410,7 @@ test.serial('Listeners in when', t => {
   t.is(1, i);
 });
 
-test.serial('Listener in when 2', t => {
+test('Listener in when 2', t => {
   const dd = domdom();
   let i = 0;
 
@@ -439,7 +439,7 @@ test.serial('Listener in when 2', t => {
   t.is(2, i);
 });
 
-test.serial('Mounted', t => {
+test('Mounted', t => {
   const dd = domdom();
   t.plan(1);
 
@@ -452,7 +452,7 @@ test.serial('Mounted', t => {
   dd.append(document.body, div);
 });
 
-test.serial('Mounted on/off', t => {
+test('Mounted on/off', t => {
   const dd = domdom();
   t.plan(2);
 
@@ -469,7 +469,7 @@ test.serial('Mounted on/off', t => {
   dd.set('test', true);
 });
 
-test.serial('When with initial false value', t => {
+test('When with initial false value', t => {
   const dd = domdom();
 
   const div = ({ when }) => <div>
@@ -483,7 +483,7 @@ test.serial('When with initial false value', t => {
   t.is(document.body.innerHTML, '<div><div>Hello</div></div>');
 });
 
-test.serial('Do not remove listener on same level', t => {
+test('Do not remove listener on same level', t => {
   const dd = domdom();
 
   function Test() {
@@ -504,7 +504,7 @@ test.serial('Do not remove listener on same level', t => {
   t.is(document.body.innerHTML, '<div>there</div>');
 });
 
-test.serial('Whole objects should be populated', t => {
+test('Whole objects should be populated', t => {
   const dd = domdom();
 
   const div = ({ on }) => <div>
@@ -521,7 +521,7 @@ test.serial('Whole objects should be populated', t => {
   t.is(document.body.innerHTML, '<div><div>:)</div></div>');
 });
 
-test.serial('Update array', t => {
+test('Update array', t => {
   const dd = domdom();
 
   const div = ({ on }) => <div>
@@ -536,7 +536,7 @@ test.serial('Update array', t => {
   t.is(document.body.innerHTML, '<div><div>{"0":"hello"}</div></div>');
 });
 
-test.serial('Update array without element', t => {
+test('Update array without element', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
     {on('path', p => p)}
@@ -550,7 +550,7 @@ test.serial('Update array without element', t => {
   t.is(document.body.innerHTML, '<div>{"0":"hello"}</div>');
 });
 
-test.serial('Containment', t => {
+test('Containment', t => {
   const dd = domdom();
   const Button = ({ children }) => <button>{children}</button>;
 
@@ -566,7 +566,7 @@ test.serial('Containment', t => {
   t.is(document.body.innerHTML, '<button><span>Test</span><i>in</i>g</button>');
 });
 
-test.serial('Rendering types', t => {
+test('Rendering types', t => {
   const dd = domdom();
   dd.append(document.body, () => <div>
     {'a'}
@@ -581,7 +581,7 @@ test.serial('Rendering types', t => {
   t.is(document.body.innerHTML, '<div>a13.6{"hello":"world"}truefalse</div>');
 });
 
-test.serial('Remove or on on', t => {
+test('Remove or on on', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
     {on('test.$id', t => t.name).or('Loading...')}
@@ -592,7 +592,7 @@ test.serial('Remove or on on', t => {
   t.is(document.body.innerHTML, '<div>hello</div>');
 });
 
-test.serial('on attributes', t => {
+test('on attributes', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
     <button disabled={on('disable', res => res)}/>
@@ -605,7 +605,7 @@ test.serial('on attributes', t => {
   t.is(document.body.innerHTML, '<div><button disabled=""></button></div>');
 });
 
-test.serial('on on attributes', t => {
+test('on on attributes', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
     <button disabled={on('canClick', res => !res).or(true)}/>
@@ -625,7 +625,7 @@ test.serial('on on attributes', t => {
   t.is(document.body.innerHTML, '<div><button disabled=""></button><button disabled=""></button></div>');
 });
 
-test.serial('On on object attributes', t => {
+test('On on object attributes', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
     <p style={on('style')}>Test</p>
@@ -636,7 +636,7 @@ test.serial('On on object attributes', t => {
   t.is(document.body.innerHTML, '<div><p style="color: red;">Test</p></div>');
 });
 
-test.serial('Recursive wildcard change', t => {
+test('Recursive wildcard change', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
     {on('test.**', (_, { values }) => values.map(val => <div>{val}</div>))}
@@ -648,7 +648,7 @@ test.serial('Recursive wildcard change', t => {
   t.is(document.body.innerHTML, '<div><div>3</div><div>2</div></div>');
 });
 
-test.serial('Recursive non-wild change', t => {
+test('Recursive non-wild change', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
     {on('test.*', (_, { values }) => values.map(val => <div>{val}</div>))}
@@ -662,7 +662,7 @@ test.serial('Recursive non-wild change', t => {
   t.is(document.body.innerHTML, '<div><div>{"a":3}</div><div>{"a":2}</div></div>');
 });
 
-test.serial('Filter array', t => {
+test('Filter array', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
     {on('users.$id', user => <span>{user.name}</span>)
@@ -673,7 +673,7 @@ test.serial('Filter array', t => {
   t.is(document.body.innerHTML, '<div><span>Two!</span></div>');
 });
 
-test.serial('Update filter on update filter', t => {
+test('Update filter on update filter', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
     {on('users.$id', user => <span>{user.name}</span>)
@@ -684,7 +684,7 @@ test.serial('Update filter on update filter', t => {
   t.is(document.body.innerHTML, '<div><span>Two!</span></div>');
 });
 
-test.serial('Update filterOn on update filter', t => {
+test('Update filterOn on update filter', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
     {on('users.$id', user => <span>{user.name}</span>)
@@ -696,7 +696,7 @@ test.serial('Update filterOn on update filter', t => {
   t.is(document.body.innerHTML, '<div><span>Two!</span></div>');
 });
 
-test.serial('Update filterOn on update filter refresh', t => {
+test('Update filterOn on update filter refresh', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
     {on('users.$id', user => <span>{user.name}</span>)
@@ -708,7 +708,7 @@ test.serial('Update filterOn on update filter refresh', t => {
   t.is(document.body.innerHTML, '<div><span>Two!</span></div>');
 });
 
-test.serial('on sortOn - custom order', t => {
+test('on sortOn - custom order', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.$id', player => <p>{player.name}</p>)
@@ -728,7 +728,7 @@ test.serial('on sortOn - custom order', t => {
   t.is(document.body.innerHTML, '<div><p>7</p><p>3</p><p>2</p></div>');
 });
 
-test.serial('on sortOn - custom order update', t => {
+test('on sortOn - custom order update', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.$id', player => <p>{player.name}</p>)
@@ -748,7 +748,7 @@ test.serial('on sortOn - custom order update', t => {
   t.is(document.body.innerHTML, '<div><p>7</p><p>3</p><p>2</p></div>');
 });
 
-test.serial('onFilter and onSort', t => {
+test('onFilter and onSort', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.$id', player => <p>{player.name}</p>)
@@ -763,4 +763,36 @@ test.serial('onFilter and onSort', t => {
   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
   dd.set('filter.by', 'age');
   t.is(document.body.innerHTML, '<div><p>3</p><p>2</p><p>1</p></div>');
+});
+
+test('Function context', t => {
+  const dd = domdom();
+
+  function App() {
+    return <div>:)</div>;
+  }
+
+  const div = () => <div>
+    <App/>
+  </div>;
+  dd.append(document.body, div);
+  t.is(document.body.innerHTML, '<div><div>:)</div></div>');
+});
+
+test('Function context when when', t => {
+  const dd = domdom();
+
+  function App() {
+    return <div>:)</div>;
+  }
+
+  const div = ({ when }) => <div>
+    {when('test', [
+      true, <App/>,
+      true, () => <App/>
+    ])}
+  </div>;
+  dd.append(document.body, div);
+  dd.set('test', true);
+  t.is(document.body.innerHTML, '<div><div>:)</div><div>:)</div></div>');
 });
