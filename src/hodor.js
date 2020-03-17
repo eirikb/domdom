@@ -30,7 +30,10 @@ export default (data, path, listener) => {
     filterOn(path, filter) {
       pathingen.filterer = (a) => filter(data.get(path), data.get(a));
       hodor.listeners.push(
-        data.on(`!+* ${path}`, () => pathingen.update())
+        data.on(`!+* ${path}`, () => {
+          const res = pathingen.update();
+          stower.reorderSubIndexes(index, res);
+        })
       );
       return hodor;
     },

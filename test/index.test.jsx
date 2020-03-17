@@ -708,6 +708,22 @@ test('Update filterOn on update filter refresh', t => {
   t.is(document.body.innerHTML, '<div><span>Two!</span></div>');
 });
 
+test('Update filterOn on update after data is set', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    {on('users.$id', user => <a>{user.name}</a>)
+      .filterOn('test', (filter, user) =>
+        new RegExp(filter, 'i').test(user.name)
+      )}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('test', '');
+  dd.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  t.is(document.body.innerHTML, '<div><a>One!</a><a>Two!</a></div>');
+  dd.set('test', 'two');
+  t.is(document.body.innerHTML, '<div><a>Two!</a></div>');
+});
+
 test('on sortOn - custom order', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
