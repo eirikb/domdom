@@ -10,6 +10,7 @@ test.beforeEach(t => {
   t.context.a = document.createElement('a');
   t.context.b = document.createElement('b');
   t.context.c = document.createElement('c');
+  t.context.d = document.createElement('d');
   t.context.span = document.createElement('span');
   t.context.div = document.createElement('div');
 });
@@ -350,16 +351,29 @@ test('subIndex with array and before', t => {
 });
 
 test('Reorder subindex', t => {
-  const { element, stower, div, a, b, c } = t.context;
+  const { element, stower, a, b, c } = t.context;
   stower.add(a, 0, 0);
   stower.add(b, 0, 1);
   stower.add(c, 0, 2);
   t.deepEqual(element.innerHTML, '<a></a><b></b><c></c>');
-  stower.reorderSubIndexes(0, [
-    { from: 2, to: 0 },
-    { from: 1, to: 1 },
-    { from: 0, to: 2 }
-  ]);
+  stower.reorderSubIndexes(0, {
+    children: [c, b, a],
+    removeIndexes: []
+  });
   t.deepEqual(element.innerHTML, '<c></c><b></b><a></a>');
+});
+
+test('Remove subIndexes', t => {
+  const { element, stower, a, b, c, d } = t.context;
+  stower.add(a, 0, 0);
+  stower.add(b, 0, 1);
+  stower.add(c, 0, 2);
+  stower.add(d, 0, 3);
+  t.deepEqual(element.innerHTML, '<a></a><b></b><c></c><d></d>');
+  stower.reorderSubIndexes(0, {
+    children: [c, d],
+    removeIndexes: [1, 0]
+  });
+  t.deepEqual(element.innerHTML, '<c></c><d></d>');
 });
 

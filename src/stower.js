@@ -137,18 +137,16 @@ export default function Stower(element) {
   };
 
   self.reorderSubIndexes = (index, res) => {
-    const sorted = res.sort((a, b) => a.to - b.to);
-    const elements = (slots[index] || []).slice();
+    for (let removeIndex of res.removeIndexes) {
+      self.remove(index, removeIndex);
+    }
+    const before = first.slice(index + 1).find(element => element);
     slots[index] = [];
-    sorted.forEach(({ from, to }) => {
-      const child = elements[from];
-      if (to !== null) {
-        element.appendChild(child);
-        slots[index].push(child);
-      } else {
-        element.removeChild(child);
-      }
-    })
+    for (let child of res.children) {
+      add(child, before);
+      slots[index].push(child);
+    }
+    first[index] = slots[index][0];
   };
 
   return self;

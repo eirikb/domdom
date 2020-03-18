@@ -1,3 +1,5 @@
+import index from "./index";
+
 export default () => {
   const self = {};
   const allPaths = new Set();
@@ -46,17 +48,20 @@ export default () => {
   self.indexOfPath = (path) => sortedIndex(path);
 
   self.update = () => {
-    const paths = self.paths.slice();
-    self.paths = Array.from(allPaths).filter(self.filterer).sort(self.sorter);
-    const indexByPath = self.paths.reduce((res, path, index) => {
+    const indexedPaths = self.paths.reduce((res, path, index) => {
       res[path] = index;
       return res;
     }, {});
-    return paths.map((path, from) => {
-      let to = indexByPath[path];
-      if (typeof to === 'undefined') to = null;
-      return { path, from, to };
-    });
+    self.paths = Array.from(allPaths).filter(path => {
+      const res = self.filterer(path);
+      if (res) delete indexedPaths[path];
+      return res;
+    }).sort(self.sorter);
+
+    return {
+      paths: self.paths,
+      removeIndexes: Object.values(indexedPaths).reverse()
+    };
   };
 
   return self;

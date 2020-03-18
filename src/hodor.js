@@ -32,6 +32,7 @@ export default (data, path, listener) => {
       hodor.listeners.push(
         data.on(`!+* ${path}`, () => {
           const res = pathingen.update();
+          res.children = res.paths.map(path => elements[path]);
           stower.reorderSubIndexes(index, res);
         })
       );
@@ -46,6 +47,7 @@ export default (data, path, listener) => {
       hodor.listeners.push(
         data.on(`!+* ${path}`, () => {
           const res = pathingen.update();
+          res.children = res.paths.map(path => elements[path]);
           stower.reorderSubIndexes(index, res);
         })
       );
@@ -79,6 +81,7 @@ export default (data, path, listener) => {
       const path = args[1].path;
       const res = listener(...args);
 
+      const pathingenPathsLength = pathingen.paths.length;
       let subIndex;
       if (elements[path]) {
         subIndex = pathingen.indexOfPath(path);
@@ -87,17 +90,17 @@ export default (data, path, listener) => {
         subIndex = pathingen.addPath(path);
       }
 
+      elements[path] = res;
       if (subIndex < 0) return;
 
       if (typeof res !== 'undefined') {
-        if (Object.keys(elements).length === 0 && or) {
+        if (pathingenPathsLength === 0 && or) {
           stower.remove(index, 0, 0);
         }
         stower.add(res, index, subIndex);
         if (res.onPath) {
           res.onPath(path);
         }
-        elements[path] = res;
       } else {
         pathingen.removePath(path);
         delete elements[path];
@@ -108,7 +111,7 @@ export default (data, path, listener) => {
       delete elements[path];
       const subIndex = pathingen.removePath(path);
       stower.remove(index, subIndex);
-      if (Object.keys(elements).length === 0 && or) {
+      if (pathingen.paths.length === 0 && or) {
         stower.add(or, index, 0);
       }
     }));

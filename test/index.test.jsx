@@ -812,3 +812,22 @@ test('Function context when when', t => {
   dd.set('test', true);
   t.is(document.body.innerHTML, '<div><div>:)</div><div>:)</div></div>');
 });
+
+test('filterOn and back', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    {on('users.$id', user => <a>{user.name}</a>)
+      .filterOn('test', (filter, user) =>
+        new RegExp(filter, 'i').test(user.name)
+      )}
+    <p>Because</p>
+  </div>;
+  dd.append(document.body, view);
+  dd.set('test', '');
+  dd.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  t.is(document.body.innerHTML, '<div><a>One!</a><a>Two!</a><p>Because</p></div>');
+  dd.set('test', 'two');
+  t.is(document.body.innerHTML, '<div><a>Two!</a><p>Because</p></div>');
+  dd.set('test', '');
+  t.is(document.body.innerHTML, '<div><a>One!</a><a>Two!</a><p>Because</p></div>');
+});
