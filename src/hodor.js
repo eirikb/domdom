@@ -14,10 +14,16 @@ export default (data, path, listener) => {
     reorderSubIndexes: () => true
   };
 
+  const listeners = [];
+
+  function on(hodor, flagsAndPath, cb) {
+    const ref = data.on(flagsAndPath, cb);
+    listeners.push({ flagsAndPath, cb, ref });
+  }
+
   const elements = {};
   let isMounted = false;
   const hodor = {
-    listeners: [],
     path,
     isHodor: true,
     or(o) {
@@ -30,13 +36,11 @@ export default (data, path, listener) => {
     },
     filterOn(path, filter) {
       pathingen.filterer = (a) => filter(data.get(path), data.get(a));
-      hodor.listeners.push(
-        data.on(`!+* ${path}`, () => {
-          const res = pathingen.update();
-          res.children = res.paths.map(path => elements[path]);
-          stower.reorderSubIndexes(index, res);
-        })
-      );
+      on(hodor, `!+* ${path}`, () => {
+        const res = pathingen.update();
+        res.children = res.paths.map(path => elements[path]);
+        stower.reorderSubIndexes(index, res);
+      });
       return hodor;
     },
     sort(sort) {
@@ -45,13 +49,11 @@ export default (data, path, listener) => {
     },
     sortOn(path, sort) {
       pathingen.sorter = (a, b) => sort(data.get(path), data.get(a), data.get(b));
-      hodor.listeners.push(
-        data.on(`!+* ${path}`, () => {
-          const res = pathingen.update();
-          res.children = res.paths.map(path => elements[path]);
-          stower.reorderSubIndexes(index, res);
-        })
-      );
+      on(hodor, `!+* ${path}`, () => {
+        const res = pathingen.update();
+        res.children = res.paths.map(path => elements[path]);
+        stower.reorderSubIndexes(index, res);
+      });
       return hodor;
     },
     stower(i, s) {
@@ -70,21 +72,28 @@ export default (data, path, listener) => {
       if (isMounted) return;
       isMounted = true;
       listen && listen(path);
+      for (let listener of listeners.filter(l => !l.ref)) {
+        // on(hodor, listener.flagsAndPath, listener.cb);
+        const ref = data.on(listener.flagsAndPath, listener.cb);
+      }
     },
     destroy() {
       isMounted = false;
-      data.off(hodor.listeners.join(' '));
+      for (let listener of listeners.filter(l => l.ref)) {
+        data.off(listener.ref);
+        delete listener.ref;
+      }
     }
   };
 
   const hasFlags = path.match(/ /);
   if (hasFlags) {
-    hodor.listeners.push(data.on(path, listener));
+    on(hodor, path, listener);
     return hodor;
   }
 
   const listen = (path) => {
-    hodor.listeners.push(data.on('!+* ' + path, (...args) => {
+    on(hodor, '!+* ' + path, (...args) => {
       const path = args[1].path;
       const res = typeof listener === 'function' ? listener(...args) : listener;
 
@@ -112,8 +121,8 @@ export default (data, path, listener) => {
         pathingen.removePath(path);
         delete elements[path];
       }
-    }));
-    hodor.listeners.push(data.on('- ' + path, (...args) => {
+    });
+    on(hodor, '- ' + path, (...args) => {
       const path = args[1].path;
       delete elements[path];
       const subIndex = pathingen.removePath(path);
@@ -121,7 +130,7 @@ export default (data, path, listener) => {
       if (pathingen.paths.length === 0 && or) {
         stower.add(or, index, 0);
       }
-    }));
+    });
     return hodor;
   };
 
