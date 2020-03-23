@@ -5,6 +5,7 @@ import Data from '@eirikb/data';
 test('Hold door', t => {
   const data = Data();
   const hodor = Hodor(data, 'yes');
+  hodor.mounted();
   t.plan(1);
   hodor.stower(0, { add: child => t.is(child, 'no') });
   data.set('yes', 'no');
@@ -13,6 +14,7 @@ test('Hold door', t => {
 test('Hodor or', t => {
   const data = Data();
   const hodor = Hodor(data, 'yes').or(2);
+  hodor.mounted();
   t.plan(2);
   hodor.stower(0, { add: child => t.is(2, child) });
   hodor.or(null);
@@ -23,6 +25,7 @@ test('Hodor or', t => {
 test('Hodor should pass a position index', t => {
   const data = Data();
   const hodor = Hodor(data, 'users.$id');
+  hodor.mounted();
   t.plan(3);
   hodor.stower(0, { add: (o, index, subIndex) => t.deepEqual([index, subIndex], [0, 0]) });
   data.set('users.1', { name: 'one' });

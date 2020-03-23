@@ -15,6 +15,7 @@ export default (data, path, listener) => {
   };
 
   const elements = {};
+  let isMounted = false;
   const hodor = {
     listeners: [],
     path,
@@ -65,7 +66,13 @@ export default (data, path, listener) => {
       }
       return hodor;
     },
+    mounted() {
+      if (isMounted) return;
+      isMounted = true;
+      listen && listen(path);
+    },
     destroy() {
+      isMounted = false;
       data.off(hodor.listeners.join(' '));
     }
   };
@@ -79,7 +86,7 @@ export default (data, path, listener) => {
   const listen = (path) => {
     hodor.listeners.push(data.on('!+* ' + path, (...args) => {
       const path = args[1].path;
-      const res = listener(...args);
+      const res = typeof listener === 'function' ? listener(...args) : listener;
 
       const pathingenPathsLength = pathingen.paths.length;
       let subIndex;
@@ -125,6 +132,5 @@ export default (data, path, listener) => {
     return hodor;
   }
 
-  listen(path);
   return hodor;
 };

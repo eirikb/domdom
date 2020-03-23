@@ -60,6 +60,9 @@ export default function Context(data, tagName, props, ...children) {
     for (let mounted of mounteds) {
       mounted();
     }
+    for (let hodor of hodors) {
+      hodor.mounted();
+    }
   };
   const res = tagName(options);
   res.context = this;

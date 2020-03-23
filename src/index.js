@@ -14,17 +14,9 @@ export default (data = Data()) => {
         return new Context(data, tagName, props, children);
       }
 
-      let hodors = [];
+      const hodors = [];
       const element = document.createElement(tagName);
       const stower = Stower(element);
-
-      const destroy = () => {
-        element.childNodes.forEach(child => child.destroy && child.destroy());
-        for (let hodor of hodors) {
-          hodor.destroy();
-        }
-        hodors = [];
-      };
 
       const addHodor = (index, hodor) => {
         hodors.push(hodor);
@@ -76,7 +68,14 @@ export default (data = Data()) => {
         }
       }
 
-      element.destroy = destroy;
+      element.destroy = () => {
+        element.isMounted = false;
+        element.childNodes.forEach(child => child.destroy && child.destroy());
+        for (let hodor of hodors) {
+          hodor.destroy();
+        }
+      };
+
       element.mounted = (parentContext) => {
         if (element.isMounted) return;
         element.isMounted = true;
@@ -96,6 +95,9 @@ export default (data = Data()) => {
           hodor.bounce(path);
         }
       };
+      for (let hodor of hodors) {
+        hodor.mounted();
+      }
       return element;
     }
   };

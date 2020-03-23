@@ -31,6 +31,7 @@ export default function Stower(element) {
   }
 
   function remove(child) {
+    child.isMounted = false;
     element.removeChild(child);
     if (child.destroy) child.destroy();
   }

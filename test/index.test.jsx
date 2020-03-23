@@ -195,7 +195,7 @@ test('Simple when', t => {
   const dd = domdom();
 
   function Test({ on }) {
-    return <div>{on('test', t => t)}</div>;
+    return <div>{on('test', t => t)}</div>
   }
 
   const div = ({ when }) => <div>
@@ -830,4 +830,109 @@ test('filterOn and back', t => {
   t.is(document.body.innerHTML, '<div><a>Two!</a><p>Because</p></div>');
   dd.set('test', '');
   t.is(document.body.innerHTML, '<div><a>One!</a><a>Two!</a><p>Because</p></div>');
+});
+
+test('When + change', t => {
+  const dd = domdom();
+  const view = ({ when, on }) => <div>
+    {when('yes', [
+      true, () => <p>{on('ok')}</p>
+    ])}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('yes', true);
+  dd.set('yes', false);
+  dd.set('yes', true);
+  dd.set('ok', 'OK!');
+  t.is(document.body.innerHTML, '<div><p>OK!</p></div>');
+});
+
+test('When + change 2', t => {
+  const dd = domdom();
+  const view = ({ when, on }) => <div>
+    {when('yes', [
+      true, () => <p>{on('ok')}</p>
+    ])}
+  </div>;
+
+  dd.append(document.body, view);
+  dd.set('yes', true);
+  dd.set('yes', false);
+  dd.set('ok', 'OK!');
+  dd.set('yes', true);
+  t.is(document.body.innerHTML, '<div><p>OK!</p></div>');
+});
+
+test('When + filterOn', t => {
+  const dd = domdom();
+  const view = ({ when, on }) => <div>
+    {when('yes', [
+      true, () => <div>
+        {on('users.$id', user => <a>{user.name}</a>)
+          .filterOn('test', (filter, user) =>
+            new RegExp(filter, 'i').test(user.name)
+          )}
+        <p>Because</p>
+      </div>
+    ])}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('test', 'two');
+  dd.set('yes', true);
+  dd.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  t.is(document.body.innerHTML, '<div><div><a>Two!</a><p>Because</p></div></div>');
+  dd.set('yes', false);
+  t.is(document.body.innerHTML, '<div></div>');
+  dd.set('yes', true);
+  dd.set('test', '');
+  t.is(document.body.innerHTML, '<div><div><a>One!</a><a>Two!</a><p>Because</p></div></div>');
+});
+
+test('Re-add', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    {on('yes', t => <p>{t} {on('no')}</p>)}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('yes', 'Yes!');
+  dd.set('no', 'No!');
+  t.is(document.body.innerHTML, '<div><p>Yes! No!</p></div>');
+  dd.unset('yes');
+  dd.set('no', 'Well!');
+  dd.set('yes', 'OK!');
+  t.is(document.body.innerHTML, '<div><p>OK! Well!</p></div>');
+});
+
+test('Something something filter and add', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    {on('users.$id', u =>
+      <p>{u} {on('yes')}</p>
+    ).filterOn('filter', f => f)}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('filter', true);
+  dd.set('yes', 'y');
+  dd.set('users', {
+    one: 'o',
+    two: 't'
+  });
+  t.is(document.body.innerHTML, '<div><p>o y</p><p>t y</p></div>');
+  dd.set('filter', false);
+  t.is(document.body.innerHTML, '<div></div>');
+  dd.set('yes', 'n');
+  dd.set('filter', true);
+  t.is(document.body.innerHTML, '<div><p>o n</p><p>t n</p></div>');
+});
+
+test('Simplest', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    {on('yes', <p>{on('no')}</p>)}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('yes', true);
+  dd.set('no', 'n');
+  t.is(document.body.innerHTML, '<div><p>n</p></div>');
+  dd.set('no', 'n');
 });
