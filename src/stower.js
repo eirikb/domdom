@@ -144,6 +144,7 @@ export default function Stower(element) {
     const before = first.slice(index + 1).find(element => element);
     slots[index] = [];
     for (let child of res.children) {
+      child = escapeChild(child);
       add(child, before);
       slots[index].push(child);
     }

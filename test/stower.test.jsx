@@ -377,3 +377,11 @@ test('Remove subIndexes', t => {
   t.deepEqual(element.innerHTML, '<c></c><d></d>');
 });
 
+test('Reorder non-elements', t => {
+  const { element, stower, } = t.context;
+  stower.reorderSubIndexes(0, {
+    children: ['yes'],
+    removeIndexes: []
+  });
+  t.deepEqual(element.innerHTML, 'yes');
+});

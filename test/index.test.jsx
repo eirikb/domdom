@@ -936,3 +936,26 @@ test('Simplest', t => {
   t.is(document.body.innerHTML, '<div><p>n</p></div>');
   dd.set('no', 'n');
 });
+
+test('filterOn mounted destroy mounted', t => {
+  const dd = domdom();
+  const view = ({ when, on }) => <div>
+    {when('yes', [
+      true, () => <div>{on('users.$id', u => u.name)
+        .filterOn('filter', (f, u) => f === u.name)}</div>
+    ])}
+  </div>;
+  dd.set('yes', true);
+  dd.set('filter', 'one');
+  dd.set('users.1', { name: 'one', test: 'yes' });
+  dd.set('users.2', { name: 'two' });
+
+  dd.append(document.body, view);
+  t.is(document.body.innerHTML, '<div><div>one</div></div>');
+
+  dd.set('yes', false);
+  t.is(document.body.innerHTML, '<div></div>');
+
+  dd.set('yes', true);
+  t.is(document.body.innerHTML, '<div><div>one</div></div>');
+});
