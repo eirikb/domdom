@@ -122,7 +122,7 @@ test('Update gives data stower can use to reorder without needing to reorder all
   t.deepEqual(res, {
     paths: ['a', 'c', 'e'],
     removeIndexes: [3, 1]
-  })
+  });
   t.deepEqual(pathingen.paths, ['a', 'c', 'e']);
 });
 

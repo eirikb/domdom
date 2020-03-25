@@ -201,7 +201,7 @@ test('Simple when', t => {
   const div = ({ when }) => <div>
     {when('test', [
       'yes', t => `Yes is ${t}`,
-      () => true, <div>Yes!</div>,
+      () => true, () => <div>Yes!</div>,
       () => true, () => <Test/>,
     ])}
   </div>;
@@ -217,10 +217,10 @@ test('Many whens', t => {
       'yes', t => t,
       'no', t => t,
       true, () => 'Yes!',
-      () => true, 'true',
-      t => t === 'yes', 't === yes',
+      () => true, () => 'true',
+      t => t === 'yes', () => 't === yes',
       'yes', () => <div>hello</div>,
-      'yes', <div>world</div>
+      'yes', () => <div>world</div>
     ])}
   </div>;
   dd.append(document.body, div);
@@ -238,8 +238,8 @@ test('Quirk on + when', t => {
     {on('test', t => t)}
 
     {when('test', [
-      'yes', 'Yes',
-      'no', 'No'
+      'yes', () => 'Yes',
+      'no', () => 'No'
     ])}
   </div>;
   dd.append(document.body, div);
@@ -804,7 +804,7 @@ test('Function context when when', t => {
 
   const div = ({ when }) => <div>
     {when('test', [
-      true, <App/>,
+      true, () => <App/>,
       true, () => <App/>
     ])}
   </div>;
@@ -928,7 +928,7 @@ test('Something something filter and add', t => {
 test('Simplest', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
-    {on('yes', <p>{on('no')}</p>)}
+    {on('yes', () => <p>{on('no')}</p>)}
   </div>;
   dd.append(document.body, view);
   dd.set('yes', true);
@@ -958,4 +958,42 @@ test('filterOn mounted destroy mounted', t => {
 
   dd.set('yes', true);
   t.is(document.body.innerHTML, '<div><div>one</div></div>');
+});
+
+test('When + filterOn const element', t => {
+  const dd = domdom();
+  const view = ({ when, on }) => <div>
+    {when('show', [
+      true, () => <div>
+        {on('users.$id', task => <p>{task.name}</p>)
+          .filterOn('filter', (filter, row) => row.name === filter)}
+      </div>
+    ])}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('users', { 1: { name: 'a' }, 2: { name: 'b' } });
+  dd.set('show', true);
+  dd.set('filter', 'a');
+  dd.set('show', false);
+  dd.set('show', true);
+  t.deepEqual(document.body.innerHTML, '<div><div><p>a</p></div></div>');
+});
+
+test('When + filterOn const text', t => {
+  const dd = domdom();
+  const view = ({ when, on }) => <div>
+    {when('show', [
+      true, () => <div>
+        {on('users.$id', task => task.name)
+          .filterOn('filter', (filter, row) => row.name === filter)}
+      </div>
+    ])}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('users', { 1: { name: 'a' }, 2: { name: 'b' } });
+  dd.set('show', true);
+  dd.set('filter', 'a');
+  dd.set('show', false);
+  dd.set('show', true);
+  t.deepEqual(document.body.innerHTML, '<div><div>a</div></div>');
 });

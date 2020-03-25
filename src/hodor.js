@@ -4,6 +4,10 @@ export default (data, path, listener) => {
   if (!listener) {
     listener = _ => _;
   }
+  if (typeof listener !== 'function') {
+    throw new Error('Listener must be a function');
+  }
+
   let stower, or, index;
   const pathingen = Pathingen();
 
@@ -16,7 +20,7 @@ export default (data, path, listener) => {
 
   const listeners = [];
 
-  function on(hodor, flagsAndPath, cb) {
+  function on(flagsAndPath, cb) {
     const ref = data.on(flagsAndPath, cb);
     listeners.push({ flagsAndPath, cb, ref });
   }
@@ -36,7 +40,7 @@ export default (data, path, listener) => {
     },
     filterOn(path, filter) {
       pathingen.filterer = (a) => filter(data.get(path), data.get(a));
-      on(hodor, `!+* ${path}`, () => {
+      on(`!+* ${path}`, () => {
         const res = pathingen.update();
         res.children = res.paths.map(path => elements[path]);
         stower.reorderSubIndexes(index, res);
@@ -49,7 +53,7 @@ export default (data, path, listener) => {
     },
     sortOn(path, sort) {
       pathingen.sorter = (a, b) => sort(data.get(path), data.get(a), data.get(b));
-      on(hodor, `!+* ${path}`, () => {
+      on(`!+* ${path}`, () => {
         const res = pathingen.update();
         res.children = res.paths.map(path => elements[path]);
         stower.reorderSubIndexes(index, res);
@@ -73,8 +77,7 @@ export default (data, path, listener) => {
       isMounted = true;
       listen && listen(path);
       for (let listener of listeners.filter(l => !l.ref)) {
-        // on(hodor, listener.flagsAndPath, listener.cb);
-        const ref = data.on(listener.flagsAndPath, listener.cb);
+        listener.ref = data.on(listener.flagsAndPath, listener.cb);
       }
     },
     destroy() {
@@ -88,12 +91,12 @@ export default (data, path, listener) => {
 
   const hasFlags = path.match(/ /);
   if (hasFlags) {
-    on(hodor, path, listener);
+    on(path, listener);
     return hodor;
   }
 
   const listen = (path) => {
-    on(hodor, '!+* ' + path, (...args) => {
+    on('!+* ' + path, (...args) => {
       const path = args[1].path;
       const res = typeof listener === 'function' ? listener(...args) : listener;
 
@@ -101,7 +104,9 @@ export default (data, path, listener) => {
       let subIndex;
       if (elements[path]) {
         subIndex = pathingen.indexOfPath(path);
-        stower.remove(index, subIndex);
+        if (subIndex >= 0) {
+          stower.remove(index, subIndex);
+        }
       } else {
         subIndex = pathingen.addPath(path);
       }
@@ -122,7 +127,7 @@ export default (data, path, listener) => {
         delete elements[path];
       }
     });
-    on(hodor, '- ' + path, (...args) => {
+    on('- ' + path, (...args) => {
       const path = args[1].path;
       delete elements[path];
       const subIndex = pathingen.removePath(path);

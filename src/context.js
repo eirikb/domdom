@@ -32,7 +32,7 @@ export default function Context(data, tagName, props, ...children) {
             if (typeof listener === 'function') {
               result.push(listener(...args));
             } else {
-              result.push(listener);
+              throw new Error('Listener must be a function');
             }
           } else {
             result.push(null);
