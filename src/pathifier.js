@@ -4,10 +4,11 @@ export default function (data, from) {
   // Cache is used for 'then', since there might not be a 'to'
   const cache = {};
 
-  let _to, _filter, _filterOn, _sort, _sortOn, _asArray, _map, _then;
+  let _to, _filter, _filterOn, _sort, _sortOn, _asArray, _map, _then, _on;
 
   // Default sort if none is specified
   _sort = (a, b, aPath, bPath) => aPath.localeCompare(bPath);
+  _on = false;
 
   function sortedIndex(path) {
     const d = data.get(_to) || {};
@@ -33,7 +34,7 @@ export default function (data, from) {
       return self;
     },
     filterOn(path, filter) {
-      _filterOn = filter;
+      _filter = (value) => filter(data.get(path), value);
       refs.push(
         data.on(`!+* ${path}`, () => {
           update();
@@ -60,22 +61,47 @@ export default function (data, from) {
     },
     to(path) {
       _to = path;
+      if (!_on) self.on();
       update();
       return self;
     },
     then(then) {
       _then = then;
+      if (!_on) self.on();
       update();
       return self;
     },
     asArray(asArrayCallback) {
       _asArray = asArrayCallback;
+      if (!_on) self.on();
+      update();
       return self;
+    },
+    on() {
+      if (_on) return;
+      _on = true;
+      refs.push(
+        data.hook(from, {
+          set(path, value) {
+            if (!path) {
+              update();
+            } else {
+              const updated = set(path, value);
+              if (updated && _then) _then(cache);
+            }
+          },
+          unset(path) {
+            const updated = unset(path);
+            if (updated && _then) _then(cache);
+          }
+        })
+      );
     },
     off() {
       for (let ref of refs) {
         data.off(ref);
       }
+      _on = false;
     }
   };
 
@@ -91,8 +117,8 @@ export default function (data, from) {
     for (let aa of a) {
       if (set(aa, data.get(keys(from, aa)))) {
         updated = true;
+        b.delete(aa);
       }
-      b.delete(aa);
     }
     for (let bb of b) {
       data.unset(keys(_to, bb));
@@ -107,8 +133,6 @@ export default function (data, from) {
   }
 
   function set(key, value) {
-    if (!_to && !_asArray && !_then) return false;
-
     const k = key.split('.')[0];
     if (_filter && !_filter(data.get(keys(from, k)))) {
       return false;
@@ -142,21 +166,5 @@ export default function (data, from) {
     if (_to) data.unset(keys(_to, path));
   }
 
-  refs.push(
-    data.hook(from, {
-      set(path, value) {
-        if (!path) {
-          update();
-        } else {
-          const updated = set(path, value);
-          if (updated && _then) _then(cache);
-        }
-      },
-      unset(path) {
-        const updated = unset(path);
-        if (updated && _then) _then(cache);
-      }
-    })
-  );
   return self;
 }

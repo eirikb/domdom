@@ -175,3 +175,29 @@ test('to map and filter', t => {
   data.set('users.c.name', 'c');
   t.deepEqual({ a: { wat: 'a' }, c: { wat: 'c' } }, data.get('yes'));
 });
+
+test('filterOn after', t => {
+  const { data } = t.context;
+  data.set('users', {
+    a: { name: 'a' },
+    b: { name: 'b' },
+  });
+  data.on('users').filterOn('filter', (f, u) => u.name === f).to('yes');
+  data.set('users.c.name', 'c');
+  data.set('filter', 'b');
+  t.deepEqual({ b: { name: 'b' } }, data.get('yes'));
+});
+
+test('filterOn before', t => {
+  const { data } = t.context;
+  data.set('users', {
+    a: { name: 'a' },
+    b: { name: 'b' },
+  });
+  data.set('filter', 'b');
+  data.on('users').filterOn('filter', (f, u) => u.name === f).to('yes');
+  data.set('users.c.name', 'c');
+  t.deepEqual({ b: { name: 'b' } }, data.get('yes'));
+  data.set('filter', 'a');
+  t.deepEqual({ a: { name: 'a' } }, data.get('yes'));
+});
