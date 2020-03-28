@@ -4,7 +4,7 @@ export default function (data, from) {
   // Cache is used for 'then', since there might not be a 'to'
   const cache = {};
 
-  let _to, _filter, _filterOn, _sort, _sortOn, _asArray, _map, _then, _on;
+  let _to, _filter, _sort, _sortOn, _toArray, _map, _then, _on;
 
   // Default sort if none is specified
   _sort = (a, b, aPath, bPath) => aPath.localeCompare(bPath);
@@ -28,13 +28,19 @@ export default function (data, from) {
     return low;
   }
 
+  function setFilter(filter) {
+    if (_filter) throw new Error('Sorry, only one filter');
+    _filter = filter;
+  }
+
   const self = {
     filter(filter) {
+      setFilter(filter);
       _filter = filter;
       return self;
     },
     filterOn(path, filter) {
-      _filter = (value) => filter(data.get(path), value);
+      setFilter((value) => filter(data.get(path), value));
       refs.push(
         data.on(`!+* ${path}`, () => {
           update();
@@ -43,14 +49,17 @@ export default function (data, from) {
       return self;
     },
     map(map) {
+      if (_map) throw new Error('Sorry, only one map');
       _map = map;
       return self;
     },
     sort(sort) {
+      if (_sort) throw new Error('Sorry, only one sort');
       _sort = sort;
       return self;
     },
     sortOn(path, sort) {
+      if (_sortOn) throw new Error('Sorry, only one sort');
       _sortOn = sort;
       refs.push(
         data.on(`!+* ${path}`, () => {
@@ -60,6 +69,7 @@ export default function (data, from) {
       return self;
     },
     to(path) {
+      if (_to) throw new Error('Sorry, only one to');
       _to = path;
       if (!_on) self.on();
       update();
@@ -71,8 +81,9 @@ export default function (data, from) {
       update();
       return self;
     },
-    asArray(asArrayCallback) {
-      _asArray = asArrayCallback;
+    toArray(toArray) {
+      if (_toArray) throw new Error('Sorry, only one toArray');
+      _toArray = toArray;
       if (!_on) self.on();
       update();
       return self;
@@ -106,7 +117,7 @@ export default function (data, from) {
   };
 
   function update() {
-    if (!_to && !_asArray && !_then) return;
+    if (!_to && !_toArray && !_then) return;
 
     const fromData = data.get(from);
     if (!fromData) return;
@@ -155,7 +166,7 @@ export default function (data, from) {
   }
 
   function unset(path) {
-    if (!_to && !_asArray && !_then) return false;
+    if (!_to && !_toArray && !_then) return false;
 
     const parts = path.split('.');
     const k = parts[0];

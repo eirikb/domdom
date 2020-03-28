@@ -201,3 +201,30 @@ test('filterOn before', t => {
   data.set('filter', 'a');
   t.deepEqual({ a: { name: 'a' } }, data.get('yes'));
 });
+
+test('only one filter, unfortunately', t => {
+  const { data } = t.context;
+  t.throws(() => data.on('users').filter(1).filterOn(1));
+  t.throws(() => data.on('users').filter(1).filter(1));
+});
+
+test('only one sort, unfortunately', t => {
+  const { data } = t.context;
+  t.throws(() => data.on('users').sort(1).sortOn(1));
+  t.throws(() => data.on('users').sort(1).sort(1));
+});
+
+test('only one map, unfortunately', t => {
+  const { data } = t.context;
+  t.throws(() => data.on('users').map(1).map(1));
+});
+
+test('only one to, unfortunately', t => {
+  const { data } = t.context;
+  t.throws(() => data.on('users').to(1).to(1));
+});
+
+test('only one array, unfortunately', t => {
+  const { data } = t.context;
+  t.throws(() => data.on('users').toArray(1).toArray(1));
+});
