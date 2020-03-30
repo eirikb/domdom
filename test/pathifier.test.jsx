@@ -228,3 +228,74 @@ test('only one array, unfortunately', t => {
   const { data } = t.context;
   t.throws(() => data.on('users').toArray(1).toArray(1));
 });
+
+test('toArray initial before', t => {
+  const { data } = t.context;
+  data.set('users', {
+    a: { name: 'a' },
+    b: { name: 'b' },
+  });
+  data.on('users').toArray({
+    update(entries, removeIndexes) {
+      t.deepEqual([['a', { name: 'a' }], ['b', { name: 'b' }]], entries);
+      t.deepEqual([], removeIndexes);
+    }
+  });
+});
+
+test('toArray initial after', t => {
+  const { data } = t.context;
+  data.on('users').toArray({
+    update(entries, removeIndexes) {
+      t.deepEqual([['a', { name: 'a' }], ['b', { name: 'b' }]], entries);
+      t.deepEqual([], removeIndexes);
+    }
+  });
+  data.set('users', {
+    a: { name: 'a' },
+    b: { name: 'b' },
+  });
+});
+
+test('toArray add', t => {
+  t.plan(5);
+
+  const { data } = t.context;
+  data.on('users').toArray({
+    add(index, path, value) {
+      t.is(2, index);
+      t.is('c', path);
+      t.deepEqual({ name: 'c' }, value);
+    },
+    update(entries, removeIndexes) {
+      t.deepEqual([['a', { name: 'a' }], ['b', { name: 'b' }]], entries);
+      t.deepEqual([], removeIndexes);
+    }
+  });
+  data.set('users', {
+    a: { name: 'a' },
+    b: { name: 'b' },
+  });
+  data.set('users.c.name', 'c');
+});
+
+test('toArray remove', t => {
+  t.plan(3);
+
+  const { data } = t.context;
+  data.on('users').toArray({
+    remove(index, path, value) {
+      t.is(1, index);
+      t.is('b', path);
+      t.deepEqual({ name: 'b' }, value);
+    },
+    update(entries, removeIndexes) {
+    }
+  });
+  data.set('users', {
+    a: { name: 'a' },
+    b: { name: 'b' },
+    c: { name: 'c' }
+  });
+  data.unset('users.b');
+});
