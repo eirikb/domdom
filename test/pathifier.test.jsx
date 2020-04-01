@@ -299,3 +299,17 @@ test('toArray remove', t => {
   });
   data.unset('users.b');
 });
+
+test('sort', t => {
+  const { data } = t.context;
+  data.set('users', {
+    a: { name: 'a' },
+    b: { name: 'b' },
+  });
+  data.on('users').sort((a, b) => b.name.localeCompare(a.name)).toArray({
+    update(entries, removeIndexes) {
+      t.deepEqual([['a', { name: 'a' }], ['b', { name: 'b' }]], entries);
+      t.deepEqual([], removeIndexes);
+    }
+  });
+});

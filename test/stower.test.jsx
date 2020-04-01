@@ -385,3 +385,60 @@ test('Reorder non-elements', t => {
   });
   t.deepEqual(element.innerHTML, 'yes');
 });
+
+test('or', t => {
+  const { element, stower, div, a } = t.context;
+  stower.or(a, 0);
+  t.deepEqual(element.innerHTML, '<a></a>');
+  stower.add(div, 0);
+  t.deepEqual(element.innerHTML, '<div></div>');
+  stower.remove(0);
+  t.deepEqual(element.innerHTML, '<a></a>');
+});
+
+test('or can be false(y)', t => {
+  const { element, stower, div } = t.context;
+  stower.or(false, 0);
+  t.deepEqual(element.innerHTML, 'false');
+  stower.add(div, 0);
+  t.deepEqual(element.innerHTML, '<div></div>');
+  stower.remove(0);
+  t.deepEqual(element.innerHTML, 'false');
+});
+
+test('or as function', t => {
+  const { element, stower, div } = t.context;
+  let hello = 0;
+  const or = () => ++hello;
+  stower.or(or, 0);
+  t.deepEqual(element.innerHTML, '1');
+  stower.add(div, 0);
+  t.deepEqual(element.innerHTML, '<div></div>');
+  stower.remove(0);
+  t.deepEqual(element.innerHTML, '2');
+});
+
+test('or + Remove subIndexes', t => {
+  const { element, stower, a, b, c, d } = t.context;
+  stower.or('yes', 0);
+  t.deepEqual(element.innerHTML, 'yes');
+  stower.add(a, 0, 0);
+  stower.add(b, 0, 1);
+  stower.add(c, 0, 2);
+  stower.add(d, 0, 3);
+  t.deepEqual(element.innerHTML, '<a></a><b></b><c></c><d></d>');
+  stower.reorderSubIndexes(0, {
+    children: [],
+    removeIndexes: [3, 2, 1, 0]
+  });
+  t.deepEqual(element.innerHTML, 'yes');
+  stower.reorderSubIndexes(0, {
+    children: [c, d],
+    removeIndexes: [1, 0]
+  });
+  t.deepEqual(element.innerHTML, '<c></c><d></d>');
+  stower.reorderSubIndexes(0, {
+    children: [],
+    removeIndexes: [3, 2, 1, 0]
+  });
+});

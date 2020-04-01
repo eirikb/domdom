@@ -5,24 +5,28 @@ export default function (data, from) {
   // It's called cache so people would immediately think it's for
   // performance gain - although it's a full copy taking up double the memory
   const cache = {};
+  const cacheNoMap = {};
 
-  let _to, _filter, _sort, _sortOn, _toArray, _map, _then, _on;
+  let _to, _filter, _sort, _toArray, _map, _then, _on;
   let temporarilyDisableToArray = false;
 
-  // Default sort if none is specified
-  _sort = (a, b, aPath, bPath) => aPath.localeCompare(bPath);
   _on = false;
 
   function sortedIndex(path) {
-    const d = cache;
+    const d = cacheNoMap;
     const paths = Object.keys(d);
 
     let low = 0;
-    let high = paths.length;
+    let high = paths.length - 1;
+    let sort = _sort;
+    // Default sort if none is specified
+    if (!sort) {
+      sort = (a, b, aPath, bPath) => aPath.localeCompare(bPath);
+    }
 
     while (low < high) {
       let mid = (low + high) >>> 1;
-      if (_sort(d[path], d[paths[mid]], path, paths[mid]) > 0) {
+      if (sort(d[path], d[paths[mid]], path, paths[mid]) > 0) {
         low = mid + 1;
       } else {
         high = mid;
@@ -62,8 +66,8 @@ export default function (data, from) {
       return self;
     },
     sortOn(path, sort) {
-      if (_sortOn) throw new Error('Sorry, only one sort');
-      _sortOn = sort;
+      if (_sort) throw new Error('Sorry, only one sort');
+      _sort = sort;
       refs.push(
         data.on(`!+* ${path}`, () => {
           update();
@@ -153,24 +157,22 @@ export default function (data, from) {
   }
 
   function set(key, value) {
-    const k = key.split('.')[0];
+    const parts = key.split('.');
+    const k = parts[0];
     if (_filter && !_filter(data.get(keys(from, k)))) {
       return false;
     }
 
     const exists = cache[k];
+    const origValue = value;
     if (_map) {
       value = _map(data.get(keys(from, k)));
       key = k;
     }
 
     if (_to) data.set(keys(_to, key), value);
-    const parts = key.split('.');
-    const parent = parts.slice(0, -1).reduce((parent, key) => {
-      if (!parent[key]) parent[key] = {};
-      return parent[key];
-    }, cache);
-    parent[parts[parts.length - 1]] = value;
+    setObject(cache, parts, value);
+    setObject(cacheNoMap, parts, origValue);
     if (_toArray && !temporarilyDisableToArray) {
       const index = sortedIndex(k);
       if (exists) {
@@ -180,6 +182,19 @@ export default function (data, from) {
       }
     }
     return true;
+  }
+
+  function setObject(object, parts, value) {
+    const parent = parts.slice(0, -1).reduce((parent, key) => {
+      if (!parent[key]) parent[key] = {};
+      return parent[key];
+    }, object);
+    parent[parts[parts.length - 1]] = value;
+  }
+
+  function unsetObject(object, parts) {
+    const parent = parts.slice(0, -1).reduce((parent, key) => parent[key], object);
+    delete parent[parts[parts.length - 1]];
   }
 
   function unset(path) {
@@ -193,10 +208,11 @@ export default function (data, from) {
       const index = sortedIndex(k);
       _toArray.remove(index, k, cache[k]);
     }
-    const parent = parts.slice(0, -1).reduce((parent, key) => parent[key], cache);
-    delete parent[parts[parts.length - 1]];
+    unsetObject(cache, parts);
+    unsetObject(cacheNoMap, parts);
     if (_to) data.unset(keys(_to, path));
   }
+
 
   return self;
 }

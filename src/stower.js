@@ -4,6 +4,8 @@ export default function Stower(element) {
   const self = {};
   const slots = [];
   const first = [];
+  const ors = [];
+  const hasOr = [];
 
   function escapeChild(child) {
     if (child === null || typeof child === 'undefined') {
@@ -18,7 +20,11 @@ export default function Stower(element) {
     return child;
   }
 
-  function add(child, before) {
+  function add(index, child, before) {
+    if (typeof hasOr[index] !== 'undefined') {
+      element.removeChild(hasOr[index]);
+      delete hasOr[index];
+    }
     if (before) {
       element.insertBefore(child, before);
     } else {
@@ -30,10 +36,19 @@ export default function Stower(element) {
     }
   }
 
-  function remove(child) {
-    child.isMounted = false;
-    element.removeChild(child);
-    if (child.destroy) child.destroy();
+  function remove(index, child) {
+    if (child) {
+      child.isMounted = false;
+      element.removeChild(child);
+      if (child.destroy) child.destroy();
+    }
+    if (typeof ors[index] !== 'undefined' && (!slots[index] || slots[index].length === 0)) {
+      let or = ors[index];
+      if (typeof or === 'function') or = or();
+      or = escapeChild(or);
+      hasOr[index] = or;
+      element.appendChild(or);
+    }
   }
 
   function addSingle(child, index) {
@@ -42,7 +57,7 @@ export default function Stower(element) {
       removeSingle(slots[index], index);
     }
     const before = first.slice(index).find(element => element);
-    add(child, before);
+    add(index, child, before);
     first[index] = child;
     slots[index] = child;
   }
@@ -53,7 +68,7 @@ export default function Stower(element) {
       removeArray(slots[index], index);
     }
     const before = first.slice(index).find(element => element);
-    children.map(child => add(child, before));
+    children.map(child => add(index, child, before));
     first[index] = children[0];
     slots[index] = children;
   }
@@ -70,9 +85,9 @@ export default function Stower(element) {
     }
 
     if (isArray) {
-      child.forEach(child => add(child, before));
+      child.forEach(child => add(index, child, before));
     } else {
-      add(child, before);
+      add(index, child, before);
     }
     slots[index] = slots[index] || [];
     if (slots[index][subIndex]) {
@@ -96,29 +111,29 @@ export default function Stower(element) {
   };
 
   function removeSingle(child, index) {
-    remove(child);
     delete slots[index];
     delete first[index];
+    if (child) remove(index, child);
   }
 
   function removeArray(children, index) {
-    for (let child of children) {
-      remove(child);
-    }
     delete slots[index];
     delete first[index];
+    for (let child of children) {
+      remove(index, child);
+    }
   }
 
   function removeWithSubIndex(index, subIndex) {
     const child = (slots[index] || {})[subIndex];
     if (!child) return;
 
-    if (Array.isArray(child)) {
-      child.forEach(remove);
-    } else {
-      remove(child);
-    }
     slots[index].splice(subIndex, 1);
+    if (Array.isArray(child)) {
+      child.forEach(child => remove(index, child));
+    } else {
+      remove(index, child);
+    }
     if (subIndex === 0) {
       first[index] = slots[index][0];
     }
@@ -141,14 +156,20 @@ export default function Stower(element) {
     for (let removeIndex of res.removeIndexes) {
       self.remove(index, removeIndex);
     }
+    slots[index] = [];
     const before = first.slice(index + 1).find(element => element);
     slots[index] = [];
     for (let child of res.children) {
       child = escapeChild(child);
-      add(child, before);
+      add(index, child, before);
       slots[index].push(child);
     }
     first[index] = slots[index][0];
+  };
+
+  self.or = (or, index) => {
+    ors[index] = or;
+    remove(index);
   };
 
   return self;

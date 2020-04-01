@@ -1,6 +1,19 @@
-import Pathingen from './pathingen';
+import Pathifier from "./pathifier";
 
 export default (data, path, listener) => {
+  // TODO: Move to data
+  if (!data._hacked) {
+    const oldOn = data.on;
+    data.on = (flagsAndPath, listener) => {
+      if (!flagsAndPath.includes(' ') && !listener) {
+        return Pathifier(data, flagsAndPath);
+      }
+      return oldOn(flagsAndPath, listener);
+    };
+    data._hacked = true;
+  }
+
+  const listenerSet = !!listener;
   if (!listener) {
     listener = _ => _;
   }
@@ -8,15 +21,8 @@ export default (data, path, listener) => {
     throw new Error('Listener must be a function');
   }
 
-  let stower, or, index;
-  const pathingen = Pathingen();
-
-  const stowerPlayback = [];
-  stower = {
-    add: (...args) => stowerPlayback.push({ type: 'add', args }),
-    remove: (...args) => stowerPlayback.push({ type: 'remove', args }),
-    reorderSubIndexes: () => true
-  };
+  let stower, _or, index, pathifier;
+  let _filter, _filterOn, _sort, _sortOn, _map;
 
   const listeners = [];
 
@@ -25,63 +31,53 @@ export default (data, path, listener) => {
     listeners.push({ flagsAndPath, cb, ref });
   }
 
-  const elements = {};
   let isMounted = false;
   const hodor = {
     path,
     isHodor: true,
-    or(o) {
-      or = o;
+    or(or) {
+      _or = or;
       return hodor;
     },
     filter(filter) {
-      pathingen.filterer = (a) => filter(data.get(a));
+      _filter = filter;
       return hodor;
     },
     filterOn(path, filter) {
-      pathingen.filterer = (a) => filter(data.get(path), data.get(a));
-      on(`!+* ${path}`, () => {
-        const res = pathingen.update();
-        res.children = res.paths.map(path => elements[path]);
-        stower.reorderSubIndexes(index, res);
-      });
+      _filterOn = { path, filter };
       return hodor;
     },
     sort(sort) {
-      pathingen.sorter = (a, b) => sort(data.get(a), data.get(b));
+      _sort = sort;
       return hodor;
     },
     sortOn(path, sort) {
-      pathingen.sorter = (a, b) => sort(data.get(path), data.get(a), data.get(b));
-      on(`!+* ${path}`, () => {
-        const res = pathingen.update();
-        res.children = res.paths.map(path => elements[path]);
-        stower.reorderSubIndexes(index, res);
-      });
+      _sortOn = { path, sort };
+      return hodor;
+    },
+    map(map) {
+      if (listenerSet) {
+        throw new Error(`Sorry, can't combine listener and map`);
+      }
+      _map = map;
       return hodor;
     },
     stower(i, s) {
       index = i;
       stower = s;
-      if (or) {
-        stower.add(or, index, 0);
-      }
-      for (let { type, args } of stowerPlayback) {
-        args[1] = index;
-        stower[type](...args);
+      if (_or) {
+        stower.or(_or, index);
       }
       return hodor;
     },
     mounted() {
       if (isMounted) return;
       isMounted = true;
-      listen && listen(path);
-      for (let listener of listeners.filter(l => !l.ref)) {
-        listener.ref = data.on(listener.flagsAndPath, listener.cb);
-      }
+      listen(path);
     },
     destroy() {
       isMounted = false;
+      if (pathifier) pathifier.off();
       for (let listener of listeners.filter(l => l.ref)) {
         data.off(listener.ref);
         delete listener.ref;
@@ -95,56 +91,50 @@ export default (data, path, listener) => {
     return hodor;
   }
 
+  const paths = [];
   const listen = (path) => {
-    on('!+* ' + path, (...args) => {
-      const path = args[1].path;
-      const res = typeof listener === 'function' ? listener(...args) : listener;
-
-      const pathingenPathsLength = pathingen.paths.length;
-      let subIndex;
-      if (elements[path]) {
-        subIndex = pathingen.indexOfPath(path);
+    if (!_map) {
+      on(`!+* ${path}`, (val, { path }) => {
+        const subIndex = paths.indexOf(path);
         if (subIndex >= 0) {
+          paths.splice(subIndex, 1);
           stower.remove(index, subIndex);
         }
-      } else {
-        subIndex = pathingen.addPath(path);
-      }
-
-      elements[path] = res;
-      if (subIndex < 0) return;
-
-      if (typeof res !== 'undefined') {
-        if (pathingenPathsLength === 0 && or) {
-          stower.remove(index, 0, 0);
+        stower.add(listener(val), index, paths.length);
+        paths.push(path);
+      });
+      on(`- ${path}`, (_, { path }) => {
+        const subIndex = paths.indexOf(path);
+        paths.splice(subIndex, 1);
+        stower.remove(index, subIndex);
+      });
+      return;
+    }
+    pathifier = data.on(path)
+      .toArray({
+        add(subIndex, path, value) {
+          stower.add(value, index, subIndex);
+        },
+        remove(subIndex) {
+          stower.remove(index, subIndex);
+        },
+        change(subIndex, path, value) {
+          stower.remove(index, subIndex);
+          stower.add(value, index, subIndex);
+        },
+        update(entries, removeIndexes) {
+          stower.reorderSubIndexes(index, {
+            children: entries.map(([_, v]) => v),
+            removeIndexes
+          });
         }
-        stower.add(res, index, subIndex);
-        if (res.onPath) {
-          res.onPath(path);
-        }
-      } else {
-        pathingen.removePath(path);
-        delete elements[path];
-      }
-    });
-    on('- ' + path, (...args) => {
-      const path = args[1].path;
-      delete elements[path];
-      const subIndex = pathingen.removePath(path);
-      stower.remove(index, subIndex);
-      if (pathingen.paths.length === 0 && or) {
-        stower.add(or, index, 0);
-      }
-    });
-    return hodor;
+      });
+    if (_map) pathifier.map(_map);
+    if (_filter) pathifier.filter(_filter);
+    if (_filterOn) pathifier.filterOn(_filterOn.path, _filterOn.filter);
+    if (_sort) pathifier.sort(_sort);
+    if (_sortOn) pathifier.sortOn(_sortOn.path, _sortOn.sort);
   };
-
-  if (path.match(/^>\./)) {
-    hodor.bounce = (parentPath) => {
-      listen(parentPath + path.slice(1));
-    };
-    return hodor;
-  }
 
   return hodor;
 };
