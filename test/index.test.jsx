@@ -656,33 +656,6 @@ test('On on object attributes', t => {
   t.is(document.body.innerHTML, '<div><p style="color: red;">Test</p></div>');
 });
 
-// Remove?
-test.skip('Recursive wildcard change', t => {
-  const dd = domdom();
-  const view = ({ on }) => <div>
-    {on('test.**', (_, { values }) => values.map(val => <div>{val}</div>))}
-  </div>;
-  dd.append(document.body, view);
-  dd.set('test', { one: '1', two: '2' });
-  t.is(document.body.innerHTML, '<div><div>1</div><div>2</div></div>');
-  dd.set('test.one', '3');
-  t.is(document.body.innerHTML, '<div><div>3</div><div>2</div></div>');
-});
-
-test.skip('Recursive non-wild change', t => {
-  const dd = domdom();
-  const view = ({ on }) => <div>
-    {on('test.*', (_, { values }) => values.map(val => <div>{val}</div>))}
-  </div>;
-  dd.append(document.body, view);
-  dd.set('test', { one: { a: 1 }, two: { a: 2 } });
-  t.is(document.body.innerHTML, '<div><div>{"a":1}</div><div>{"a":2}</div></div>');
-  dd.set('test.one', { a: 3 });
-  t.is(document.body.innerHTML, '<div><div>{"a":3}</div><div>{"a":2}</div></div>');
-  dd.set('test.one.a', 4);
-  t.is(document.body.innerHTML, '<div><div>{"a":3}</div><div>{"a":2}</div></div>');
-});
-
 test('Filter array', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
@@ -731,7 +704,7 @@ test('Update filterOn on update filter refresh', t => {
   t.is(document.body.innerHTML, '<div><span>Two!</span></div>');
 });
 
-test.skip('Update filterOn on update after data is set', t => {
+test('Update filterOn on update after data is set', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
     {on('users')
@@ -748,7 +721,7 @@ test.skip('Update filterOn on update after data is set', t => {
   t.is(document.body.innerHTML, '<div><a>Two!</a></div>');
 });
 
-test.skip('on sortOn - custom order', t => {
+test('on sortOn - custom order', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('players')
@@ -769,7 +742,7 @@ test.skip('on sortOn - custom order', t => {
   t.is(document.body.innerHTML, '<div><p>7</p><p>3</p><p>2</p></div>');
 });
 
-test.skip('on sortOn - custom order update', t => {
+test('on sortOn - custom order update', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('players')
@@ -790,7 +763,7 @@ test.skip('on sortOn - custom order update', t => {
   t.is(document.body.innerHTML, '<div><p>7</p><p>3</p><p>2</p></div>');
 });
 
-test.skip('onFilter and onSort', t => {
+test('onFilter and onSort', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('players')
@@ -840,7 +813,7 @@ test('Function context when when', t => {
   t.is(document.body.innerHTML, '<div><div>:)</div><div>:)</div></div>');
 });
 
-test.skip('filterOn and back', t => {
+test('filterOn and back', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
     {on('users')
@@ -932,7 +905,7 @@ test('Re-add', t => {
   t.is(document.body.innerHTML, '<div><p>OK! Well!</p></div>');
 });
 
-test.skip('Something something filter and add', t => {
+test('Something something filter and add', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
     {on('users')
@@ -966,7 +939,7 @@ test('Simplest', t => {
   dd.set('no', 'n');
 });
 
-test.skip('filterOn mounted destroy mounted', t => {
+test('filterOn mounted destroy mounted', t => {
   const dd = domdom();
   const view = ({ when, on }) => <div>
     {when('yes', [
@@ -990,7 +963,7 @@ test.skip('filterOn mounted destroy mounted', t => {
   t.is(document.body.innerHTML, '<div><div>one</div></div>');
 });
 
-test.skip('When + filterOn const element', t => {
+test('When + filterOn const element', t => {
   const dd = domdom();
   const view = ({ when, on }) => <div>
     {when('show', [

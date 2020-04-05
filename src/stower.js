@@ -152,19 +152,9 @@ export default function Stower(element) {
     }
   };
 
-  self.reorderSubIndexes = (index, res) => {
-    for (let removeIndex of res.removeIndexes) {
-      self.remove(index, removeIndex);
-    }
-    slots[index] = [];
-    const before = first.slice(index + 1).find(element => element);
-    slots[index] = [];
-    for (let child of res.children) {
-      child = escapeChild(child);
-      add(index, child, before);
-      slots[index].push(child);
-    }
-    first[index] = slots[index][0];
+  self.change = (value, index, subIndex, oldIndex) => {
+    removeWithSubIndex(index, oldIndex);
+    addWithSubIndex(value, index, subIndex);
   };
 
   self.or = (or, index) => {

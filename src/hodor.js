@@ -113,20 +113,16 @@ export default (data, path, listener) => {
     pathifier = data.on(path)
       .toArray({
         add(subIndex, path, value) {
+          console.log('add', value.textContent, index, subIndex);
           stower.add(value, index, subIndex);
         },
         remove(subIndex) {
+          console.log('remove', index, subIndex);
           stower.remove(index, subIndex);
         },
-        change(subIndex, path, value) {
-          stower.remove(index, subIndex);
-          stower.add(value, index, subIndex);
-        },
-        update(entries, removeIndexes) {
-          stower.reorderSubIndexes(index, {
-            children: entries.map(([_, v]) => v),
-            removeIndexes
-          });
+        change(subIndex, path, value, oldIndex) {
+          console.log('change', value.textContent, index, subIndex, oldIndex);
+          stower.change(value, index, subIndex, oldIndex);
         }
       });
     if (_map) pathifier.map(_map);

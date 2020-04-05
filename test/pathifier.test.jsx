@@ -1,6 +1,36 @@
 import test from 'ava';
 import Pathifier from '../src/pathifier';
 import Data from '@eirikb/data';
+import domdom from "../src";
+
+function stower() {
+  const add = [];
+  const remove = [];
+  const change = [];
+  return {
+    add,
+    remove,
+    change,
+    reset() {
+      add.splice(0, add.length);
+      remove.splice(0, remove.length);
+      change.splice(0, change.length);
+    },
+    toArray(includeValue = false) {
+      function push(array) {
+        return (index, path, value, oldIndex) => {
+          array.push([index, path, includeValue ? value : undefined, oldIndex].filter(p => p !== undefined));
+        }
+      }
+
+      return {
+        add: push(add),
+        remove: push(remove),
+        change: push(change)
+      };
+    }
+  };
+}
 
 test.beforeEach(t => {
   const data = Data();
@@ -231,85 +261,131 @@ test('only one array, unfortunately', t => {
 
 test('toArray initial before', t => {
   const { data } = t.context;
+  const { add, toArray } = stower();
   data.set('users', {
     a: { name: 'a' },
     b: { name: 'b' },
   });
-  data.on('users').toArray({
-    update(entries, removeIndexes) {
-      t.deepEqual([['a', { name: 'a' }], ['b', { name: 'b' }]], entries);
-      t.deepEqual([], removeIndexes);
-    }
-  });
+  data.on('users').toArray(toArray());
+  t.deepEqual([[0, 'a'], [1, 'b']], add);
 });
 
 test('toArray initial after', t => {
   const { data } = t.context;
-  data.on('users').toArray({
-    update(entries, removeIndexes) {
-      t.deepEqual([['a', { name: 'a' }], ['b', { name: 'b' }]], entries);
-      t.deepEqual([], removeIndexes);
-    }
-  });
+  const { add, toArray } = stower();
+  data.on('users').toArray(toArray());
   data.set('users', {
     a: { name: 'a' },
     b: { name: 'b' },
   });
+  t.deepEqual([[0, 'a'], [1, 'b']], add);
 });
 
 test('toArray add', t => {
-  t.plan(5);
-
   const { data } = t.context;
-  data.on('users').toArray({
-    add(index, path, value) {
-      t.is(2, index);
-      t.is('c', path);
-      t.deepEqual({ name: 'c' }, value);
-    },
-    update(entries, removeIndexes) {
-      t.deepEqual([['a', { name: 'a' }], ['b', { name: 'b' }]], entries);
-      t.deepEqual([], removeIndexes);
-    }
-  });
+  const { add, toArray, reset } = stower();
+  data.on('users').toArray(toArray());
   data.set('users', {
     a: { name: 'a' },
     b: { name: 'b' },
   });
+  t.deepEqual([[0, 'a'], [1, 'b']], add);
+  reset();
   data.set('users.c.name', 'c');
+  t.deepEqual([[2, 'c']], add);
 });
 
 test('toArray remove', t => {
-  t.plan(3);
-
   const { data } = t.context;
-  data.on('users').toArray({
-    remove(index, path, value) {
-      t.is(1, index);
-      t.is('b', path);
-      t.deepEqual({ name: 'b' }, value);
-    },
-    update(entries, removeIndexes) {
-    }
-  });
+  const { add, remove, reset, toArray } = stower();
+  data.on('users').toArray(toArray());
   data.set('users', {
     a: { name: 'a' },
     b: { name: 'b' },
     c: { name: 'c' }
   });
+  t.deepEqual([[0, 'a'], [1, 'b'], [2, 'c']], add);
+  t.deepEqual([], remove);
+  reset();
   data.unset('users.b');
+  t.deepEqual([], add);
+  t.deepEqual([[1, 'b']], remove);
 });
 
 test('sort', t => {
   const { data } = t.context;
+  const { add, toArray } = stower();
   data.set('users', {
     a: { name: 'a' },
     b: { name: 'b' },
   });
-  data.on('users').sort((a, b) => b.name.localeCompare(a.name)).toArray({
-    update(entries, removeIndexes) {
-      t.deepEqual([['a', { name: 'a' }], ['b', { name: 'b' }]], entries);
-      t.deepEqual([], removeIndexes);
-    }
-  });
+  data.on('users').sort((a, b) => b.name.localeCompare(a.name)).toArray(toArray());
+  t.deepEqual([[0, 'a'], [0, 'b']], add);
+});
+
+test('Update filterOn on update after data is set', t => {
+  const { data } = t.context;
+  const { add, remove, reset, toArray } = stower();
+  data.on('users')
+    .map(user => user)
+    .filterOn('test', (filter, user) =>
+      new RegExp(filter, 'i').test(user)
+    ).toArray(toArray());
+  data.set('test', '');
+  data.set('users', { a: 'a', b: 'b' });
+  t.deepEqual([[0, 'a'], [1, 'b']], add);
+  reset();
+  data.set('test', 'b');
+  t.deepEqual([], add);
+  t.deepEqual([[0, 'a']], remove);
+});
+
+test('filterOn and back', t => {
+  const { data } = t.context;
+  const { add, remove, reset, change, toArray } = stower();
+  data.on('users')
+    .map(user => user.name)
+    .filterOn('test', (filter, user) =>
+      new RegExp(filter, 'i').test(user.name)
+    ).toArray(toArray());
+
+  data.set('test', '');
+  data.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  t.deepEqual([[0, 'one'], [1, 'two']], add);
+  reset();
+
+  data.set('test', 'two');
+  t.deepEqual([[0, 'one']], remove);
+  t.deepEqual([[1, 'two', 1]], change);
+  reset();
+
+  data.set('test', '');
+  t.deepEqual([[0, 'one']], add);
+  t.deepEqual([[1, 'two', 1]], change);
+});
+
+test('on sortOn - custom order update', t => {
+  const { data } = t.context;
+  const { add, remove, change, reset, toArray } = stower();
+
+  data.on('players')
+    .map(player => player.name)
+    .sortOn('test', (val, a, b) => b.name.localeCompare(a.name))
+    .toArray(toArray(true));
+
+  data.set('players.1', { name: '1' });
+  data.set('players.2', { name: '2' });
+  data.set('players.3', { name: '3' });
+  t.deepEqual([[0, '1', '1'], [0, '2', '2'], [0, '3', '3']], add);
+  reset();
+  data.set('test', 'yes');
+  t.deepEqual([[2, '1', '1', 2], [1, '2', '2', 1], [0, '3', '3', 0]], change);
+  reset();
+
+  data.unset('players.1');
+  t.deepEqual([[2, '1', '1']], remove);
+  reset();
+
+  data.set('players.1', { name: '7' });
+  t.deepEqual([[0, '1', '7']], add);
 });

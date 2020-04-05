@@ -6,18 +6,18 @@ export default function (data, from) {
   // performance gain - although it's a full copy taking up double the memory
   const cache = {};
   const cacheNoMap = {};
+  const cacheArray = [];
 
   let _to, _filter, _sort, _toArray, _map, _then, _on;
-  let temporarilyDisableToArray = false;
 
   _on = false;
 
   function sortedIndex(path) {
     const d = cacheNoMap;
-    const paths = Object.keys(d);
+    const paths = cacheArray;
 
     let low = 0;
-    let high = paths.length - 1;
+    let high = paths.length;
     let sort = _sort;
     // Default sort if none is specified
     if (!sort) {
@@ -40,10 +40,14 @@ export default function (data, from) {
     _filter = filter;
   }
 
+  function setSort(sort) {
+    if (_sort) throw new Error('Sorry, only one sort');
+    _sort = sort;
+  }
+
   const self = {
     filter(filter) {
       setFilter(filter);
-      _filter = filter;
       return self;
     },
     filterOn(path, filter) {
@@ -61,13 +65,11 @@ export default function (data, from) {
       return self;
     },
     sort(sort) {
-      if (_sort) throw new Error('Sorry, only one sort');
-      _sort = sort;
+      setSort(sort);
       return self;
     },
     sortOn(path, sort) {
-      if (_sort) throw new Error('Sorry, only one sort');
-      _sort = sort;
+      setSort((a, b, aPath, bPath) => sort(data.get(path), a, b, aPath, bPath));
       refs.push(
         data.on(`!+* ${path}`, () => {
           update();
@@ -120,6 +122,13 @@ export default function (data, from) {
         data.off(ref);
       }
       _on = false;
+    },
+    // TODO: REMOVE
+    _update() {
+      update();
+    },
+    _filter(filter) {
+      _filter = filter;
     }
   };
 
@@ -132,16 +141,11 @@ export default function (data, from) {
     const a = new Set(Object.keys(fromData || {}));
     const b = new Set(Object.keys(cache || {}));
     let updated = false;
-    temporarilyDisableToArray = true;
     for (let aa of a) {
       if (set(aa, data.get(keys(from, aa)))) {
         updated = true;
         b.delete(aa);
       }
-    }
-    if (_toArray) {
-      const removeIndexes = [...b].map(bb => sortedIndex(bb));
-      _toArray.update(Object.entries(cache), removeIndexes);
     }
     for (let bb of b) {
       unset(bb);
@@ -149,7 +153,6 @@ export default function (data, from) {
     if (updated && _then) {
       _then(cache);
     }
-    temporarilyDisableToArray = false;
   }
 
   function keys(...args) {
@@ -173,13 +176,17 @@ export default function (data, from) {
     if (_to) data.set(keys(_to, key), value);
     setObject(cache, parts, value);
     setObject(cacheNoMap, parts, origValue);
-    if (_toArray && !temporarilyDisableToArray) {
+    if (_toArray) {
       const index = sortedIndex(k);
       if (exists) {
-        _toArray.change(index, k, cache[k]);
+        // TODO: Speed this up
+        const oldIndex = cacheArray.indexOf(k);
+        cacheArray.splice(oldIndex, 1);
+        _toArray.change(index, k, cache[k], oldIndex);
       } else {
         _toArray.add(index, k, cache[k]);
       }
+      cacheArray.splice(index, 0, k);
     }
     return true;
   }
@@ -204,9 +211,10 @@ export default function (data, from) {
     const k = parts[0];
     if (!cache[k]) return;
 
-    if (_toArray && !temporarilyDisableToArray) {
-      const index = sortedIndex(k);
+    if (_toArray) {
+      const index = cacheArray.indexOf(k);
       _toArray.remove(index, k, cache[k]);
+      cacheArray.splice(index, 1);
     }
     unsetObject(cache, parts);
     unsetObject(cacheNoMap, parts);

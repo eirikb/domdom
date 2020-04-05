@@ -130,3 +130,87 @@ test('Map filter', t => {
   });
   t.deepEqual('<div>mr amr c</div>', html());
 });
+
+test('Update filterOn on update after data is set', t => {
+  const { data, html } = setup('users')
+    .map(user => user)
+    .filterOn('test', (filter, user) =>
+      new RegExp(filter, 'i').test(user)
+    ).mount();
+  data.set('test', '');
+  data.set('users', { a: 'a', b: 'b' });
+  t.is('<div>ab</div>', html());
+  data.set('test', 'b');
+  t.is('<div>b</div>', html());
+});
+
+test('on sortOn - custom order', t => {
+  const { data, html } = setup('players')
+    .map(player => <p>{player.name}</p>)
+    .sortOn('test', (val, a, b) => b.name.localeCompare(a.name))
+    .mount();
+  data.set('test', 'yes');
+  data.set('players.1', { name: '1' });
+  data.set('players.2', { name: '2' });
+  data.set('players.3', { name: '3' });
+  t.is('<div><p>3</p><p>2</p><p>1</p></div>', html());
+  data.unset('players.1');
+  t.is('<div><p>3</p><p>2</p></div>', html());
+  data.set('players.1', { name: '7' });
+  t.is('<div><p>7</p><p>3</p><p>2</p></div>', html());
+});
+
+test('filterOn and back', t => {
+  const { data, html } = setup('users')
+    .map(user => <a>{user.name}</a>)
+    .filterOn('test', (filter, user) =>
+      new RegExp(filter, 'i').test(user.name)
+    ).mount();
+
+  data.set('test', '');
+  data.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  t.is('<div><a>One!</a><a>Two!</a></div>', html());
+
+  data.set('test', 'two');
+  t.is('<div><a>Two!</a></div>', html());
+
+  data.set('test', '');
+  t.is('<div><a>One!</a><a>Two!</a></div>', html());
+  t.pass();
+});
+
+test('on sortOn - custom order update', t => {
+  const { data, html } = setup('players')
+    .map(player => <p>{player.name}</p>)
+    .sortOn('test', (val, a, b) => b.name.localeCompare(a.name))
+    .mount();
+
+  data.set('players.1', { name: '1' });
+  data.set('players.2', { name: '2' });
+  data.set('players.3', { name: '3' });
+  data.set('test', 'yes');
+  t.is('<div><p>3</p><p>2</p><p>1</p></div>', html());
+
+  data.unset('players.1');
+  t.is('<div><p>3</p><p>2</p></div>', html());
+
+  data.set('players.1', { name: '7' });
+  t.is('<div><p>7</p><p>3</p><p>2</p></div>', html());
+});
+
+test('onFilter and onSort', t => {
+  const { data, html } = setup('players')
+    .map(player => <p>{player.name}</p>)
+    .sortOn('filter.by', (val, a, b) => a[val].localeCompare(b[val]))
+    .mount();
+  data.set('filter.by', 'name');
+  data.set('players.1', { name: '1', age: '3' });
+  data.set('players.2', { name: '2', age: '2' });
+  data.set('players.3', { name: '3', age: '1' });
+  console.log(1, html());
+  // t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
+  data.set('filter.by', 'age');
+  console.log(2, html());
+  // t.is(document.body.innerHTML, '<div><p>3</p><p>2</p><p>1</p></div>');
+  t.pass();
+});

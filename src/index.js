@@ -88,13 +88,6 @@ export default (data = Data()) => {
         }
         element.childNodes.forEach(child => child.mounted && child.mounted(context));
       };
-      element.onPath = (path) => {
-        element.childNodes.forEach(child => child.onPath && child.onPath(path));
-        const bounced = hodors.filter(hodor => hodor.bounce);
-        for (let hodor of bounced) {
-          hodor.bounce(path);
-        }
-      };
       for (let hodor of hodors) {
         hodor.mounted();
       }
