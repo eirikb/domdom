@@ -6,15 +6,12 @@ import domdom from "../src";
 function stower() {
   const add = [];
   const remove = [];
-  const change = [];
   return {
     add,
     remove,
-    change,
     reset() {
       add.splice(0, add.length);
       remove.splice(0, remove.length);
-      change.splice(0, change.length);
     },
     toArray(includeValue = false) {
       function push(array) {
@@ -25,8 +22,7 @@ function stower() {
 
       return {
         add: push(add),
-        remove: push(remove),
-        change: push(change)
+        remove: push(remove)
       };
     }
   };
@@ -336,13 +332,13 @@ test('Update filterOn on update after data is set', t => {
   t.deepEqual([[0, 'a'], [1, 'b']], add);
   reset();
   data.set('test', 'b');
-  t.deepEqual([], add);
-  t.deepEqual([[0, 'a']], remove);
+  t.deepEqual([[1, 'b']], add);
+  t.deepEqual([[1, 'b'], [0, 'a']], remove);
 });
 
 test('filterOn and back', t => {
   const { data } = t.context;
-  const { add, remove, reset, change, toArray } = stower();
+  const { add, remove, reset, toArray } = stower();
   data.on('users')
     .map(user => user.name)
     .filterOn('test', (filter, user) =>
@@ -355,18 +351,18 @@ test('filterOn and back', t => {
   reset();
 
   data.set('test', 'two');
-  t.deepEqual([[0, 'one']], remove);
-  t.deepEqual([[1, 'two', 1]], change);
+  t.deepEqual([[1, 'two'], [0, 'one']], remove);
+  t.deepEqual([[1, 'two']], add);
   reset();
 
   data.set('test', '');
-  t.deepEqual([[0, 'one']], add);
-  t.deepEqual([[1, 'two', 1]], change);
+  t.deepEqual([[1, 'two']], remove);
+  t.deepEqual([[0, 'one'], [1, 'two']], add);
 });
 
 test('on sortOn - custom order update', t => {
   const { data } = t.context;
-  const { add, remove, change, reset, toArray } = stower();
+  const { add, remove, reset, toArray } = stower();
 
   data.on('players')
     .map(player => player.name)
@@ -379,7 +375,6 @@ test('on sortOn - custom order update', t => {
   t.deepEqual([[0, '1', '1'], [0, '2', '2'], [0, '3', '3']], add);
   reset();
   data.set('test', 'yes');
-  t.deepEqual([[2, '1', '1', 2], [1, '2', '2', 1], [0, '3', '3', 0]], change);
   reset();
 
   data.unset('players.1');
@@ -389,3 +384,4 @@ test('on sortOn - custom order update', t => {
   data.set('players.1', { name: '7' });
   t.deepEqual([[0, '1', '7']], add);
 });
+

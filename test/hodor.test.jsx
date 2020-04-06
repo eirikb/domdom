@@ -207,10 +207,8 @@ test('onFilter and onSort', t => {
   data.set('players.1', { name: '1', age: '3' });
   data.set('players.2', { name: '2', age: '2' });
   data.set('players.3', { name: '3', age: '1' });
-  console.log(1, html());
-  // t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
+  t.is('<div><p>1</p><p>2</p><p>3</p></div>', html());
   data.set('filter.by', 'age');
-  console.log(2, html());
-  // t.is(document.body.innerHTML, '<div><p>3</p><p>2</p><p>1</p></div>');
+  t.is('<div><p>3</p><p>2</p><p>1</p></div>', html());
   t.pass();
 });

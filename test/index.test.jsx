@@ -864,7 +864,7 @@ test('When + change 2', t => {
   t.is(document.body.innerHTML, '<div><p>OK!</p></div>');
 });
 
-test.skip('When + filterOn', t => {
+test('When + filterOn', t => {
   const dd = domdom();
   const view = ({ when, on }) => <div>
     {when('yes', [
@@ -983,7 +983,7 @@ test('When + filterOn const element', t => {
   t.deepEqual(document.body.innerHTML, '<div><div><p>a</p></div></div>');
 });
 
-test.skip('When + filterOn const text', t => {
+test('When + filterOn const text', t => {
   const dd = domdom();
   const view = ({ when, on }) => <div>
     {when('show', [

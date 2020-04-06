@@ -1,9 +1,6 @@
 export default function (data, from) {
   const refs = [];
 
-  // Cache is used for 'then', since there might not be a 'to'.
-  // It's called cache so people would immediately think it's for
-  // performance gain - although it's a full copy taking up double the memory
   const cache = {};
   const cacheNoMap = {};
   const cacheArray = [];
@@ -122,13 +119,6 @@ export default function (data, from) {
         data.off(ref);
       }
       _on = false;
-    },
-    // TODO: REMOVE
-    _update() {
-      update();
-    },
-    _filter(filter) {
-      _filter = filter;
     }
   };
 
@@ -177,16 +167,18 @@ export default function (data, from) {
     setObject(cache, parts, value);
     setObject(cacheNoMap, parts, origValue);
     if (_toArray) {
-      const index = sortedIndex(k);
       if (exists) {
-        // TODO: Speed this up
         const oldIndex = cacheArray.indexOf(k);
         cacheArray.splice(oldIndex, 1);
-        _toArray.change(index, k, cache[k], oldIndex);
-      } else {
+        _toArray.remove(oldIndex, k, cache[k]);
+        const index = sortedIndex(k);
         _toArray.add(index, k, cache[k]);
+        cacheArray.splice(index, 0, k);
+      } else {
+        const index = sortedIndex(k);
+        _toArray.add(index, k, cache[k]);
+        cacheArray.splice(index, 0, k);
       }
-      cacheArray.splice(index, 0, k);
     }
     return true;
   }
@@ -220,7 +212,6 @@ export default function (data, from) {
     unsetObject(cacheNoMap, parts);
     if (_to) data.unset(keys(_to, path));
   }
-
 
   return self;
 }

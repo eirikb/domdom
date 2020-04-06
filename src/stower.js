@@ -152,10 +152,8 @@ export default function Stower(element) {
     }
   };
 
-  self.change = (value, index, subIndex, oldIndex) => {
-    removeWithSubIndex(index, oldIndex);
-    addWithSubIndex(value, index, subIndex);
-  };
+  // TODO: Remove
+  self.element = element;
 
   self.or = (or, index) => {
     ors[index] = or;

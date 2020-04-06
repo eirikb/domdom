@@ -451,13 +451,3 @@ test.skip('Update filterOn on update after data is set', t => {
   });
   t.deepEqual(element.innerHTML, 'ab');
 });
-
-test('on sortOn - custom order update', t => {
-  const { element, stower } = t.context;
-  stower.add('1', 0, 0);
-  stower.add('2', 0, 0);
-  stower.add('3', 0, 0);
-  stower.change(0, 2, 0);
-  console.log(element.innerHTML);
-  t.pass();
-});
