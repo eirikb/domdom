@@ -152,9 +152,6 @@ export default function Stower(element) {
     }
   };
 
-  // TODO: Remove
-  self.element = element;
-
   self.or = (or, index) => {
     ors[index] = or;
     remove(index);

@@ -114,13 +114,9 @@ export default (data, path, listener) => {
       .toArray({
         add(subIndex, path, value) {
           stower.add(value, index, subIndex);
-          // console.log('add', subIndex, value.textContent);
-          // console.log(stower.element.innerHTML);
         },
         remove(subIndex) {
           stower.remove(index, subIndex);
-          // console.log('remove', subIndex);
-          // console.log(stower.element.innerHTML);
         }
       });
     if (_map) pathifier.map(_map);
