@@ -312,7 +312,7 @@ test('Multiple child paths', t => {
   t.is(document.body.innerHTML, '<div><div>oktestok</div></div>');
 });
 
-test.skip('Have some path with flags', t => {
+test('Have some path with flags', t => {
   const dd = domdom();
   const div = ({ on }) => {
     const e = <div/>;
@@ -324,7 +324,7 @@ test.skip('Have some path with flags', t => {
   t.is(document.body.innerHTML, '<div>ok</div>');
 });
 
-test.skip('Listeners are cleared', t => {
+test('Listeners are cleared', t => {
   const dd = domdom();
   let i = 0;
 
@@ -349,7 +349,7 @@ test.skip('Listeners are cleared', t => {
   t.is(1, i);
 });
 
-test.skip('Listeners are not overcleared', t => {
+test('Listeners are not overcleared', t => {
   const dd = domdom();
   let i = 0;
 
@@ -378,7 +378,7 @@ test.skip('Listeners are not overcleared', t => {
   t.is(3, i);
 });
 
-test.skip('Listeners are support change of parent', t => {
+test('Listeners are support change of parent', t => {
   const dd = domdom();
   let i = 0;
 
@@ -405,7 +405,7 @@ test.skip('Listeners are support change of parent', t => {
   t.is(1, i);
 });
 
-test.skip('Listeners in when', t => {
+test('Listeners in when', t => {
   const dd = domdom();
   let i = 0;
 
@@ -430,7 +430,7 @@ test.skip('Listeners in when', t => {
   t.is(1, i);
 });
 
-test.skip('Listener in when 2', t => {
+test('Listener in when 2', t => {
   const dd = domdom();
   let i = 0;
 

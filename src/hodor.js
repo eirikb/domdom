@@ -73,7 +73,9 @@ export default (data, path, listener) => {
     mounted(parentPath) {
       if (isMounted) return;
       isMounted = true;
-      listen(path, parentPath);
+      if (typeof listen === 'function') {
+        listen(path, parentPath);
+      }
     },
     destroy() {
       isMounted = false;
