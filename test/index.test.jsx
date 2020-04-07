@@ -625,7 +625,7 @@ test('on attributes', t => {
   t.is(document.body.innerHTML, '<div><button disabled=""></button></div>');
 });
 
-test.skip('on on attributes', t => {
+test('on on attributes', t => {
   const dd = domdom();
   const view = ({ on }) => <div>
     <button disabled={on('canClick', res => !res).or(true)}/>
@@ -643,6 +643,23 @@ test.skip('on on attributes', t => {
   dd.set('canClick', false);
   dd.set('canNotClick', true);
   t.is(document.body.innerHTML, '<div><button disabled=""></button><button disabled=""></button></div>');
+});
+
+test('on on attributes or', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    <button disabled={on('canNotClick').or(true)}/>
+  </div>;
+
+  dd.append(document.body, view);
+
+  t.is(document.body.innerHTML, '<div><button disabled=""></button></div>');
+
+  dd.set('canNotClick', false);
+  t.is(document.body.innerHTML, '<div><button></button></div>');
+
+  dd.unset('canNotClick');
+  t.is(document.body.innerHTML, '<div><button disabled=""></button></div>');
 });
 
 test('On on object attributes', t => {

@@ -34,9 +34,18 @@ export default (data, context, element, props) => {
           }
         }
 
+        let _or;
         value.stower(0, {
           add: (s) => setValue(s),
-          remove: () => 0
+          remove: () => {
+            if (_or) {
+              setValue(_or);
+            }
+          },
+          or(or) {
+            _or = or;
+            setValue(or);
+          }
         });
       }
     }
