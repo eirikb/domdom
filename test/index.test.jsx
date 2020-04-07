@@ -1039,3 +1039,35 @@ test('On child attribute listener', t => {
   });
   t.is(document.body.innerHTML, '<div><div>Some link: <a>test</a></div></div>');
 });
+
+test('Same listener twice no problem', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    {on('test', t1 => <div>
+        {t1} and {on('test')}
+      </div>
+    )}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('test', 'yes');
+  t.is(document.body.innerHTML, '<div><div>yes and yes</div></div>');
+});
+
+test('Same listener twice no problem on when', t => {
+  function Yes({ when }) {
+    return <div>{when('test', [
+      'yes', () => 'OK!'
+    ])}
+    </div>;
+  }
+
+  const dd = domdom();
+  const view = ({ on, when }) => <div>
+    {when('test', [
+      'yes', () => <Yes/>
+    ])}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('test', 'yes');
+  t.is(document.body.innerHTML, '<div><div>OK!</div></div>');
+});
