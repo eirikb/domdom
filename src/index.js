@@ -76,21 +76,18 @@ export default (data = Data()) => {
         }
       };
 
-      element.mounted = (parentContext) => {
+      element.mounted = (parentContext, parentPath) => {
         if (element.isMounted) return;
         element.isMounted = true;
         const context = element.context || parentContext;
         if (context) {
-          context.mounted();
+          context.mounted(parentPath);
           element.context = context;
 
           ddProps(data, context, element, props);
         }
         element.childNodes.forEach(child => child.mounted && child.mounted(context));
       };
-      for (let hodor of hodors) {
-        hodor.mounted();
-      }
       return element;
     }
   };

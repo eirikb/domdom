@@ -70,10 +70,10 @@ export default (data, path, listener) => {
       }
       return hodor;
     },
-    mounted() {
+    mounted(parentPath) {
       if (isMounted) return;
       isMounted = true;
-      listen(path);
+      listen(path, parentPath);
     },
     destroy() {
       isMounted = false;
@@ -92,7 +92,8 @@ export default (data, path, listener) => {
   }
 
   const paths = [];
-  const listen = (path) => {
+  const listen = (path, parentPath) => {
+    path = path.replace(/^>/, parentPath);
     if (!_map) {
       on(`!+* ${path}`, (val, { path }) => {
         const subIndex = paths.indexOf(path);
@@ -100,7 +101,7 @@ export default (data, path, listener) => {
           paths.splice(subIndex, 1);
           stower.remove(index, subIndex);
         }
-        stower.add(listener(val), index, paths.length);
+        stower.add(listener(val), index, paths.length, path);
         paths.push(path);
       });
       on(`- ${path}`, (_, { path }) => {

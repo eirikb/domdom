@@ -197,7 +197,7 @@ test('on Sort - remove $first - with sort', t => {
   t.is(document.body.innerHTML, '<div><p>1</p><p>2</p><p>3</p></div>');
 });
 
-test.skip('Child listener', t => {
+test('Child listener', t => {
   const dd = domdom();
   const div = ({ on }) => <main>
     {on('players.$id', () => <article>
@@ -298,7 +298,7 @@ test('on empty res', t => {
   t.is(document.body.innerHTML, '<div></div>');
 });
 
-test.skip('Multiple child paths', t => {
+test('Multiple child paths', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
     {on('a', () => <div>

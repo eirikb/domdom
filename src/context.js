@@ -56,12 +56,12 @@ export default function Context(data, tagName, props, ...children) {
   }
 
   this.on = options.on;
-  this.mounted = () => {
+  this.mounted = (parentPath) => {
     for (let mounted of mounteds) {
       mounted();
     }
     for (let hodor of hodors) {
-      hodor.mounted();
+      hodor.mounted(parentPath);
     }
   };
   const res = tagName(options);
