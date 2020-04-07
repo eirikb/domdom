@@ -1019,3 +1019,23 @@ test('When + filterOn const text', t => {
   dd.set('show', true);
   t.deepEqual(document.body.innerHTML, '<div><div>a</div></div>');
 });
+
+test('On child attribute listener', t => {
+  const dd = domdom();
+
+  function Yes({ on }) {
+    return <a href={on('>.link')}>test</a>
+  }
+
+  const view = ({ on }) => <div>
+    {on('yes', ok =>
+      <div>{ok.text} <Yes/></div>
+    )}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('yes', {
+    link: 'nrk.no',
+    text: 'Some link:'
+  });
+  t.is(document.body.innerHTML, '<div><div>Some link: <a>test</a></div></div>');
+});
