@@ -81,10 +81,9 @@ export default (data = Data()) => {
         element.isMounted = true;
         const context = element.context || parentContext;
         if (context) {
+          ddProps(data, context, element, props);
           context.mounted(parentPath);
           element.context = context;
-
-          ddProps(data, context, element, props);
         }
         element.childNodes.forEach(child => child.mounted && child.mounted(context));
       };

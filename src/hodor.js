@@ -7,7 +7,7 @@ export default (data, path, listener) => {
     throw new Error('Listener must be a function');
   }
 
-  let stower, _or, index, pathifier;
+  let stower, _or, index, pathifier, reListen;
   let _filter, _filterOn, _sort, _sortOn, _map;
 
   const listeners = [];
@@ -54,6 +54,9 @@ export default (data, path, listener) => {
       if (_or) {
         stower.or(_or, index);
       }
+      if (reListen) {
+        listen(path, reListen.parentPath);
+      }
       return hodor;
     },
     mounted(parentPath) {
@@ -81,6 +84,10 @@ export default (data, path, listener) => {
 
   const paths = [];
   const listen = (path, parentPath) => {
+    if (!stower) {
+      reListen = { parentPath };
+      return;
+    }
     path = path.replace(/^>/, parentPath);
     if (!_map) {
       on(`!+* ${path}`, (val, { path }) => {
