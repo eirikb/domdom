@@ -1091,3 +1091,28 @@ test('Function in on', t => {
   t.is(document.body.innerHTML, '<div><div><p>A</p><p>B</p><p>C</p></div></div>');
   t.pass();
 });
+
+test('When and on no duplicated', t => {
+  const dd = domdom();
+
+  function Yes({ on }) {
+    return <div>
+      {on('myse.type', () => <p>A</p>)}
+      {on('myse.type', () => <p>B</p>)}
+      {on('myse.type', () => <p>C</p>)}
+    </div>;
+  }
+
+  const view = ({ when, on }) => <div>
+    {when('route', [
+      'ready', () => <Yes/>
+    ])}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('route', 'login1');
+  dd.set('myse', {
+    type: 'proppgave'
+  });
+  dd.set('route', 'ready');
+  t.is(document.body.innerHTML, '<div><div><p>A</p><p>B</p><p>C</p></div></div>');
+});
