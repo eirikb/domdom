@@ -22,7 +22,7 @@ export default (data, context, element, props) => {
     const model = props['dd-model'];
     if (model) {
       onChange(value => data.set(model, value));
-      context.on(model, setValue);
+      context.on(`!+* ${model}`, setValue);
     }
     for (let [key, value] of Object.entries(props)) {
       if (value && value.isHodor) {
