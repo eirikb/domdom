@@ -1,18 +1,4 @@
-import Pathifier from "./pathifier";
-
 export default (data, path, listener) => {
-  // TODO: Move to data
-  if (!data._hacked) {
-    const oldOn = data.on;
-    data.on = (flagsAndPath, listener) => {
-      if (!flagsAndPath.includes(' ') && !listener) {
-        return Pathifier(data, flagsAndPath);
-      }
-      return oldOn(flagsAndPath, listener);
-    };
-    data._hacked = true;
-  }
-
   const listenerSet = !!listener;
   if (!listener) {
     listener = _ => _;

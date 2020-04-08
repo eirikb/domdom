@@ -1062,7 +1062,7 @@ test('Same listener twice no problem on when', t => {
   }
 
   const dd = domdom();
-  const view = ({ on, when }) => <div>
+  const view = ({ when }) => <div>
     {when('test', [
       'yes', () => <Yes/>
     ])}
@@ -1070,4 +1070,24 @@ test('Same listener twice no problem on when', t => {
   dd.append(document.body, view);
   dd.set('test', 'yes');
   t.is(document.body.innerHTML, '<div><div>OK!</div></div>');
+});
+
+test('Function in on', t => {
+  const dd = domdom();
+
+  function Yes({ on }) {
+    return <div>
+      {on('yes', () => <p>A</p>)}
+      {on('yes', () => <p>B</p>)}
+      {on('yes', () => <p>C</p>)}
+    </div>;
+  }
+
+  dd.set('yes', 'ok');
+  const view = ({ on }) => <div>
+    {on('yes', () => <Yes/>)}
+  </div>;
+  dd.append(document.body, view);
+  t.is(document.body.innerHTML, '<div><div><p>A</p><p>B</p><p>C</p></div></div>');
+  t.pass();
 });
