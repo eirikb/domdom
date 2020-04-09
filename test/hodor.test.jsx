@@ -212,3 +212,18 @@ test('onFilter and onSort', t => {
   t.is('<div><p>3</p><p>2</p><p>1</p></div>', html());
   t.pass();
 });
+
+test('Pathifier sub-array', t => {
+  const { data, html } = setup('players')
+    .map(player => player.name)
+    .mount();
+  data.set('players', [
+    { name: 'a' },
+    { name: 'b' }
+  ]);
+  t.is(html(), '<div>ab</div>');
+  data.set('players', [
+    { name: 'a', x: [1] },
+  ]);
+  t.is(html(), '<div>a</div>');
+});

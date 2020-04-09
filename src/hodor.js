@@ -101,8 +101,9 @@ export default (data, path, listener) => {
       }
       pathifier = data.on(path)
         .toArray({
-          add(subIndex, path, value) {
-            stower.add(value, index, subIndex);
+          add(subIndex, p, value) {
+            const parentPath = [path, p].join('.');
+            stower.add(value, index, subIndex, parentPath);
           },
           remove(subIndex) {
             stower.remove(index, subIndex);
