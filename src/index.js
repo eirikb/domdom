@@ -54,7 +54,10 @@ export default (data = Data()) => {
         const eventProps = Object.entries(props).filter(([key]) => key.match(/^on[A-Z]/));
         for (let [key, value] of eventProps) {
           const event = key[2].toLowerCase() + key.slice(3);
-          element.addEventListener(event, value);
+          element.addEventListener(event, (...args) => {
+            element.context.parentPathHack = element.parentPath;
+            return value(...args);
+          });
         }
 
         const nonSpecialProps = Object.entries(props).filter(([key]) => !key.match(/(^dd-|on[A-Z])/));
@@ -78,6 +81,7 @@ export default (data = Data()) => {
 
       element.mounted = (parentContext, parentPath) => {
         if (element.isMounted) return;
+        element.parentPath = parentPath || element.parentPath;
         element.isMounted = true;
         const context = element.context || parentContext;
         if (context) {
@@ -85,7 +89,7 @@ export default (data = Data()) => {
           context.mounted(parentPath);
           element.context = context;
         }
-        element.childNodes.forEach(child => child.mounted && child.mounted(context));
+        element.childNodes.forEach(child => child.mounted && child.mounted(context, parentPath));
       };
       return element;
     }

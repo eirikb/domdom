@@ -10,6 +10,19 @@ export default function Context(data, tagName, props, ...children) {
     return hodor;
   }
 
+  const parentPathHackProxy = (fn) => {
+    return (path, ...args) => {
+      if (path.startsWith('>')) {
+        if (typeof this.parentPathHack === 'string') {
+          path = path.replace(/^>/, this.parentPathHack);
+        } else {
+          throw new Error(`Parent path >. used but no parent path set! Most likely a domdombug. Path: ${path}`);
+        }
+      }
+      return fn(path, ...args);
+    };
+  }
+
   const options = {
     on: (path, listener, sort) => on(path, listener, sort),
     when: (path, options) => {
@@ -41,10 +54,10 @@ export default function Context(data, tagName, props, ...children) {
         return result;
       });
     },
-    unset: data.unset,
-    set: data.set,
-    get: data.get,
-    trigger: data.trigger,
+    unset: parentPathHackProxy(data.unset),
+    set: parentPathHackProxy(data.set),
+    get: parentPathHackProxy(data.get),
+    trigger: parentPathHackProxy(data.trigger),
     children,
     mounted(cb) {
       mounteds.push(cb)
