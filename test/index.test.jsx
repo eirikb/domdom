@@ -1103,7 +1103,7 @@ test('When and on no duplicated', t => {
     </div>;
   }
 
-  const view = ({ when, on }) => <div>
+  const view = ({ when }) => <div>
     {when('route', [
       'ready', () => <Yes/>
     ])}
@@ -1116,3 +1116,20 @@ test('When and on no duplicated', t => {
   dd.set('route', 'ready');
   t.is(document.body.innerHTML, '<div><div><p>A</p><p>B</p><p>C</p></div></div>');
 });
+
+test('when + or', t => {
+  const dd = domdom();
+
+  const view = ({ when }) => <div>
+    {when('test', [
+      true, () => '-',
+      false, () => '+'
+    ]).or('+')}
+  </div>;
+  dd.append(document.body, view);
+  t.is(document.body.innerHTML, '<div>+</div>');
+  dd.set('test', true);
+  t.is(document.body.innerHTML, '<div>-</div>');
+  dd.set('test', false);
+  t.is(document.body.innerHTML, '<div>+</div>');
+})

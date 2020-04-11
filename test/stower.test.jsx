@@ -451,3 +451,14 @@ test.skip('Update filterOn on update after data is set', t => {
   });
   t.deepEqual(element.innerHTML, 'ab');
 });
+
+test('replace array with subindex', t => {
+  const { element, stower, a, b, div, span } = t.context;
+  stower.or('+', 0);
+  stower.add(['-', null], 0, 0);
+  t.deepEqual(element.innerHTML, '-');
+  stower.remove(0, 0);
+  t.deepEqual(element.innerHTML, '+');
+  stower.add([null, '+'], 0, 0);
+  t.deepEqual(element.innerHTML, '+');
+});

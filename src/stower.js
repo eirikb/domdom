@@ -42,6 +42,7 @@ export default function Stower(element) {
       element.removeChild(child);
       if (child.destroy) child.destroy();
     }
+
     if (typeof ors[index] !== 'undefined' && (!slots[index] || slots[index].length === 0)) {
       let or = ors[index];
       if (typeof or === 'function') or = or();
@@ -128,10 +129,12 @@ export default function Stower(element) {
     const child = (slots[index] || {})[subIndex];
     if (!child) return;
 
-    slots[index].splice(subIndex, 1);
     if (Array.isArray(child)) {
       child.forEach(child => remove(index, child));
+      slots[index]  = [];
+      remove(index);
     } else {
+      slots[index].splice(subIndex, 1);
       remove(index, child);
     }
     if (subIndex === 0) {
