@@ -7,7 +7,7 @@ export default (data, path, listener) => {
     throw new Error('Listener must be a function');
   }
 
-  let stower, _or, index, pathifier, reListen;
+  let stower, _or, index, pathifier, reListen, listening;
   let _filter, _filterOn, _sort, _sortOn, _map;
 
   const listeners = [];
@@ -54,13 +54,12 @@ export default (data, path, listener) => {
       if (_or) {
         stower.or(_or, index);
       }
-      if (reListen) {
-        hodor.listen(path, reListen.parentPath);
-      }
       return hodor;
     },
     mounted(parentPath) {
-      if (isMounted) return;
+      if (isMounted) {
+        return;
+      }
       isMounted = true;
       if (typeof hodor.listen === 'function') {
         hodor.listen(path, parentPath);
@@ -68,15 +67,23 @@ export default (data, path, listener) => {
     },
     destroy() {
       isMounted = false;
+      hodor.off();
+    },
+    off() {
       if (pathifier) pathifier.off();
       for (let listener of listeners.filter(l => l.ref)) {
         data.off(listener.ref);
         delete listener.ref;
       }
+      listening = false;
     },
-
     paths: [],
     listen: (path, parentPath) => {
+      if (listening) {
+        return;
+      }
+      // hodor.off();
+      listening = true;
       if (!stower) {
         reListen = { parentPath };
         return;
@@ -99,21 +106,21 @@ export default (data, path, listener) => {
         });
         return;
       }
-      pathifier = data.on(path)
-        .toArray({
-          add(subIndex, p, value) {
-            const parentPath = [path, p].join('.');
-            stower.add(value, index, subIndex, parentPath);
-          },
-          remove(subIndex) {
-            stower.remove(index, subIndex);
-          }
-        });
+      pathifier = data.on(path);
       if (_map) pathifier.map(_map);
       if (_filter) pathifier.filter(_filter);
       if (_filterOn) pathifier.filterOn(_filterOn.path, _filterOn.filter);
       if (_sort) pathifier.sort(_sort);
       if (_sortOn) pathifier.sortOn(_sortOn.path, _sortOn.sort);
+      pathifier.toArray({
+        add(subIndex, p, value) {
+          const parentPath = [path, p].join('.');
+          stower.add(value, index, subIndex, parentPath);
+        },
+        remove(subIndex) {
+          stower.remove(index, subIndex);
+        }
+      });
     }
   };
 

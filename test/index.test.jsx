@@ -314,9 +314,9 @@ test('Multiple child paths', t => {
 
 test('Have some path with flags', t => {
   const dd = domdom();
-  const div = ({ on }) => {
+  const div = () => {
     const e = <div/>;
-    on('!+* wat', wat => e.innerHTML = wat);
+    e.on('!+* wat', wat => e.innerHTML = wat);
     return e;
   };
   dd.append(document.body, div);
@@ -328,9 +328,10 @@ test('Listeners are cleared', t => {
   const dd = domdom();
   let i = 0;
 
-  function Child({ on }) {
-    on('* test', () => i++);
-    return <div/>;
+  function Child({}) {
+    const e = <div/>;
+    e.on('* test', () => i++);
+    return e;
   }
 
   dd.set('test', 'a');
@@ -353,9 +354,10 @@ test('Listeners are not overcleared', t => {
   const dd = domdom();
   let i = 0;
 
-  function Child({ on }) {
-    on('* test', () => i++);
-    return <div/>;
+  function Child() {
+    const e = <div/>;
+    e.on('* test', () => i++);
+    return e;
   }
 
   dd.set('test', 'a');
@@ -382,9 +384,10 @@ test('Listeners are support change of parent', t => {
   const dd = domdom();
   let i = 0;
 
-  function Child({ on }) {
-    on('* test', () => i++);
-    return <p/>;
+  function Child() {
+    const e = <p/>;
+    e.on('* test', () => i++);
+    return e;
   }
 
   dd.set('test', 'a');
@@ -410,8 +413,9 @@ test('Listeners in when', t => {
   let i = 0;
 
   function Child({ on }) {
-    on('* test', () => i++);
-    return <div/>;
+    const e = <div/>;
+    e.on('* test', () => i++);
+    return e;
   }
 
   dd.set('test', 'a');
@@ -435,8 +439,9 @@ test('Listener in when 2', t => {
   let i = 0;
 
   function Child({ on }) {
-    on('* test', () => i++);
-    return <div/>;
+    const e = <div/>;
+    e.on('* test', () => i++);
+    return e;
   }
 
   dd.set('test', 'a');
@@ -1037,7 +1042,7 @@ test('On child attribute listener', t => {
     link: 'nrk.no',
     text: 'Some link:'
   });
-  t.is(document.body.innerHTML, '<div><div>Some link: <a>test</a></div></div>');
+  t.is(document.body.innerHTML, '<div><div>Some link: <a href="nrk.no">test</a></div></div>');
 });
 
 test('Same listener twice no problem', t => {
@@ -1133,3 +1138,100 @@ test('when + or', t => {
   dd.set('test', false);
   t.is(document.body.innerHTML, '<div>+</div>');
 })
+
+// test('Are listeners in pathifier actually cleared', t => {
+//   const dd = domdom();
+//
+//   const view = ({ on }) => <div>
+//     {on('players')
+//       .sortOn('sort', (s, a, b) => a[s] - b[s])
+//       .map(() => <div>
+//         {on('>.name', name => {
+//           console.log('wat', name);
+//           return name;
+//         })}
+//       </div>)}
+//   </div>;
+//   dd.append(document.body, view);
+//   dd.set('players', [
+//     { name: 'a', age: 90, height: 2 },
+//     { name: 'b', age: 5, height: 10 }
+//   ]);
+//   console.log(document.body.innerHTML);
+//   dd.set('sort', 'age')
+//   console.log(document.body.innerHTML);
+//   dd.set('sort', 'height')
+//   console.log(document.body.innerHTML);
+//   dd.set('sort', 'age')
+//   console.log(document.body.innerHTML);
+//   t.pass();
+// })
+
+test('When + pathifier', t => {
+  const dd = domdom();
+  const view = ({ when, on }) => <div>
+    {when('test', [
+      true, () => <div>
+        {on('players').map(p => <p>{p}</p>)}
+      </div>
+    ])}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('test', true);
+  dd.set('players', [
+    'a'
+  ]);
+  console.log(2, document.body.innerHTML);
+  dd.set('test', false);
+  console.log(3, document.body.innerHTML);
+  dd.set('test', true);
+  console.log(4, document.body.innerHTML);
+  t.pass();
+});
+
+test('on + pathifier', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    {on('test', test => test ? <div>
+        {on('players').map(p => <p>{p}</p>)}
+      </div>
+      : 'no!'
+    )}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('test', true);
+  dd.set('players', [
+    'a'
+  ]);
+  console.log('> html', document.body.innerHTML);
+  console.log('> ---- false');
+  dd.set('test', false);
+  console.log('> html', document.body.innerHTML);
+  console.log('> ---- true');
+  dd.set('test', true);
+  console.log('> html', document.body.innerHTML);
+  t.pass();
+});
+
+test('on + on', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    {on('test', test => test ? <div>
+        {on('players.$id', p => <p>{p}</p>)}
+      </div>
+      : 'no!'
+    )}
+  </div>;
+  dd.append(document.body, view);
+  dd.set('test', true);
+  dd.set('players', [
+    'a'
+  ]);
+  console.log(2, document.body.innerHTML);
+  dd.set('test', false);
+  console.log(3, document.body.innerHTML);
+  dd.set('test', true);
+  console.log(4, document.body.innerHTML);
+  t.pass();
+});
+

@@ -1,13 +1,14 @@
 import Hodor from './hodor';
 
 export default function Context(data, tagName, props, ...children) {
-  const hodors = [];
   const mounteds = [];
 
-  function on(path, listener, sort) {
-    const hodor = Hodor(data, path, listener, sort);
-    hodors.push(hodor);
-    return hodor;
+  function on(path, listener) {
+    const hasFlags = path.match(/ /);
+    if (hasFlags) {
+      throw new Error('Sorry, no flags allowed (no stand alone listeners)');
+    }
+    return Hodor(data, path, listener);
   }
 
   const parentPathHackProxy = (fn) => {
@@ -24,7 +25,7 @@ export default function Context(data, tagName, props, ...children) {
   }
 
   const options = {
-    on: (path, listener, sort) => on(path, listener, sort),
+    on: (path, listener) => on(path, listener),
     when: (path, options) => {
       if (!Array.isArray(options)) {
         throw new Error('Second arguments must be an array');
@@ -69,21 +70,15 @@ export default function Context(data, tagName, props, ...children) {
   }
 
   this.on = options.on;
-  this.mounted = (parentPath) => {
+  this.mounted = () => {
     for (let mounted of mounteds) {
       mounted();
-    }
-    for (let hodor of hodors) {
-      hodor.mounted(parentPath);
     }
   };
   const res = tagName(options);
   res.context = this;
   const destroy = res.destroy;
   res.destroy = () => {
-    for (let hodor of hodors) {
-      hodor.destroy();
-    }
     destroy();
   };
   return res;

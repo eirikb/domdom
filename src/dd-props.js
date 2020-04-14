@@ -1,4 +1,6 @@
-export default (data, context, element, props) => {
+export default (data, element, props) => {
+
+  const hodors = [];
 
   function onChange(cb) {
     element.addEventListener('keyup', () => cb(element.value));
@@ -22,7 +24,7 @@ export default (data, context, element, props) => {
     const model = props['dd-model'];
     if (model) {
       onChange(value => data.set(model, value));
-      context.on(`!+* ${model}`, setValue);
+      element.on(`!+* ${model}`, setValue);
     }
     for (let [key, value] of Object.entries(props)) {
       if (value && value.isHodor) {
@@ -47,7 +49,10 @@ export default (data, context, element, props) => {
             setValue(or);
           }
         });
+        hodors.push(value);
       }
     }
   }
+
+  return hodors;
 }

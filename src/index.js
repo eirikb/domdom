@@ -2,6 +2,7 @@ import Data from '@eirikb/data';
 import Context from './context';
 import ddProps from './dd-props';
 import Stower from './stower';
+import Hodor from "./hodor";
 
 export function isProbablyPlainObject(obj) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
@@ -79,18 +80,26 @@ export default (data = Data()) => {
         }
       };
 
+      element.on = (path, listener) => {
+        hodors.push(Hodor(data, path, listener));
+      }
+
       element.mounted = (parentContext, parentPath) => {
         if (element.isMounted) return;
         element.parentPath = parentPath || element.parentPath;
         element.isMounted = true;
         const context = element.context || parentContext;
         if (context) {
-          ddProps(data, context, element, props);
+          hodors.push(...ddProps(data, element, props));
           context.mounted(parentPath);
           element.context = context;
         }
+        for (let hodor of hodors) {
+          hodor.mounted(parentPath);
+        }
         element.childNodes.forEach(child => child.mounted && child.mounted(context, parentPath));
       };
+
       return element;
     }
   };
