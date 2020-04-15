@@ -114,7 +114,7 @@ export default (data, path, listener) => {
       if (_sortOn) pathifier.sortOn(_sortOn.path, _sortOn.sort);
       pathifier.toArray({
         add(subIndex, p, value) {
-          const parentPath = [path, p].join('.');
+          const parentPath = [pathifier.from, p].join('.');
           stower.add(value, index, subIndex, parentPath);
         },
         remove(subIndex) {
