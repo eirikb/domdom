@@ -71,7 +71,7 @@ test('Multiple paths', t => {
 test('Multiple paths map', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
-    {on('players').map(player => <p>{player.name}</p>)}
+    {on('players.*').map(player => <p>{player.name}</p>)}
   </div>;
   dd.append(document.body, div);
   t.is(document.body.innerHTML, '<div></div>');
@@ -92,7 +92,7 @@ test('Multiple paths map', t => {
 test('on Sort - default sort by key', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
-    {on('players').map(player => <p>{player.name}</p>)}
+    {on('players.*').map(player => <p>{player.name}</p>)}
   </div>;
   dd.append(document.body, div);
   dd.set('players.aone', { name: '1' });
@@ -104,7 +104,7 @@ test('on Sort - default sort by key', t => {
 test('on Sort - sort method', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
-    {on('players').map(player => <p>{player.name}</p>)
+    {on('players.*').map(player => <p>{player.name}</p>)
       .sort((a, b) => b.name.localeCompare(a.name))}
   </div>;
   dd.append(document.body, div);
@@ -117,7 +117,7 @@ test('on Sort - sort method', t => {
 test('on Sort - sort method2', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
-    {on('players').map(player =>
+    {on('players.*').map(player =>
       <p>{player.name}</p>, (a, b) => a.name.localeCompare(b.name)
     ).sort((a, b) => a.name.localeCompare(b.name))}
   </div>;
@@ -143,7 +143,7 @@ test('Multiple on-siblings', t => {
 test('on Sort - keep order', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
-    {on('players').map(player => <p>{player.name}</p>)}
+    {on('players.*').map(player => <p>{player.name}</p>)}
   </div>;
   dd.append(document.body, div);
   dd.set('players.1', { name: '1' });
@@ -161,7 +161,7 @@ test('on Sort - keep order', t => {
 test('on Sort - custom order', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
-    {on('players').map(player => <p>{player.name}</p>)
+    {on('players.*').map(player => <p>{player.name}</p>)
       .sort((a, b) => b.name.localeCompare(a.name))}
   </div>;
   dd.append(document.body, div);
@@ -180,7 +180,7 @@ test('on Sort - custom order', t => {
 test('on Sort - remove $first - with sort', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
-    {on('players').map(player => <p>{player.name}</p>,
+    {on('players.*').map(player => <p>{player.name}</p>,
       (a, b, aPath, bPath) => aPath.localeCompare(bPath)
     )}
   </div>;
@@ -746,7 +746,7 @@ test('Update filterOn on update after data is set', t => {
 test('on sortOn - custom order', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
-    {on('players')
+    {on('players.*')
       .map(player => <p>{player.name}</p>)
       .sortOn('test', (val, a, b) => b.name.localeCompare(a.name))}
   </div>;
@@ -767,7 +767,7 @@ test('on sortOn - custom order', t => {
 test('on sortOn - custom order update', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
-    {on('players')
+    {on('players.*')
       .map(player => <p>{player.name}</p>)
       .sortOn('test', (val, a, b) => b.name.localeCompare(a.name))}
   </div>;
@@ -788,7 +788,7 @@ test('on sortOn - custom order update', t => {
 test('onFilter and onSort', t => {
   const dd = domdom();
   const div = ({ on }) => <div>
-    {on('players')
+    {on('players.*')
       .map(player => <p>{player.name}</p>)
       .sortOn('filter.by', (val, a, b) => a[val].localeCompare(b[val])
       )}

@@ -100,7 +100,7 @@ test('Map jsx', t => {
 });
 
 test('Map add', t => {
-  const { data, html } = setup('users').map(u => u).mount();
+  const { data, html } = setup('users.*').map(u => u).mount();
   data.set('users', {
     a: 'mr a',
     b: 'mr b'
@@ -111,7 +111,7 @@ test('Map add', t => {
 });
 
 test('Map add default sort', t => {
-  const { data, html } = setup('users').map(u => u).mount();
+  const { data, html } = setup('users.*').map(u => u).mount();
   data.set('users', {
     a: 'mr a',
     c: 'mr c'
@@ -145,7 +145,7 @@ test('Update filterOn on update after data is set', t => {
 });
 
 test('on sortOn - custom order', t => {
-  const { data, html } = setup('players')
+  const { data, html } = setup('players.*')
     .map(player => <p>{player.name}</p>)
     .sortOn('test', (val, a, b) => b.name.localeCompare(a.name))
     .mount();
@@ -180,7 +180,7 @@ test('filterOn and back', t => {
 });
 
 test('on sortOn - custom order update', t => {
-  const { data, html } = setup('players')
+  const { data, html } = setup('players.*')
     .map(player => <p>{player.name}</p>)
     .sortOn('test', (val, a, b) => b.name.localeCompare(a.name))
     .mount();
@@ -199,7 +199,7 @@ test('on sortOn - custom order update', t => {
 });
 
 test('onFilter and onSort', t => {
-  const { data, html } = setup('players')
+  const { data, html } = setup('players.*')
     .map(player => <p>{player.name}</p>)
     .sortOn('filter.by', (val, a, b) => a[val].localeCompare(b[val]))
     .mount();
