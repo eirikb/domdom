@@ -48,11 +48,11 @@ import domdom from '@eirikb/domdom'
 
 const dd = domdom()
 
-const view = ({ on }) => <div>Hello, {on('a', a => a)}</div>
+const view = ({ on }) => <div>Hello, {on('name')}</div>
 
 dd.append(document.body, view)
 
-dd.set('a', 'world!')
+dd.set('name', 'world!')
 ```
 
 Run
@@ -69,8 +69,8 @@ How to handle common tasks with domdom
 ```jsx harmony
 const view = ({ when }) => <div>
   {when('route', [
-    'login', <Login/>,
-    'welcome', <Welcome/>,
+    'login', () => <Login/>,
+    'welcome', () => <Welcome/>,
   ]).or('Loading app...')}
 </div>
 
@@ -202,7 +202,7 @@ function MyComponent({ on }) {
 
 #### Children / Composition
 
-Content of a component is passed as `children`.
+Content of a component will be passed as `children`.
 
 ```jsx harmony
 function Button({ children }) {
@@ -250,7 +250,7 @@ Heard of pattern matching? This isn't it
 ```jsx harmony
 const view = ({ when }) => <div>
   {when('route', [
-    'home', <div>Home!</div>,
+    'home', () => <div>Home!</div>,
     'away', () => <div>Away!</div>,
      route => (route || '').startsWith('eh'), () => <div>Eh?</div>,
      false, () => <div>Route is literally boolean false</div>
@@ -266,7 +266,7 @@ until some value is set `or` must be used.
 ```jsx harmony
 const view = ({ when }) => <div>
   {when('routing', [
-    'home', <div>Home!</div>
+    'home', () => <div>Home!</div>
   ]).or(<div>Loading app in the fastest possible way...</div>)}
 </div>
 ```
@@ -288,7 +288,7 @@ const view = ({ when, on, trigger }) => <form onSubmit={e => trigger('search', e
   <input type="search" dd-model="text"/>
   <input type="checkbox" dd-model="more"/>
   {when('more', [
-    true, 'This is more'
+    true, () => 'This is more'
   ])}
   Current text: {on('text')}
   <button type="submit">Search</button>
