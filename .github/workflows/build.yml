@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@master
+        uses: actions/checkout@v2
       - name: Set env
         run: echo ::set-env name=PKG_VERSION::$(npm show @eirikb/domdom version)
       - name: Create Release
