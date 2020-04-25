@@ -1,9 +1,31 @@
+import Hodor from './hodor';
+
 export default function Context(data, tagName, props, ...children) {
-  const listeners = [];
   const mounteds = [];
 
+  function on(path, listener) {
+    const hasFlags = path.match(/ /);
+    if (hasFlags) {
+      throw new Error('Sorry, no flags allowed (no stand alone listeners)');
+    }
+    return Hodor(data, path, listener);
+  }
+
+  const parentPathHackProxy = (fn) => {
+    return (path, ...args) => {
+      if (path.startsWith('>')) {
+        if (typeof this.parentPathHack === 'string') {
+          path = path.replace(/^>/, this.parentPathHack);
+        } else {
+          throw new Error(`Parent path >. used but no parent path set! Most likely a domdombug. Path: ${path}`);
+        }
+      }
+      return fn(path, ...args);
+    };
+  }
+
   const options = {
-    on: (path, listener, sort) => on(path, listener, sort),
+    on: (path, listener) => on(path, listener),
     when: (path, options) => {
       if (!Array.isArray(options)) {
         throw new Error('Second arguments must be an array');
@@ -24,7 +46,7 @@ export default function Context(data, tagName, props, ...children) {
             if (typeof listener === 'function') {
               result.push(listener(...args));
             } else {
-              result.push(listener);
+              throw new Error('Listener must be a function');
             }
           } else {
             result.push(null);
@@ -33,10 +55,10 @@ export default function Context(data, tagName, props, ...children) {
         return result;
       });
     },
-    unset: data.unset,
-    set: data.set,
-    get: data.get,
-    trigger: data.trigger,
+    unset: parentPathHackProxy(data.unset),
+    set: parentPathHackProxy(data.set),
+    get: parentPathHackProxy(data.get),
+    trigger: parentPathHackProxy(data.trigger),
     children,
     mounted(cb) {
       mounteds.push(cb)
@@ -46,69 +68,6 @@ export default function Context(data, tagName, props, ...children) {
   for (let [key, value] of Object.entries(props || {})) {
     options[key] = value;
   }
-
-  const on = (path, listener, sort) => {
-    if (!listener) {
-      listener = _ => _;
-    }
-    const hasFlags = path.match(/ /);
-    if (hasFlags) {
-      listeners.push(data.on(path, listener));
-      return;
-    }
-
-    const hodor = {
-      listeners: [],
-      path,
-      toAdd: [],
-      isHodor: true,
-      or: (or) => {
-        hodor.orValue = or;
-        const hasValue = data.get(path);
-        if (!hasValue) {
-          hodor.toAdd.push({ res: or, path, isOr: true });
-        }
-        return hodor;
-      }
-    };
-
-    const listen = (path) => {
-      hodor.listeners.push(data.on('!+* ' + path, (...args) => {
-        const path = args[1].path;
-        const res = listener(...args);
-
-        // Remove all 'ors'
-        hodor.toAdd
-          .filter(res => res.isOr)
-          .forEach(({ path }) => hodor.remove(path));
-
-        hodor.toAdd = [{ res, path }];
-        if (typeof res !== 'undefined' && hodor.add) {
-          hodor.add({ res, path, sort });
-        }
-      }));
-      hodor.listeners.push(data.on('- ' + path, (...args) => {
-        const path = args[1].path;
-        if (hodor.remove) {
-          hodor.remove(path);
-        }
-        if (hodor.orValue && hodor.add) {
-          hodor.add({ res: hodor.orValue, path, sort });
-        }
-      }));
-      return hodor;
-    };
-
-    if (path.match(/^>\./)) {
-      hodor.bounce = (parentPath) => {
-        listen(parentPath + path.slice(1));
-      };
-      return hodor;
-    }
-
-    listen(path);
-    return hodor;
-  };
 
   this.on = options.on;
   this.mounted = () => {
@@ -120,7 +79,6 @@ export default function Context(data, tagName, props, ...children) {
   res.context = this;
   const destroy = res.destroy;
   res.destroy = () => {
-    data.off(listeners.join(' '));
     destroy();
   };
   return res;
