@@ -36,7 +36,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Set env
-        run: echo ::set-env name=PKG_VERSION::$(npm show @eirikb/domdom version)
+        run: echo ::set-env name=PKG_VERSION::$(npm show . version)
       - name: Create Release
         id: create_release
         uses: actions/create-release@latest
