@@ -1,3 +1,6 @@
+[![npm](https://img.shields.io/npm/v/@eirikb/domdom.svg)](https://npmjs.org/package/@eirikb/domdom)
+![Build](https://github.com/eirikb/domdom/workflows/Build/badge.svg)
+
 The proactive web framework for the unprofessional
 
 domdom is an alternative to React + Redux or Vue + Vuex, with support for routing.  

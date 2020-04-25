@@ -3,7 +3,7 @@ on:
     branches:
       - master
 
-name: Create Release and publish to npm
+name: Build
 
 jobs:
   build:
