@@ -1,6 +1,7 @@
 on:
-  release:
-    types: [created]
+  push:
+    branches:
+      - master
 
 name: Build
 
@@ -25,8 +26,24 @@ jobs:
           node-version: 12
           registry-url: https://registry.npmjs.org/
       - run: npm ci
-      - run: npm version ${{ github.event.release.tag_name }}
-      - run: git push origin master
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - name: Set env
+        run: echo ::set-env name=PKG_VERSION::$(npm show @eirikb/domdom version)
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ env.PKG_VERSION }}
+          release_name: Release v${{ env.PKG_VERSION }}
+          draft: false
+          prerelease: false
