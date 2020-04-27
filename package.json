@@ -12,6 +12,9 @@
   "license": "MIT",
   "main": "src/index.js",
   "source": true,
+  "repository": {
+    "url": "https://github.com/eirikb/domdom"
+  },
   "dependencies": {
     "@eirikb/data": "^2.0.12"
   },
