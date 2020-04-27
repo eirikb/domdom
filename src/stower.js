@@ -1,4 +1,6 @@
-import { isProbablyPlainObject } from './index';
+export function isProbablyPlainObject(obj) {
+  return typeof obj === 'object' && obj !== null && obj.constructor === Object;
+}
 
 export default function Stower(element) {
   const self = {};
@@ -131,7 +133,7 @@ export default function Stower(element) {
 
     if (Array.isArray(child)) {
       child.forEach(child => remove(index, child));
-      slots[index]  = [];
+      slots[index] = [];
       remove(index);
     } else {
       slots[index].splice(subIndex, 1);
