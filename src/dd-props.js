@@ -18,7 +18,6 @@ export default (data, element, props) => {
     if (element.type === 'checkbox') {
       element.checked = value;
     } else {
-      console.log('set to ', value);
       element.value = value || '';
     }
   }
@@ -29,7 +28,6 @@ export default (data, element, props) => {
       onChange(value => data.set(model, value));
       element.on(`!+* ${model}`, setValue);
       new MutationObserver(() => {
-        console.log('ffs?!', _value);
         if (typeof _value !== 'undefined') {
           setValue(_value);
         }
