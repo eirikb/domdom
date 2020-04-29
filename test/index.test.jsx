@@ -1139,34 +1139,6 @@ test('when + or', t => {
   t.is(document.body.innerHTML, '<div>+</div>');
 })
 
-// test('Are listeners in pathifier actually cleared', t => {
-//   const dd = domdom();
-//
-//   const view = ({ on }) => <div>
-//     {on('players')
-//       .sortOn('sort', (s, a, b) => a[s] - b[s])
-//       .map(() => <div>
-//         {on('>.name', name => {
-//           console.log('wat', name);
-//           return name;
-//         })}
-//       </div>)}
-//   </div>;
-//   dd.append(document.body, view);
-//   dd.set('players', [
-//     { name: 'a', age: 90, height: 2 },
-//     { name: 'b', age: 5, height: 10 }
-//   ]);
-//   console.log(document.body.innerHTML);
-//   dd.set('sort', 'age')
-//   console.log(document.body.innerHTML);
-//   dd.set('sort', 'height')
-//   console.log(document.body.innerHTML);
-//   dd.set('sort', 'age')
-//   console.log(document.body.innerHTML);
-//   t.pass();
-// })
-
 test('When + pathifier', t => {
   const dd = domdom();
   const view = ({ when, on }) => <div>
@@ -1181,11 +1153,8 @@ test('When + pathifier', t => {
   dd.set('players', [
     'a'
   ]);
-  console.log(2, document.body.innerHTML);
   dd.set('test', false);
-  console.log(3, document.body.innerHTML);
   dd.set('test', true);
-  console.log(4, document.body.innerHTML);
   t.pass();
 });
 
@@ -1203,13 +1172,8 @@ test('on + pathifier', t => {
   dd.set('players', [
     'a'
   ]);
-  console.log('> html', document.body.innerHTML);
-  console.log('> ---- false');
   dd.set('test', false);
-  console.log('> html', document.body.innerHTML);
-  console.log('> ---- true');
   dd.set('test', true);
-  console.log('> html', document.body.innerHTML);
   t.pass();
 });
 
@@ -1227,11 +1191,23 @@ test('on + on', t => {
   dd.set('players', [
     'a'
   ]);
-  console.log(2, document.body.innerHTML);
   dd.set('test', false);
-  console.log(3, document.body.innerHTML);
   dd.set('test', true);
-  console.log(4, document.body.innerHTML);
   t.pass();
 });
 
+test('dd-model select before options are set', t => {
+  const dd = domdom();
+  const view = ({ on }) => <div>
+    <select dd-model="yes">
+      {on('test').map(t => <option value={t}>{t}</option>)}
+    </select>
+  </div>;
+  dd.append(document.body, view);
+  dd.set('yes', 'hello');
+  dd.set('test', ['', 'hello', 'world']);
+  const select = document.querySelector('select');
+  return Promise.resolve().then(() => {
+    t.is(select.value, 'hello');
+  });
+});

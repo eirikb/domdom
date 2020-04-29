@@ -1,6 +1,7 @@
 export default (data, element, props) => {
 
   const hodors = [];
+  let _value;
 
   function onChange(cb) {
     element.addEventListener('keyup', () => cb(element.value));
@@ -13,9 +14,11 @@ export default (data, element, props) => {
   }
 
   function setValue(value) {
+    _value = value;
     if (element.type === 'checkbox') {
       element.checked = value;
     } else {
+      console.log('set to ', value);
       element.value = value || '';
     }
   }
@@ -25,10 +28,16 @@ export default (data, element, props) => {
     if (model) {
       onChange(value => data.set(model, value));
       element.on(`!+* ${model}`, setValue);
+      new MutationObserver(() => {
+        console.log('ffs?!', _value);
+        if (typeof _value !== 'undefined') {
+          setValue(_value);
+        }
+      }).observe(element, { childList: true });
     }
     for (let [key, value] of Object.entries(props)) {
       if (value && value.isHodor) {
-        function setValue(value) {
+        function setVal(value) {
           if (typeof element[key] === 'object') {
             Object.assign(element[key], value);
           } else {
@@ -38,15 +47,15 @@ export default (data, element, props) => {
 
         let _or;
         value.stower(0, {
-          add: (s) => setValue(s),
+          add: (s) => setVal(s),
           remove: () => {
             if (_or) {
-              setValue(_or);
+              setVal(_or);
             }
           },
           or(or) {
             _or = or;
-            setValue(or);
+            setVal(or);
           }
         });
         hodors.push(value);
