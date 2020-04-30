@@ -1211,3 +1211,16 @@ test('dd-model select before options are set', t => {
     t.is(select.value, 'hello');
   });
 });
+
+test('Convenience', t => {
+  const dd = domdom(document.body, ({ on }) => <div>Hello {on('test')}</div>);
+  dd.set('test', 'world!');
+  t.pass();
+});
+
+test('Convenience view before domdom', t => {
+  const view = ({ on }) => <div>Hello {on('test')}</div>;
+  const dd = domdom(document.body, view);
+  dd.set('test', 'world!');
+  t.pass();
+});
