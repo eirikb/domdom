@@ -412,7 +412,7 @@ test('Listeners in when', t => {
   const dd = domdom();
   let i = 0;
 
-  function Child({ on }) {
+  function Child() {
     const e = <div/>;
     e.on('* test', () => i++);
     return e;
@@ -438,7 +438,7 @@ test('Listener in when 2', t => {
   const dd = domdom();
   let i = 0;
 
-  function Child({ on }) {
+  function Child() {
     const e = <div/>;
     e.on('* test', () => i++);
     return e;
@@ -1137,7 +1137,7 @@ test('when + or', t => {
   t.is(document.body.innerHTML, '<div>-</div>');
   dd.set('test', false);
   t.is(document.body.innerHTML, '<div>+</div>');
-})
+});
 
 test('When + pathifier', t => {
   const dd = domdom();
@@ -1223,4 +1223,45 @@ test('Convenience view before domdom', t => {
   const dd = domdom(document.body, view);
   dd.set('test', 'world!');
   t.pass();
+});
+
+test('Flags in components are work and cleared', t => {
+  let counter = 0;
+
+  function Hello({ on }) {
+    const e = <div>Hello!</div>;
+    on('!+* tast', test => {
+      counter++;
+      e.textContent = test;
+    });
+    return e;
+  }
+
+  const view = ({ on }) => <div>
+    {on('test', test => <div>
+      Test is {test}. <Hello/>
+    </div>)}
+  </div>;
+  const dd = domdom(document.body, view);
+
+  t.is(document.body.innerHTML, '<div></div>');
+  dd.set('test', 'world!');
+  t.is(document.body.innerHTML, '<div><div>Test is world!. <div>Hello!</div></div></div>');
+  t.is(counter, 0);
+
+  dd.set('tast', 'ing');
+  t.is(document.body.innerHTML, '<div><div>Test is world!. <div>ing</div></div></div>');
+  t.is(counter, 1);
+
+  dd.unset('test');
+  t.is(document.body.innerHTML, '<div></div>');
+  t.is(counter, 1);
+
+  dd.set('tast', 'uhm');
+  t.is(document.body.innerHTML, '<div></div>');
+  t.is(counter, 1);
+
+  dd.set('test', 'yo');
+  t.is(document.body.innerHTML, '<div><div>Test is yo. <div>uhm</div></div></div>');
+  t.is(counter, 2);
 });

@@ -2,13 +2,15 @@ import Hodor from './hodor';
 
 export default function Context(data, tagName, props, ...children) {
   const mounteds = [];
+  const headlessHodors = [];
 
   function on(path, listener) {
     const hasFlags = path.match(/ /);
+    const hodor = Hodor(data, path, listener);
     if (hasFlags) {
-      throw new Error('Sorry, no flags allowed (no stand alone listeners)');
+      headlessHodors.push(hodor);
     }
-    return Hodor(data, path, listener);
+    return hodor;
   }
 
   const parentPathHackProxy = (fn) => {
@@ -22,7 +24,7 @@ export default function Context(data, tagName, props, ...children) {
       }
       return fn(path, ...args);
     };
-  }
+  };
 
   const options = {
     on: (path, listener) => on(path, listener),
@@ -80,6 +82,10 @@ export default function Context(data, tagName, props, ...children) {
   const destroy = res.destroy;
   res.destroy = () => {
     destroy();
+    for (let hodor of headlessHodors) {
+      hodor.destroy();
+      headlessHodors.splice(0, headlessHodors.length);
+    }
   };
   return res;
 }
