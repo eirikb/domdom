@@ -63,7 +63,9 @@ export default (dataOrParent, view, orData) => {
         for (let [key, value] of eventProps) {
           const event = key[2].toLowerCase() + key.slice(3);
           element.addEventListener(event, (...args) => {
-            element.context.parentPathHack = element.parentPath;
+            if (element.context) {
+              element.context.parentPathHack = element.parentPath;
+            }
             return value(...args);
           });
         }

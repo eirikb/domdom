@@ -1265,3 +1265,9 @@ test('Flags in components are work and cleared', t => {
   t.is(document.body.innerHTML, '<div><div>Test is yo. <div>uhm</div></div></div>');
   t.is(counter, 2);
 });
+
+test('Element with event but not added via domdom', t => {
+  domdom();
+  const element = <button onClick={t.pass}>Click me!</button>;
+  element.click();
+});
