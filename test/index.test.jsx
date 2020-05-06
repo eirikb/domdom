@@ -1271,3 +1271,20 @@ test('Element with event but not added via domdom', t => {
   const element = <button onClick={t.pass}>Click me!</button>;
   element.click();
 });
+
+test('Hodor as a child', t => {
+  function Parent({ children }) {
+    return <div>
+      {children}
+    </div>;
+  }
+
+  const dd = domdom(document.body, ({ on }) => <div>
+    <Parent>
+      {on('test')}
+    </Parent>
+  </div>);
+  dd.set('test', 'OK!');
+  t.is(document.body.innerHTML, '<div><div>OK!</div></div>');
+  t.pass();
+});
