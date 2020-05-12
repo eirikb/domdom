@@ -9,7 +9,6 @@ test.beforeEach(() => {
 });
 
 test('Double on', t => {
-  const dd = domdom();
   const div = ({ on }) => <div>
     {on('test', (test) => <div>
         {test}
@@ -17,7 +16,7 @@ test('Double on', t => {
       </div>
     )}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   t.is(document.body.innerHTML, '<div></div>');
 
   dd.set('test', 'hello');
@@ -33,9 +32,8 @@ test('Double on', t => {
 });
 
 test('on without callback', t => {
-  const dd = domdom();
   const div = ({ on }) => <div>{on('test')}</div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
 
   dd.set('test', 'hello');
   t.is(document.body.innerHTML, '<div>hello</div>');
@@ -48,11 +46,10 @@ test('on without callback', t => {
 });
 
 test('Multiple paths', t => {
-  const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.$id', player => <p>{player.name}</p>)}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   t.is(document.body.innerHTML, '<div></div>');
 
   dd.set('players.aone', { name: 'Mr. one' });
@@ -69,11 +66,10 @@ test('Multiple paths', t => {
 });
 
 test('Multiple paths map', t => {
-  const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.*').map(player => <p>{player.name}</p>)}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   t.is(document.body.innerHTML, '<div></div>');
 
   dd.set('players.aone', { name: 'Mr. one' });
@@ -90,11 +86,10 @@ test('Multiple paths map', t => {
 });
 
 test('on Sort - default sort by key', t => {
-  const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.*').map(player => <p>{player.name}</p>)}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   dd.set('players.aone', { name: '1' });
   dd.set('players.btwo', { name: '2' });
   dd.set('players.cthree', { name: '3' });
@@ -102,12 +97,11 @@ test('on Sort - default sort by key', t => {
 });
 
 test('on Sort - sort method', t => {
-  const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.*').map(player => <p>{player.name}</p>)
       .sort((a, b) => b.name.localeCompare(a.name))}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   dd.set('players.aone', { name: '1' });
   dd.set('players.btwo', { name: '2' });
   dd.set('players.cthree', { name: '3' });
@@ -115,13 +109,12 @@ test('on Sort - sort method', t => {
 });
 
 test('on Sort - sort method2', t => {
-  const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.*').map(player =>
       <p>{player.name}</p>, (a, b) => a.name.localeCompare(b.name)
     ).sort((a, b) => a.name.localeCompare(b.name))}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   dd.set('players.aone', { name: '1' });
   dd.set('players.btwo', { name: '2' });
   dd.set('players.cthree', { name: '3' });
@@ -129,23 +122,21 @@ test('on Sort - sort method2', t => {
 });
 
 test('Multiple on-siblings', t => {
-  const dd = domdom();
   const div = ({ on }) => <div>
     {on('b', test => <div>{test}</div>)}
     {on('a', ing => <div>{ing}</div>)}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   dd.set('a', 'World');
   dd.set('b', 'Hello');
   t.is(document.body.innerHTML, '<div><div>Hello</div><div>World</div></div>');
 });
 
 test('on Sort - keep order', t => {
-  const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.*').map(player => <p>{player.name}</p>)}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   dd.set('players.1', { name: '1' });
   dd.set('players.2', { name: '2' });
   dd.set('players.3', { name: '3' });
@@ -159,12 +150,11 @@ test('on Sort - keep order', t => {
 });
 
 test('on Sort - custom order', t => {
-  const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.*').map(player => <p>{player.name}</p>)
       .sort((a, b) => b.name.localeCompare(a.name))}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   dd.set('players.1', { name: '1' });
   dd.set('players.2', { name: '2' });
   dd.set('players.3', { name: '3' });
@@ -178,13 +168,12 @@ test('on Sort - custom order', t => {
 });
 
 test('on Sort - remove $first - with sort', t => {
-  const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.*').map(player => <p>{player.name}</p>,
       (a, b, aPath, bPath) => aPath.localeCompare(bPath)
     )}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   dd.set('players.1', { name: '1' });
   dd.set('players.2', { name: '2' });
   dd.set('players.3', { name: '3' });
@@ -198,13 +187,12 @@ test('on Sort - remove $first - with sort', t => {
 });
 
 test('Child listener', t => {
-  const dd = domdom();
   const div = ({ on }) => <main>
     {on('players.$id', () => <article>
       {on('>.name', name => name)}
     </article>)}
   </main>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   dd.set('players.1', { name: '1' });
   dd.set('players.2', { name: '2' });
   dd.set('players.3', { name: '3' });
@@ -212,8 +200,6 @@ test('Child listener', t => {
 });
 
 test('Simple when', t => {
-  const dd = domdom();
-
   function Test({ on }) {
     return <div>{on('test', t => t)}</div>
   }
@@ -225,13 +211,12 @@ test('Simple when', t => {
       () => true, () => <Test/>,
     ])}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   dd.set('test', 'yes');
   t.is(document.body.innerHTML, '<div>Yes is yes<div>Yes!</div><div>yes</div></div>');
 });
 
 test('Many whens', t => {
-  const dd = domdom();
   const div = ({ when }) => <div>
     {when('test', [
       'yes', t => t,
@@ -243,7 +228,7 @@ test('Many whens', t => {
       'yes', () => <div>world</div>
     ])}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   dd.set('test', 'yes');
   t.is(document.body.innerHTML, '<div>yestruet === yes<div>hello</div><div>world</div></div>');
   dd.set('test', 'no');
@@ -253,7 +238,6 @@ test('Many whens', t => {
 });
 
 test('Quirk on + when', t => {
-  const dd = domdom();
   const div = ({ on, when }) => <div>
     {on('test', t => t)}
 
@@ -262,7 +246,7 @@ test('Quirk on + when', t => {
       'no', () => 'No'
     ])}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   dd.set('test', 'yes');
   t.is(document.body.innerHTML, '<div>yesYes</div>');
   dd.set('test', 'no');
@@ -274,11 +258,10 @@ test('Quirk on + when', t => {
 });
 
 test('Simple or', t => {
-  const dd = domdom();
   const div = ({ on }) => <div>
     {on('test', t => <div>{t}</div>).or(<div>Nope</div>)}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   t.is(document.body.innerHTML, '<div><div>Nope</div></div>');
   dd.set('test', 'ing');
   t.is(document.body.innerHTML, '<div><div>ing</div></div>');
@@ -289,9 +272,8 @@ test('Simple or', t => {
 });
 
 test('on empty res', t => {
-  const dd = domdom();
   const div = ({ on }) => <div>{on('test')}</div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   dd.set('test', 'Hello');
   t.is(document.body.innerHTML, '<div>Hello</div>');
   dd.set('test', '');
@@ -299,7 +281,6 @@ test('on empty res', t => {
 });
 
 test('Multiple child paths', t => {
-  const dd = domdom();
   const div = ({ on }) => <div>
     {on('a', () => <div>
       {on('>.text')}
@@ -307,25 +288,24 @@ test('Multiple child paths', t => {
       {on('>.text')}
     </div>)}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   dd.set('a', { text: 'ok' });
   t.is(document.body.innerHTML, '<div><div>oktestok</div></div>');
 });
 
 test('Have some path with flags', t => {
-  const dd = domdom();
   const div = () => {
     const e = <div/>;
     e.on('!+* wat', wat => e.innerHTML = wat);
     return e;
   };
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   dd.set('wat', 'ok');
   t.is(document.body.innerHTML, '<div>ok</div>');
 });
 
 test('Listeners are cleared', t => {
-  const dd = domdom();
+  const { React, data, append } = domdom();
   let i = 0;
 
   function Child({}) {
@@ -334,24 +314,24 @@ test('Listeners are cleared', t => {
     return e;
   }
 
-  dd.set('test', 'a');
-  dd.set('show', true);
+  data.set('test', 'a');
+  data.set('show', true);
   const div = ({ on }) => <div>
     {on('show', () =>
       <Child/>
     )}
   </div>;
-  dd.append(document.body, div);
-  dd.set('test', 'b');
+  append(document.body, div);
+  data.set('test', 'b');
   t.is(1, i);
 
-  dd.unset('show');
-  dd.set('test', 'c');
+  data.unset('show');
+  data.set('test', 'c');
   t.is(1, i);
 });
 
 test('Listeners are not overcleared', t => {
-  const dd = domdom();
+  const { React, data, append } = domdom();
   let i = 0;
 
   function Child() {
@@ -360,28 +340,28 @@ test('Listeners are not overcleared', t => {
     return e;
   }
 
-  dd.set('test', 'a');
-  dd.set('show', 'yes');
+  data.set('test', 'a');
+  data.set('show', 'yes');
   const div = ({ on }) => <div>
     {on('show', () =>
       <Child/>
     )}
   </div>;
-  dd.append(document.body, div);
-  dd.set('test', 'b');
+  append(document.body, div);
+  data.set('test', 'b');
   t.is(1, i);
 
-  dd.set('show', 'yesyes');
-  dd.set('test', 'c');
+  data.set('show', 'yesyes');
+  data.set('test', 'c');
   t.is(2, i);
 
-  dd.set('show', 'yesyesyes');
-  dd.set('test', 'd');
+  data.set('show', 'yesyesyes');
+  data.set('test', 'd');
   t.is(3, i);
 });
 
 test('Listeners are support change of parent', t => {
-  const dd = domdom();
+  const { React, data, append } = domdom();
   let i = 0;
 
   function Child() {
@@ -390,26 +370,26 @@ test('Listeners are support change of parent', t => {
     return e;
   }
 
-  dd.set('test', 'a');
-  dd.set('show', 'yes');
+  data.set('test', 'a');
+  data.set('show', 'yes');
   const div = ({ on }) => <div>
     {on('show', () =>
       <Child/>
     )}
   </div>;
-  dd.append(document.body, div);
+  append(document.body, div);
 
-  dd.set('show', 'yesyes');
-  dd.set('test', 'c');
+  data.set('show', 'yesyes');
+  data.set('test', 'c');
   t.is(1, i);
 
-  dd.unset('show');
-  dd.set('test', 'd');
+  data.unset('show');
+  data.set('test', 'd');
   t.is(1, i);
 });
 
 test('Listeners in when', t => {
-  const dd = domdom();
+  const { React, data, append } = domdom();
   let i = 0;
 
   function Child() {
@@ -418,24 +398,24 @@ test('Listeners in when', t => {
     return e;
   }
 
-  dd.set('test', 'a');
-  dd.set('show', true);
+  data.set('test', 'a');
+  data.set('show', true);
   const div = ({ when }) => <div>
     {when('show', [
       true, () => <Child/>
     ])}
   </div>;
-  dd.append(document.body, div);
-  dd.set('test', 'b');
+  append(document.body, div);
+  data.set('test', 'b');
   t.is(1, i);
 
-  dd.set('show', false);
-  dd.set('test', 'c');
+  data.set('show', false);
+  data.set('test', 'c');
   t.is(1, i);
 });
 
 test('Listener in when 2', t => {
-  const dd = domdom();
+  const { React, data, append } = domdom();
   let i = 0;
 
   function Child() {
@@ -444,28 +424,27 @@ test('Listener in when 2', t => {
     return e;
   }
 
-  dd.set('test', 'a');
-  dd.set('show', true);
+  data.set('test', 'a');
+  data.set('show', true);
   const div = ({ when }) => <div>
     {when('show', [
       true, () => <Child/>
     ])}
   </div>;
-  dd.append(document.body, div);
-  dd.set('test', 'b');
+  append(document.body, div);
+  data.set('test', 'b');
   t.is(1, i);
 
-  dd.set('show', false);
-  dd.set('test', 'c');
+  data.set('show', false);
+  data.set('test', 'c');
   t.is(1, i);
 
-  dd.set('show', true);
-  dd.set('test', 'd');
+  data.set('show', true);
+  data.set('test', 'd');
   t.is(2, i);
 });
 
 test('Mounted', t => {
-  const dd = domdom();
   t.plan(1);
 
   function Hello({ mounted }) {
@@ -474,11 +453,10 @@ test('Mounted', t => {
   }
 
   const div = () => <div><Hello/></div>;
-  dd.append(document.body, div);
+  domdom(document.body, div);
 });
 
 test('Mounted on/off', t => {
-  const dd = domdom();
   t.plan(2);
 
   function Hello({ mounted }) {
@@ -487,7 +465,7 @@ test('Mounted on/off', t => {
   }
 
   const div = ({ on }) => <div>{on('test', () => <Hello/>)}</div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
 
   dd.set('test', true);
   dd.unset('test');
@@ -495,22 +473,18 @@ test('Mounted on/off', t => {
 });
 
 test('When with initial false value', t => {
-  const dd = domdom();
-
   const div = ({ when }) => <div>
     {when('test', [
       false, () => <div>Hello</div>,
       true, () => <div>No!</div>
     ])}
   </div>;
+  const dd = domdom(document.body, div);
   dd.set('test', false);
-  dd.append(document.body, div);
   t.is(document.body.innerHTML, '<div><div>Hello</div></div>');
 });
 
 test('Do not remove listener on same level', t => {
-  const dd = domdom();
-
   function Test() {
     return <p>test</p>;
   }
@@ -519,9 +493,9 @@ test('Do not remove listener on same level', t => {
     {on('test', () => <Test/>)}
     {on('hello')}
   </div>;
+  const dd = domdom(document.body, div);
   dd.set('test', true);
   dd.set('hello', 'world');
-  dd.append(document.body, div);
   t.is(document.body.innerHTML, '<div><p>test</p>world</div>');
   dd.set('test', false);
   dd.unset('test');
@@ -530,12 +504,10 @@ test('Do not remove listener on same level', t => {
 });
 
 test('Whole objects should be populated', t => {
-  const dd = domdom();
-
   const div = ({ on }) => <div>
     {on('hello.world', world => <div>{world.test}</div>)}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
 
   dd.set('hello', {
     world: {
@@ -547,12 +519,10 @@ test('Whole objects should be populated', t => {
 });
 
 test('Update array', t => {
-  const dd = domdom();
-
   const div = ({ on }) => <div>
     {on('path', path => <div>{JSON.stringify(path)}</div>)}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
 
   dd.set('path', ['hello', 'world']);
   t.is(document.body.innerHTML, '<div><div>{"0":"hello","1":"world"}</div></div>');
@@ -562,12 +532,11 @@ test('Update array', t => {
 });
 
 test('Update array without element', t => {
-  const dd = domdom();
   const view = ({ on }) => <div>
     {on('path', p => p)}
   </div>;
+  const dd = domdom(document.body, view);
 
-  dd.append(document.body, view);
   dd.set('path', ['hello', 'world']);
   t.is(document.body.innerHTML, '<div>{"0":"hello","1":"world"}</div>');
 
@@ -576,24 +545,23 @@ test('Update array without element', t => {
 });
 
 test('Containment', t => {
-  const dd = domdom();
+  const { React, append } = domdom();
   const Button = ({ children }) => <button>{children}</button>;
 
-  dd.append(document.body, () => <Button>Test</Button>);
+  append(document.body, () => <Button>Test</Button>);
   t.is(document.body.innerHTML, '<button>Test</button>');
 
   document.body.innerHTML = '';
-  dd.append(document.body, () => <Button><span>Test</span></Button>);
+  append(document.body, () => <Button><span>Test</span></Button>);
   t.is(document.body.innerHTML, '<button><span>Test</span></button>');
 
   document.body.innerHTML = '';
-  dd.append(document.body, () => <Button><span>Test</span><i>in</i>g</Button>);
+  append(document.body, () => <Button><span>Test</span><i>in</i>g</Button>);
   t.is(document.body.innerHTML, '<button><span>Test</span><i>in</i>g</button>');
 });
 
 test('Rendering types', t => {
-  const dd = domdom();
-  dd.append(document.body, () => <div>
+  domdom(document.body, () => <div>
     {'a'}
     {1}
     {3.6}
@@ -607,23 +575,20 @@ test('Rendering types', t => {
 });
 
 test('Remove or on on', t => {
-  const dd = domdom();
   const view = ({ on }) => <div>
     {on('test.$id', t => t.name).or('Loading...')}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
   t.is(document.body.innerHTML, '<div>Loading...</div>');
   dd.set('test', { 0: { name: 'hello' } });
   t.is(document.body.innerHTML, '<div>hello</div>');
 });
 
 test('on attributes', t => {
-  const dd = domdom();
   const view = ({ on }) => <div>
     <button disabled={on('disable', res => res)}/>
   </div>;
-
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
 
   t.is(document.body.innerHTML, '<div><button></button></div>');
   dd.set('disable', true);
@@ -631,13 +596,11 @@ test('on attributes', t => {
 });
 
 test('on on attributes', t => {
-  const dd = domdom();
   const view = ({ on }) => <div>
     <button disabled={on('canClick', res => !res).or(true)}/>
     <button disabled={on('canNotClick').or(true)}/>
   </div>;
-
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
 
   t.is(document.body.innerHTML, '<div><button disabled=""></button><button disabled=""></button></div>');
 
@@ -651,12 +614,10 @@ test('on on attributes', t => {
 });
 
 test('on on attributes or', t => {
-  const dd = domdom();
   const view = ({ on }) => <div>
     <button disabled={on('canNotClick').or(true)}/>
   </div>;
-
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
 
   t.is(document.body.innerHTML, '<div><button disabled=""></button></div>');
 
@@ -668,66 +629,64 @@ test('on on attributes or', t => {
 });
 
 test('On on object attributes', t => {
-  const dd = domdom();
   const view = ({ on }) => <div>
     <p style={on('style')}>Test</p>
   </div>;
+  const dd = domdom(document.body, view);
 
-  dd.append(document.body, view);
   dd.set('style', { color: 'red' });
   t.is(document.body.innerHTML, '<div><p style="color: red;">Test</p></div>');
 });
 
 test('Filter array', t => {
-  const dd = domdom();
   const view = ({ on }) => <div>
     {on('users').map(user => <span>{user.name}</span>)
       .filter(user => user.name !== 'One!')}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
+
   dd.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
   t.is(document.body.innerHTML, '<div><span>Two!</span></div>');
 });
 
 test('Update filter on update filter', t => {
-  const dd = domdom();
   const view = ({ on }) => <div>
     {on('users').map(user => <span>{user.name}</span>)
       .filter(user => user.name !== 'One!')}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
+
   dd.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
   t.is(document.body.innerHTML, '<div><span>Two!</span></div>');
 });
 
 test('Update filterOn on update filter', t => {
-  const dd = domdom();
   const view = ({ on }) => <div>
     {on('users')
       .map(user => <span>{user.name}</span>)
       .filterOn('test', (filter, user) => user.name !== 'One!')}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
+
   dd.set('test', { search: 'it' });
   dd.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
   t.is(document.body.innerHTML, '<div><span>Two!</span></div>');
 });
 
 test('Update filterOn on update filter refresh', t => {
-  const dd = domdom();
   const view = ({ on }) => <div>
     {on('users')
       .map(user => <span>{user.name}</span>)
       .filterOn('test', (filter, user) => user.name !== 'One!')}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
+
   dd.set('test', { search: 'it' });
   dd.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
   t.is(document.body.innerHTML, '<div><span>Two!</span></div>');
 });
 
 test('Update filterOn on update after data is set', t => {
-  const dd = domdom();
   const view = ({ on }) => <div>
     {on('users')
       .map(user => <a>{user.name}</a>)
@@ -735,7 +694,8 @@ test('Update filterOn on update after data is set', t => {
         new RegExp(filter, 'i').test(user.name)
       )}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
+
   dd.set('test', '');
   dd.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
   t.is(document.body.innerHTML, '<div><a>One!</a><a>Two!</a></div>');
@@ -744,13 +704,12 @@ test('Update filterOn on update after data is set', t => {
 });
 
 test('on sortOn - custom order', t => {
-  const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.*')
       .map(player => <p>{player.name}</p>)
       .sortOn('test', (val, a, b) => b.name.localeCompare(a.name))}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   dd.set('test', 'yes');
   dd.set('players.1', { name: '1' });
   dd.set('players.2', { name: '2' });
@@ -765,13 +724,12 @@ test('on sortOn - custom order', t => {
 });
 
 test('on sortOn - custom order update', t => {
-  const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.*')
       .map(player => <p>{player.name}</p>)
       .sortOn('test', (val, a, b) => b.name.localeCompare(a.name))}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   dd.set('players.1', { name: '1' });
   dd.set('players.2', { name: '2' });
   dd.set('players.3', { name: '3' });
@@ -786,15 +744,14 @@ test('on sortOn - custom order update', t => {
 });
 
 test('onFilter and onSort', t => {
-  const dd = domdom();
   const div = ({ on }) => <div>
     {on('players.*')
       .map(player => <p>{player.name}</p>)
       .sortOn('filter.by', (val, a, b) => a[val].localeCompare(b[val])
       )}
   </div>;
+  const dd = domdom(document.body, div);
   dd.set('filter.by', 'name');
-  dd.append(document.body, div);
   dd.set('players.1', { name: '1', age: '3' });
   dd.set('players.2', { name: '2', age: '2' });
   dd.set('players.3', { name: '3', age: '1' });
@@ -804,8 +761,6 @@ test('onFilter and onSort', t => {
 });
 
 test('Function context', t => {
-  const dd = domdom();
-
   function App() {
     return <div>:)</div>;
   }
@@ -813,13 +768,11 @@ test('Function context', t => {
   const div = () => <div>
     <App/>
   </div>;
-  dd.append(document.body, div);
+  domdom(document.body, div);
   t.is(document.body.innerHTML, '<div><div>:)</div></div>');
 });
 
 test('Function context when when', t => {
-  const dd = domdom();
-
   function App() {
     return <div>:)</div>;
   }
@@ -830,13 +783,12 @@ test('Function context when when', t => {
       true, () => <App/>
     ])}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   dd.set('test', true);
   t.is(document.body.innerHTML, '<div><div>:)</div><div>:)</div></div>');
 });
 
 test('filterOn and back', t => {
-  const dd = domdom();
   const view = ({ on }) => <div>
     {on('users')
       .map(user => <a>{user.name}</a>)
@@ -845,7 +797,7 @@ test('filterOn and back', t => {
       )}
     <p>Because</p>
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
   dd.set('test', '');
   dd.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
   t.is(document.body.innerHTML, '<div><a>One!</a><a>Two!</a><p>Because</p></div>');
@@ -856,13 +808,12 @@ test('filterOn and back', t => {
 });
 
 test('When + change', t => {
-  const dd = domdom();
   const view = ({ when, on }) => <div>
     {when('yes', [
       true, () => <p>{on('ok')}</p>
     ])}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
   dd.set('yes', true);
   dd.set('yes', false);
   dd.set('yes', true);
@@ -871,14 +822,12 @@ test('When + change', t => {
 });
 
 test('When + change 2', t => {
-  const dd = domdom();
   const view = ({ when, on }) => <div>
     {when('yes', [
       true, () => <p>{on('ok')}</p>
     ])}
   </div>;
-
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
   dd.set('yes', true);
   dd.set('yes', false);
   dd.set('ok', 'OK!');
@@ -887,7 +836,6 @@ test('When + change 2', t => {
 });
 
 test('When + filterOn', t => {
-  const dd = domdom();
   const view = ({ when, on }) => <div>
     {when('yes', [
       true, () => <div>
@@ -900,7 +848,7 @@ test('When + filterOn', t => {
       </div>
     ])}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
   dd.set('test', 'two');
   dd.set('yes', true);
   dd.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
@@ -913,11 +861,10 @@ test('When + filterOn', t => {
 });
 
 test('Re-add', t => {
-  const dd = domdom();
   const view = ({ on }) => <div>
     {on('yes', t => <p>{t} {on('no')}</p>)}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
   dd.set('yes', 'Yes!');
   dd.set('no', 'No!');
   t.is(document.body.innerHTML, '<div><p>Yes! No!</p></div>');
@@ -928,13 +875,12 @@ test('Re-add', t => {
 });
 
 test('Something something filter and add', t => {
-  const dd = domdom();
   const view = ({ on }) => <div>
     {on('users')
       .map(u => <p>{u} {on('yes')}</p>)
       .filterOn('filter', f => f)}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
   dd.set('filter', true);
   dd.set('yes', 'y');
   dd.set('users', {
@@ -950,11 +896,11 @@ test('Something something filter and add', t => {
 });
 
 test('Simplest', t => {
-  const dd = domdom();
   const view = ({ on }) => <div>
     {on('yes', () => <p>{on('no')}</p>)}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
+
   dd.set('yes', true);
   dd.set('no', 'n');
   t.is(document.body.innerHTML, '<div><p>n</p></div>');
@@ -962,7 +908,6 @@ test('Simplest', t => {
 });
 
 test('filterOn mounted destroy mounted', t => {
-  const dd = domdom();
   const view = ({ when, on }) => <div>
     {when('yes', [
       true, () => <div>{on('users')
@@ -970,12 +915,13 @@ test('filterOn mounted destroy mounted', t => {
         .filterOn('filter', (f, u) => f === u.name)}</div>
     ])}
   </div>;
+  const dd = domdom(document.body, view);
+
   dd.set('yes', true);
   dd.set('filter', 'one');
   dd.set('users.1', { name: 'one', test: 'yes' });
   dd.set('users.2', { name: 'two' });
 
-  dd.append(document.body, view);
   t.is(document.body.innerHTML, '<div><div>one</div></div>');
 
   dd.set('yes', false);
@@ -986,7 +932,6 @@ test('filterOn mounted destroy mounted', t => {
 });
 
 test('When + filterOn const element', t => {
-  const dd = domdom();
   const view = ({ when, on }) => <div>
     {when('show', [
       true, () => <div>
@@ -996,7 +941,9 @@ test('When + filterOn const element', t => {
       </div>
     ])}
   </div>;
-  dd.append(document.body, view);
+
+  const dd = domdom(document.body, view);
+
   dd.set('users', { 1: { name: 'a' }, 2: { name: 'b' } });
   dd.set('show', true);
   dd.set('filter', 'a');
@@ -1006,7 +953,6 @@ test('When + filterOn const element', t => {
 });
 
 test('When + filterOn const text', t => {
-  const dd = domdom();
   const view = ({ when, on }) => <div>
     {when('show', [
       true, () => <div>
@@ -1016,7 +962,7 @@ test('When + filterOn const text', t => {
       </div>
     ])}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
   dd.set('users', { 1: { name: 'a' }, 2: { name: 'b' } });
   dd.set('show', true);
   dd.set('filter', 'a');
@@ -1026,8 +972,6 @@ test('When + filterOn const text', t => {
 });
 
 test('On child attribute listener', t => {
-  const dd = domdom();
-
   function Yes({ on }) {
     return <a href={on('>.link')}>test</a>
   }
@@ -1037,23 +981,22 @@ test('On child attribute listener', t => {
       <div>{ok.text} <Yes/></div>
     )}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
   dd.set('yes', {
-    link: 'nrk.no',
+    link: 'https://nrk.no',
     text: 'Some link:'
   });
-  t.is(document.body.innerHTML, '<div><div>Some link: <a href="nrk.no">test</a></div></div>');
+  t.is(document.body.innerHTML, '<div><div>Some link: <a href="https://nrk.no">test</a></div></div>');
 });
 
 test('Same listener twice no problem', t => {
-  const dd = domdom();
   const view = ({ on }) => <div>
     {on('test', t1 => <div>
         {t1} and {on('test')}
       </div>
     )}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
   dd.set('test', 'yes');
   t.is(document.body.innerHTML, '<div><div>yes and yes</div></div>');
 });
@@ -1066,19 +1009,18 @@ test('Same listener twice no problem on when', t => {
     </div>;
   }
 
-  const dd = domdom();
   const view = ({ when }) => <div>
     {when('test', [
       'yes', () => <Yes/>
     ])}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
   dd.set('test', 'yes');
   t.is(document.body.innerHTML, '<div><div>OK!</div></div>');
 });
 
 test('Function in on', t => {
-  const dd = domdom();
+  const { React, data, append } = domdom();
 
   function Yes({ on }) {
     return <div>
@@ -1088,18 +1030,16 @@ test('Function in on', t => {
     </div>;
   }
 
-  dd.set('yes', 'ok');
+  data.set('yes', 'ok');
   const view = ({ on }) => <div>
     {on('yes', () => <Yes/>)}
   </div>;
-  dd.append(document.body, view);
+  append(document.body, view);
   t.is(document.body.innerHTML, '<div><div><p>A</p><p>B</p><p>C</p></div></div>');
   t.pass();
 });
 
 test('When and on no duplicated', t => {
-  const dd = domdom();
-
   function Yes({ on }) {
     return <div>
       {on('myse.type', () => <p>A</p>)}
@@ -1113,7 +1053,7 @@ test('When and on no duplicated', t => {
       'ready', () => <Yes/>
     ])}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
   dd.set('route', 'login1');
   dd.set('myse', {
     type: 'proppgave'
@@ -1123,15 +1063,13 @@ test('When and on no duplicated', t => {
 });
 
 test('when + or', t => {
-  const dd = domdom();
-
   const view = ({ when }) => <div>
     {when('test', [
       true, () => '-',
       false, () => '+'
     ]).or('+')}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
   t.is(document.body.innerHTML, '<div>+</div>');
   dd.set('test', true);
   t.is(document.body.innerHTML, '<div>-</div>');
@@ -1140,7 +1078,6 @@ test('when + or', t => {
 });
 
 test('When + pathifier', t => {
-  const dd = domdom();
   const view = ({ when, on }) => <div>
     {when('test', [
       true, () => <div>
@@ -1148,7 +1085,7 @@ test('When + pathifier', t => {
       </div>
     ])}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
   dd.set('test', true);
   dd.set('players', [
     'a'
@@ -1159,7 +1096,6 @@ test('When + pathifier', t => {
 });
 
 test('on + pathifier', t => {
-  const dd = domdom();
   const view = ({ on }) => <div>
     {on('test', test => test ? <div>
         {on('players').map(p => <p>{p}</p>)}
@@ -1167,7 +1103,7 @@ test('on + pathifier', t => {
       : 'no!'
     )}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
   dd.set('test', true);
   dd.set('players', [
     'a'
@@ -1178,7 +1114,6 @@ test('on + pathifier', t => {
 });
 
 test('on + on', t => {
-  const dd = domdom();
   const view = ({ on }) => <div>
     {on('test', test => test ? <div>
         {on('players.$id', p => <p>{p}</p>)}
@@ -1186,7 +1121,7 @@ test('on + on', t => {
       : 'no!'
     )}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
   dd.set('test', true);
   dd.set('players', [
     'a'
@@ -1197,13 +1132,12 @@ test('on + on', t => {
 });
 
 test('dd-model select before options are set', t => {
-  const dd = domdom();
   const view = ({ on }) => <div>
     <select dd-model="yes">
       {on('test').map(t => <option value={t}>{t}</option>)}
     </select>
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
   dd.set('yes', 'hello');
   dd.set('test', ['', 'hello', 'world']);
   const select = document.querySelector('select');
@@ -1267,7 +1201,7 @@ test('Flags in components are work and cleared', t => {
 });
 
 test('Element with event but not added via domdom', t => {
-  domdom();
+  const { React } = domdom();
   const element = <button onClick={t.pass}>Click me!</button>;
   element.click();
 });
@@ -1287,4 +1221,16 @@ test('Hodor as a child', t => {
   dd.set('test', 'OK!');
   t.is(document.body.innerHTML, '<div><div>OK!</div></div>');
   t.pass();
+});
+
+test('Re-usable domdom', t => {
+  const { React, data, append } = domdom();
+
+  function Hello({ on }) {
+    return <div>Hello {on('test')}</div>
+  }
+
+  data.set('test', 'World!');
+  append(document.body, () => <main><Hello/></main>);
+  t.is(document.body.innerHTML, '<main><div>Hello World!</div></main>');
 });

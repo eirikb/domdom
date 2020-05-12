@@ -7,8 +7,7 @@ import domdom from '../src';
 import browserEnv from 'browser-env';
 
 browserEnv();
-// Globalify domdom
-domdom();
+const { React } = domdom();
 
 function setup(path, listener) {
   const data = Data();
@@ -227,3 +226,4 @@ test('Pathifier sub-array', t => {
   ]);
   t.is(html(), '<div>a</div>');
 });
+

@@ -8,14 +8,8 @@ export function isProbablyPlainObject(obj) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
 }
 
-export default (dataOrParent, view, orData) => {
-  let data = dataOrParent;
-  if (dataOrParent && view) {
-    data = orData;
-  }
-  if (!data) {
-    data = Data();
-  }
+export default (parent, view) => {
+  const data = Data();
   const React = {
     createElement(tagName, props, ...children) {
       if (typeof tagName === 'function') {
@@ -113,21 +107,21 @@ export default (dataOrParent, view, orData) => {
     }
   };
 
+  function append(parent, view) {
+    const element = React.createElement(view);
+    parent.appendChild(element);
+    element.mounted();
+  }
+
+  if (typeof parent === 'undefined') {
+    return { React, data, append };
+  }
+
   window.React = React;
   if (typeof global !== 'undefined') {
     global.React = React;
   }
 
-  const res = {
-    append(parent, view) {
-      const element = React.createElement(view);
-      parent.appendChild(element);
-      element.mounted();
-    },
-    ...data
-  };
-  if (dataOrParent && view) {
-    res.append(dataOrParent, view);
-  }
-  return res;
+  append(parent, view);
+  return data;
 }
