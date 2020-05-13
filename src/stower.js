@@ -32,17 +32,11 @@ export default function Stower(element) {
     } else {
       element.appendChild(child);
     }
-
-    if (child.mounted && element.isMounted) {
-      child.mounted(element.context, path);
-    }
   }
 
   function remove(index, child) {
     if (child) {
-      child.isMounted = false;
       element.removeChild(child);
-      if (child.destroy) child.destroy();
     }
 
     if (typeof ors[index] !== 'undefined' && (!slots[index] || slots[index].length === 0)) {

@@ -27,6 +27,7 @@ export default (data, element, props) => {
     if (model) {
       onChange(value => data.set(model, value));
       element.on(`!+* ${model}`, setValue);
+      // Special handling for select elements
       new MutationObserver(() => {
         if (typeof _value !== 'undefined') {
           setValue(_value);

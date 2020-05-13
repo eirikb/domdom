@@ -107,10 +107,46 @@ export default (parent, view) => {
     }
   };
 
+  function mount(element) {
+    if (element.mounted && !element.isMounted) {
+      // element.mounted(element.context, path);
+      element.mounted(element.context);
+      element.isMounted = true;
+    }
+  }
+
+  function unmount(element) {
+    if (element.destroy) element.destroy();
+    element.isMounted = false;
+  }
+
+  function squint(parent) {
+    new MutationObserver((mutationList) => {
+      for (let mutation of mutationList) {
+        for (let node of mutation.addedNodes) {
+          mount(node);
+          if (node.getElementsByTagName) {
+            for (let child of node.getElementsByTagName('*')) {
+              mount(child);
+            }
+          }
+        }
+        for (let node of mutation.removedNodes) {
+          unmount(node);
+          if (node.getElementsByTagName) {
+            for (let child of node.getElementsByTagName('*')) {
+              unmount(child);
+            }
+          }
+        }
+      }
+    }).observe(parent, { childList: true, subtree: true });
+  }
+
   function append(parent, view) {
+    squint(parent);
     const element = React.createElement(view);
     parent.appendChild(element);
-    element.mounted();
   }
 
   if (typeof parent === 'undefined') {
