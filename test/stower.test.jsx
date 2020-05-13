@@ -208,71 +208,6 @@ test('replace array', t => {
   t.deepEqual(element.innerHTML, '<div></div><span></span>');
 });
 
-test('mounted single', t => {
-  const { stower, element } = t.context;
-  element.isMounted = true;
-  const a = document.createElement('a');
-  a.mounted = () => t.pass();
-  t.plan(1);
-  stower.add(a, 0);
-});
-
-test('mounted array', t => {
-  const { stower, element } = t.context;
-  element.isMounted = true;
-  const a = document.createElement('a');
-  const b = document.createElement('b');
-  a.mounted = () => t.pass();
-  b.mounted = () => t.pass();
-  t.plan(2);
-  stower.add([a, b], 0);
-});
-
-test('mounted subIndex', t => {
-  const { stower, element } = t.context;
-  element.isMounted = true;
-  const a = document.createElement('a');
-  const b = document.createElement('b');
-  a.mounted = () => t.pass();
-  b.mounted = () => t.pass();
-  t.plan(2);
-  stower.add(a, 0, 0);
-  stower.add(b, 0, 1);
-});
-
-test('destroy single', t => {
-  const { stower, } = t.context;
-  const a = document.createElement('a');
-  stower.add(a, 0);
-  a.destroy = () => t.pass();
-  t.plan(1);
-  stower.remove(0);
-});
-
-test('destroy array', t => {
-  const { stower, } = t.context;
-  const a = document.createElement('a');
-  const b = document.createElement('b');
-  stower.add([a, b], 0);
-  a.destroy = () => t.pass();
-  b.destroy = () => t.pass();
-  t.plan(2);
-  stower.remove(0);
-});
-
-test('destroy subIndex', t => {
-  const { stower, } = t.context;
-  const a = document.createElement('a');
-  const b = document.createElement('b');
-  stower.add(a, 0, 0);
-  stower.add(b, 0, 1);
-  a.destroy = () => t.pass();
-  b.destroy = () => t.pass();
-  t.plan(2);
-  stower.remove(0, 0);
-  stower.remove(0, 0);
-});
-
 test('types', t => {
   const { element, stower } = t.context;
   stower.add('a', 0);
@@ -453,7 +388,7 @@ test.skip('Update filterOn on update after data is set', t => {
 });
 
 test('replace array with subindex', t => {
-  const { element, stower, a, b, div, span } = t.context;
+  const { element, stower } = t.context;
   stower.or('+', 0);
   stower.add(['-', null], 0, 0);
   t.deepEqual(element.innerHTML, '-');

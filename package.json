@@ -1,6 +1,6 @@
 {
   "name": "@eirikb/domdom",
-  "version": "4.7.0",
+  "version": "4.8.0",
   "description": "The proactive web framework for the unprofessional",
   "author": {
     "email": "eirikb@eirikb.no",
@@ -16,19 +16,22 @@
     "url": "https://github.com/eirikb/domdom"
   },
   "dependencies": {
+    "@ava/babel": "^1.0.1",
+    "@babel/polyfill": "^7.8.7",
     "@eirikb/data": "^2.1.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.7.7",
-    "@babel/preset-env": "7.7.7",
-    "@babel/preset-react": "7.7.4",
-    "@babel/register": "7.7.7",
-    "ava": "2.4.0",
+    "@babel/core": "^7.9.6",
+    "@babel/preset-env": "^7.9.6",
+    "@babel/preset-react": "^7.9.4",
+    "@babel/register": "^7.9.0",
+    "ava": "^3.8.2",
     "browser-env": "3.3.0"
   },
   "ava": {
     "require": [
-      "@babel/register"
+      "@babel/register",
+      "@babel/polyfill"
     ],
     "babel": {
       "extensions": [
