@@ -15,8 +15,7 @@ There's no virtual dom.
     * No local state
   * JSX return pure elements
   * Doesn't support arrays
-    * It's not as bad as you might think
-    * Not great, not terrible
+    * It's not as bad as you might think - Not great, not terrible
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -75,16 +74,21 @@ npx parcel index.html
 
 ```jsx
 import domdom from '@eirikb/domdom'
-const dd = domdom()
-dd.append(parentElement, view)
+const dd = domdom(parentElement, view)
 ```
 
-Or
+This will put `React` (required for JSX, not my naming) on `global`/`window`.  
+If you're not a madlad you can alternatively create a local `React`:
 
 ```jsx
 import domdom from '@eirikb/domdom'
-const dd = domdom(parentElement, view)
+const { React, data, append } = domdom()
+append(document.body, view)
 ```
+
+Note, here `React` isn't global and must be defined before each JSX.  
+It must be passed from where it's created, or `exported`.
+Each `React` returned from `domdom` is unique, which is why it's returned from `domdom()`. 
 
 ### Elements 
 
@@ -156,7 +160,7 @@ You can have multiple wildcards: `players.$id.items.$itemId.size`.
 
 #### Sub-paths
 
-By using `>.` it's possible to listen to paths "from parent".  
+By using `>.` it's possible to listen to relative paths "from parent".  
 This is how it's possible to make re-usable "detached" components.  
 They have data in global state, but don't rely on the parent path.
 
