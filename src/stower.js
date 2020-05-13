@@ -22,7 +22,7 @@ export default function Stower(element) {
     return child;
   }
 
-  function add(index, child, before, path) {
+  function add(index, child, before) {
     if (typeof hasOr[index] !== 'undefined') {
       element.removeChild(hasOr[index]);
       delete hasOr[index];
@@ -70,7 +70,7 @@ export default function Stower(element) {
     slots[index] = children;
   }
 
-  function addWithSubIndex(child, index, subIndex, path) {
+  function addWithSubIndex(child, index, subIndex) {
     const isArray = Array.isArray(child);
     child = isArray ? child.map(escapeChild) : escapeChild(child);
     let before;
@@ -84,7 +84,7 @@ export default function Stower(element) {
     if (isArray) {
       child.forEach(child => add(index, child, before));
     } else {
-      add(index, child, before, path);
+      add(index, child, before);
     }
     slots[index] = slots[index] || [];
     if (slots[index][subIndex]) {
@@ -97,9 +97,9 @@ export default function Stower(element) {
     }
   }
 
-  self.add = (child, index, subIndex, path) => {
+  self.add = (child, index, subIndex) => {
     if (typeof subIndex !== 'undefined') {
-      addWithSubIndex(child, index, subIndex, path);
+      addWithSubIndex(child, index, subIndex);
     } else if (Array.isArray(child)) {
       addArray(child, index);
     } else {

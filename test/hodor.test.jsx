@@ -44,7 +44,7 @@ test('No listener default to showing value', t => {
 test('No listener default to showing value as json', t => {
   const { data, html } = setup('yes').mount();
   data.set('yes', { hello: 'world' });
-  t.deepEqual('<div>{"hello":"world"}</div>', html());
+  t.deepEqual('<div>{"hello":"world","path":"yes"}</div>', html());
 });
 
 test('Listener with JSX', t => {

@@ -202,19 +202,17 @@ test('Child listener', async t => {
   dd.set('players.1', { name: '1' });
   dd.set('players.2', { name: '2' });
   dd.set('players.3', { name: '3' });
-  console.log(await html());
-  t.pass();
-  // t.is(await html(), '<main><article>1</article><article>2</article><article>3</article></main>');
+  t.is(await html(), '<main><article>1</article><article>2</article><article>3</article></main>');
 });
 
 test('Simple when', async t => {
   function Test({ on }) {
-    return <div>{on('test', async t => t)}</div>
+    return <div>{on('test', t => t)}</div>
   }
 
   const div = ({ when }) => <div>
     {when('test', [
-      'yes', async t => `Yes is ${t}`,
+      'yes', t => `Yes is ${t}`,
       () => true, () => <div>Yes!</div>,
       () => true, () => <Test/>,
     ])}
@@ -227,8 +225,8 @@ test('Simple when', async t => {
 test('Many whens', async t => {
   const div = ({ when }) => <div>
     {when('test', [
-      'yes', async t => t,
-      'no', async t => t,
+      'yes', t => t,
+      'no', t => t,
       true, () => 'Yes!',
       () => true, () => 'true',
       t => t === 'yes', () => 't === yes',
@@ -247,7 +245,7 @@ test('Many whens', async t => {
 
 test('Quirk on + when', async t => {
   const div = ({ on, when }) => <div>
-    {on('test', async t => t)}
+    {on('test', t => t)}
 
     {when('test', [
       'yes', () => 'Yes',
@@ -267,9 +265,9 @@ test('Quirk on + when', async t => {
 
 test('Simple or', async t => {
   const div = ({ on }) => <div>
-    {on('test', async t => <div>{t}</div>).or(<div>Nope</div>)}
+    {on('test', t => <div>{t}</div>).or(<div>Nope</div>)}
   </div>;
-  dd.append(document.body, div);
+  const dd = domdom(document.body, div);
   t.is(await html(), '<div><div>Nope</div></div>');
   dd.set('test', 'ing');
   t.is(await html(), '<div><div>ing</div></div>');
@@ -313,6 +311,8 @@ test('Have some path with flags', async t => {
 });
 
 test('Listeners are cleared', async t => {
+  const { React, data, append } = domdom();
+
   let i = 0;
 
   function Child({}) {
@@ -329,15 +329,18 @@ test('Listeners are cleared', async t => {
     )}
   </div>;
   append(document.body, div);
+  await html();
   data.set('test', 'b');
-  t.is(1, i);
+  t.is(i, 1);
 
   data.unset('show');
+  await html();
   data.set('test', 'c');
-  t.is(1, i);
+  t.is(i, 1);
 });
 
 test('Listeners are not overcleared', async t => {
+  const { React, data, append } = domdom();
   let i = 0;
 
   function Child() {
@@ -354,19 +357,23 @@ test('Listeners are not overcleared', async t => {
     )}
   </div>;
   append(document.body, div);
+  await html();
   data.set('test', 'b');
   t.is(1, i);
 
   data.set('show', 'yesyes');
+  await html();
   data.set('test', 'c');
   t.is(2, i);
 
   data.set('show', 'yesyesyes');
+  await html();
   data.set('test', 'd');
   t.is(3, i);
 });
 
 test('Listeners are support change of parent', async t => {
+  const { React, data, append } = domdom();
   let i = 0;
 
   function Child() {
@@ -385,15 +392,18 @@ test('Listeners are support change of parent', async t => {
   append(document.body, div);
 
   data.set('show', 'yesyes');
+  await html();
   data.set('test', 'c');
   t.is(1, i);
 
   data.unset('show');
+  await html();
   data.set('test', 'd');
   t.is(1, i);
 });
 
 test('Listeners in when', async t => {
+  const { React, data, append } = domdom();
   let i = 0;
 
   function Child() {
@@ -410,15 +420,18 @@ test('Listeners in when', async t => {
     ])}
   </div>;
   append(document.body, div);
+  await html();
   data.set('test', 'b');
   t.is(1, i);
 
   data.set('show', false);
+  await html();
   data.set('test', 'c');
   t.is(1, i);
 });
 
 test('Listener in when 2', async t => {
+  const { React, data, append } = domdom();
   let i = 0;
 
   function Child() {
@@ -435,14 +448,17 @@ test('Listener in when 2', async t => {
     ])}
   </div>;
   append(document.body, div);
+  await html();
   data.set('test', 'b');
   t.is(1, i);
 
   data.set('show', false);
+  await html();
   data.set('test', 'c');
   t.is(1, i);
 
   data.set('show', true);
+  await html();
   data.set('test', 'd');
   t.is(2, i);
 });
@@ -471,7 +487,9 @@ test('Mounted on/off', async t => {
   const dd = domdom(document.body, div);
 
   dd.set('test', true);
+  await html();
   dd.unset('test');
+  await html();
   dd.set('test', true);
 });
 
@@ -485,7 +503,6 @@ test('When with initial false value', async t => {
   </div>;
   const dd = domdom(document.body, div);
   dd.set('test', false);
-  dd.append(document.body, div);
   t.is(await html(), '<div><div>Hello</div></div>');
 });
 
@@ -502,7 +519,6 @@ test('Do not remove listener on same level', async t => {
   const dd = domdom(document.body, div);
   dd.set('test', true);
   dd.set('hello', 'world');
-  dd.append(document.body, div);
   t.is(await html(), '<div><p>test</p>world</div>');
   dd.set('test', false);
   dd.unset('test');
@@ -541,34 +557,34 @@ test('Update array', async t => {
 
 test('Update array without element', async t => {
   const view = ({ on }) => <div>
-    {on('path', p => p)}
+    {on('x')}
   </div>;
   const dd = domdom(document.body, view);
 
-  dd.set('path', ['hello', 'world']);
-  t.is(await html(), '<div>{"0":"hello","1":"world"}</div>');
+  dd.set('x', ['hello', 'world']);
+  t.is(await html(), '<div>{"0":"hello","1":"world","path":"x"}</div>');
 
-  dd.set('path', ['hello']);
-  t.is(await html(), '<div>{"0":"hello"}</div>');
+  dd.set('x', ['hello']);
+  t.is(await html(), '<div>{"0":"hello","path":"x"}</div>');
 });
 
 test('Containment', async t => {
   const Button = ({ children }) => <button>{children}</button>;
 
-  dd.append(document.body, () => <Button>Test</Button>);
+  domdom(document.body, () => <Button>Test</Button>);
   t.is(await html(), '<button>Test</button>');
 
   document.body.innerHTML = '';
-  dd.append(document.body, () => <Button><span>Test</span></Button>);
+  domdom(document.body, () => <Button><span>Test</span></Button>);
   t.is(await html(), '<button><span>Test</span></button>');
 
   document.body.innerHTML = '';
-  dd.append(document.body, () => <Button><span>Test</span><i>in</i>g</Button>);
+  domdom(document.body, () => <Button><span>Test</span><i>in</i>g</Button>);
   t.is(await html(), '<button><span>Test</span><i>in</i>g</button>');
 });
 
 test('Rendering types', async t => {
-  dd.append(document.body, () => <div>
+  domdom(document.body, () => <div>
     {'a'}
     {1}
     {3.6}
@@ -583,9 +599,9 @@ test('Rendering types', async t => {
 
 test('Remove or on on', async t => {
   const view = ({ on }) => <div>
-    {on('test.$id', async t => t.name).or('Loading...')}
+    {on('test.$id', t => t.name).or('Loading...')}
   </div>;
-  dd.append(document.body, view);
+  const dd = domdom(document.body, view);
   t.is(await html(), '<div>Loading...</div>');
   dd.set('test', { 0: { name: 'hello' } });
   t.is(await html(), '<div>hello</div>');
@@ -775,7 +791,7 @@ test('Function context', async t => {
   const div = () => <div>
     <App/>
   </div>;
-  dd.append(document.body, div);
+  domdom(document.body, div);
   t.is(await html(), '<div><div>:)</div></div>');
 });
 
@@ -869,7 +885,7 @@ test('When + filterOn', async t => {
 
 test('Re-add', async t => {
   const view = ({ on }) => <div>
-    {on('yes', async t => <p>{t} {on('no')}</p>)}
+    {on('yes', t => <p>{t} {on('no')}</p>)}
   </div>;
   const dd = domdom(document.body, view);
   dd.set('yes', 'Yes!');
@@ -929,7 +945,6 @@ test('filterOn mounted destroy mounted', async t => {
   dd.set('users.1', { name: 'one', test: 'yes' });
   dd.set('users.2', { name: 'two' });
 
-  dd.append(document.body, view);
   t.is(await html(), '<div><div>one</div></div>');
 
   dd.set('yes', false);

@@ -7,7 +7,7 @@ export default (data, path, listener) => {
     throw new Error('Listener must be a function');
   }
 
-  let stower, _or, index, pathifier, reListen, listening;
+  let stower, _or, index, pathifier, listening;
   let _filter, _filterOn, _sort, _sortOn, _map;
 
   const listeners = [];
@@ -20,6 +20,7 @@ export default (data, path, listener) => {
   let isMounted = false;
   const hodor = {
     path,
+    element: null,
     isHodor: true,
     or(or) {
       _or = or;
@@ -56,13 +57,13 @@ export default (data, path, listener) => {
       }
       return hodor;
     },
-    mounted(parentPath) {
+    mounted() {
       if (isMounted) {
         return;
       }
       isMounted = true;
       if (typeof hodor.listen === 'function') {
-        hodor.listen(path, parentPath);
+        hodor.listen(path);
       }
     },
     destroy() {
@@ -78,17 +79,26 @@ export default (data, path, listener) => {
       listening = false;
     },
     paths: [],
-    listen: (path, parentPath) => {
+    listen: (path) => {
       if (listening) {
         return;
       }
-      // hodor.off();
       listening = true;
       if (!stower) {
-        reListen = { parentPath };
         return;
       }
-      path = path.replace(/^>/, parentPath);
+
+      if (hodor.element) {
+        let parentNode = hodor.element;
+        while (parentNode && parentNode.parentNode) {
+          if (parentNode.path) {
+            path = path.replace(/^>/, parentNode.path);
+            break;
+          }
+          parentNode = parentNode.parentNode;
+        }
+      }
+
       if (!_map) {
         on(`!+* ${path}`, (val, { path }) => {
           const subIndex = hodor.paths.indexOf(path);
@@ -96,7 +106,11 @@ export default (data, path, listener) => {
             hodor.paths.splice(subIndex, 1);
             stower.remove(index, subIndex);
           }
-          stower.add(listener(val), index, hodor.paths.length, path);
+          const res = listener(val);
+          if (typeof res === 'object') {
+            res.path = path;
+          }
+          stower.add(res, index, hodor.paths.length);
           hodor.paths.push(path);
         });
         on(`- ${path}`, (_, { path }) => {
@@ -114,8 +128,10 @@ export default (data, path, listener) => {
       if (_sortOn) pathifier.sortOn(_sortOn.path, _sortOn.sort);
       pathifier.toArray({
         add(subIndex, p, value) {
-          const parentPath = [pathifier.from, p].join('.');
-          stower.add(value, index, subIndex, parentPath);
+          if (typeof value === 'object') {
+            value.path = [pathifier.from, p].join('.');
+          }
+          stower.add(value, index, subIndex);
         },
         remove(subIndex) {
           stower.remove(index, subIndex);

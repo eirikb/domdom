@@ -21,6 +21,7 @@ export default (parent, view) => {
       const stower = Stower(element);
 
       const addHodor = (index, hodor) => {
+        hodor.element = element;
         hodors.push(hodor);
         hodor.stower(index, stower);
       };
@@ -52,20 +53,21 @@ export default (parent, view) => {
         }
       }
 
-      if (props) {
-        const eventProps = Object.entries(props).filter(([key]) => key.match(/^on[A-Z]/));
-        for (let [key, value] of eventProps) {
+      for (let [key, value] of Object.entries(props || {})) {
+        if (value.isHodor) {
+          value.element = element;
+        }
+
+        const isEventProp = key.match(/^on[A-Z]/);
+        if (isEventProp) {
           const event = key[2].toLowerCase() + key.slice(3);
           element.addEventListener(event, (...args) => {
-            if (element.context) {
-              element.context.parentPathHack = element.parentPath;
-            }
             return value(...args);
           });
         }
 
-        const nonSpecialProps = Object.entries(props).filter(([key]) => !key.match(/(^dd-|on[A-Z])/));
-        for (let [key, value] of nonSpecialProps) {
+        const nonSpecialProp = !key.match(/(^dd-|on[A-Z])/);
+        if (nonSpecialProp) {
           if (key === 'class') {
             key = 'className';
           }
@@ -87,20 +89,16 @@ export default (parent, view) => {
         hodors.push(Hodor(data, path, listener));
       }
 
-      element.mounted = (parentContext, parentPath) => {
+      element.mounted = () => {
         if (element.isMounted) return;
-        element.parentPath = parentPath || element.parentPath;
         element.isMounted = true;
-        const context = element.context || parentContext;
-        if (context) {
-          hodors.push(...ddProps(data, element, props));
-          context.mounted(parentPath);
-          element.context = context;
+        hodors.push(...ddProps(data, element, props));
+        if (element.context) {
+          element.context.mounted();
         }
         for (let hodor of hodors) {
-          hodor.mounted(parentPath);
+          hodor.mounted();
         }
-        element.childNodes.forEach(child => child.mounted && child.mounted(context, parentPath));
       };
 
       return element;
@@ -109,8 +107,7 @@ export default (parent, view) => {
 
   function mount(element) {
     if (element.mounted && !element.isMounted) {
-      // element.mounted(element.context, path);
-      element.mounted(element.context);
+      element.mounted();
       element.isMounted = true;
     }
   }
