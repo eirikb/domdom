@@ -35,7 +35,7 @@ export default (data, element, props) => {
       }).observe(element, { childList: true });
     }
     for (let [key, value] of Object.entries(props)) {
-      if (value && value.isHodor) {
+      if (value && value["isHodor"]) {
         function setVal(value) {
           if (typeof element[key] === 'object') {
             Object.assign(element[key], value);

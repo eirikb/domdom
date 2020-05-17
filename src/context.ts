@@ -1,6 +1,7 @@
+import { Data } from '@eirikb/data';
 import Hodor from './hodor';
 
-export default function Context(data, tagName, props, ...children) {
+export default function Context(data: Data, tagName: Function, props, ...children) {
   children = children.flatMap(child => child);
   const mounteds = [];
   const headlessHodors = [];

@@ -2,8 +2,16 @@ export function isProbablyPlainObject(obj) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
 }
 
-export default function Stower(element) {
-  const self = {};
+interface Stower {
+  add(child: HTMLElement, index: number, subIndex?: number);
+
+  remove(index: number, subIndex: number);
+
+  or(or: Function, index: number);
+}
+
+export default function (element): Stower {
+  const self = {} as Stower;
   const slots = [];
   const first = [];
   const ors = [];
@@ -34,7 +42,7 @@ export default function Stower(element) {
     }
   }
 
-  function remove(index, child) {
+  function remove(index: number, child?: HTMLElement) {
     if (child) {
       element.removeChild(child);
     }
