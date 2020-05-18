@@ -1,3 +1,11 @@
+function setVal(element, key, value) {
+  if (typeof element[key] === 'object') {
+    Object.assign(element[key], value);
+  } else {
+    element[key] = value;
+  }
+}
+
 export default (data, element, props) => {
 
   const hodors = [];
@@ -34,27 +42,21 @@ export default (data, element, props) => {
         }
       }).observe(element, { childList: true });
     }
+
     for (let [key, value] of Object.entries(props)) {
       if (value && value["isHodor"]) {
-        function setVal(value) {
-          if (typeof element[key] === 'object') {
-            Object.assign(element[key], value);
-          } else {
-            element[key] = value;
-          }
-        }
 
         let _or;
-        value.stower(0, {
-          add: (s) => setVal(s),
+        value['stower'](0, {
+          add: (s) => setVal(element, key, s),
           remove: () => {
             if (_or) {
-              setVal(_or);
+              setVal(element, key, _or);
             }
           },
           or(or) {
             _or = or;
-            setVal(or);
+            setVal(element, key, or);
           }
         });
         hodors.push(value);

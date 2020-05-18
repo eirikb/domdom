@@ -9,52 +9,52 @@ import browserEnv from 'browser-env';
 browserEnv();
 const { React } = domdom();
 
-function setup(path, listener) {
+function setup(path, listener?) {
   const data = Data();
   const element = document.createElement('div');
   const stower = Stower(element);
   const hodor = Hodor(data, path, listener);
   hodor.stower(0, stower);
   const html = () => element.outerHTML;
-  hodor.mount = () => {
-    hodor.mounted();
+  hodor['mount'] = () => {
+    hodor['mounted']();
     return { data, element, stower, html };
   };
   return hodor;
 }
 
 test('Hold door', t => {
-  const { data, html } = setup('yes', v => v).mount();
+  const { data, html } = setup('yes', v => v)['mount']();
   data.set('yes', 'sir');
   t.deepEqual('<div>sir</div>', html());
 });
 
 test('Hold door2', t => {
-  const { data, html } = setup('yes', v => v).mount();
+  const { data, html } = setup('yes', v => v)['mount']();
   data.set('yes', 'no');
   t.deepEqual('<div>no</div>', html());
 });
 
 test('No listener default to showing value', t => {
-  const { data, html } = setup('yes').mount();
+  const { data, html } = setup('yes')['mount']();
   data.set('yes', 'yes');
   t.deepEqual('<div>yes</div>', html());
 });
 
 test('No listener default to showing value as json', t => {
-  const { data, html } = setup('yes').mount();
+  const { data, html } = setup('yes')['mount']();
   data.set('yes', { hello: 'world' });
   t.deepEqual('<div>{"hello":"world","path":"yes"}</div>', html());
 });
 
 test('Listener with JSX', t => {
-  const { data, html } = setup('yes', yes => <h1>{yes}</h1>).mount();
+  const { data, html } = setup('yes', yes => <h1>{yes}</h1>)['mount']();
   data.set('yes', { hello: 'world' });
   t.deepEqual('<div><h1>{"hello":"world"}</h1></div>', html());
 });
 
 test('With named card', t => {
-  const { data, html } = setup('users.$id').mount();
+  const { data, html } = setup('users.$id')['mount']();
   data.set('users', {
     a: 'mr a',
     b: 'mr b'
@@ -63,7 +63,7 @@ test('With named card', t => {
 });
 
 test('With named card add remove', t => {
-  const { data, html } = setup('users.$id', u => <p>{u}</p>).mount();
+  const { data, html } = setup('users.$id', u => <p>{u}</p>)['mount']();
   data.set('users', {
     a: 'mr a',
     b: 'mr b',
@@ -81,7 +81,7 @@ test('With named card add remove', t => {
 });
 
 test('Map', t => {
-  const { data, html } = setup('users').map(u => u).mount();
+  const { data, html } = setup('users').map(u => u)['mount']();
   data.set('users', {
     a: 'mr a',
     b: 'mr b'
@@ -90,7 +90,7 @@ test('Map', t => {
 });
 
 test('Map jsx', t => {
-  const { data, html } = setup('users').map(u => <p>{u}</p>).mount();
+  const { data, html } = setup('users').map(u => <p>{u}</p>)['mount']();
   data.set('users', {
     a: 'mr a',
     b: 'mr b'
@@ -99,7 +99,7 @@ test('Map jsx', t => {
 });
 
 test('Map add', t => {
-  const { data, html } = setup('users.*').map(u => u).mount();
+  const { data, html } = setup('users.*').map(u => u)['mount']();
   data.set('users', {
     a: 'mr a',
     b: 'mr b'
@@ -110,7 +110,7 @@ test('Map add', t => {
 });
 
 test('Map add default sort', t => {
-  const { data, html } = setup('users.*').map(u => u).mount();
+  const { data, html } = setup('users.*').map(u => u)['mount']();
   data.set('users', {
     a: 'mr a',
     c: 'mr c'
@@ -121,7 +121,7 @@ test('Map add default sort', t => {
 });
 
 test('Map filter', t => {
-  const { data, html } = setup('users').map(u => u).filter(u => u !== 'mr b').mount();
+  const { data, html } = setup('users').map(u => u).filter(u => u !== 'mr b')['mount']();
   data.set('users', {
     a: 'mr a',
     b: 'mr b',
@@ -135,7 +135,7 @@ test('Update filterOn on update after data is set', t => {
     .map(user => user)
     .filterOn('test', (filter, user) =>
       new RegExp(filter, 'i').test(user)
-    ).mount();
+    )['mount']();
   data.set('test', '');
   data.set('users', { a: 'a', b: 'b' });
   t.is('<div>ab</div>', html());
@@ -146,8 +146,8 @@ test('Update filterOn on update after data is set', t => {
 test('on sortOn - custom order', t => {
   const { data, html } = setup('players.*')
     .map(player => <p>{player.name}</p>)
-    .sortOn('test', (val, a, b) => b.name.localeCompare(a.name))
-    .mount();
+    .sortOn('test', (_, a, b) => b.name.localeCompare(a.name))
+    ['mount']();
   data.set('test', 'yes');
   data.set('players.1', { name: '1' });
   data.set('players.2', { name: '2' });
@@ -164,7 +164,7 @@ test('filterOn and back', t => {
     .map(user => <a>{user.name}</a>)
     .filterOn('test', (filter, user) =>
       new RegExp(filter, 'i').test(user.name)
-    ).mount();
+    )['mount']();
 
   data.set('test', '');
   data.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
@@ -181,8 +181,8 @@ test('filterOn and back', t => {
 test('on sortOn - custom order update', t => {
   const { data, html } = setup('players.*')
     .map(player => <p>{player.name}</p>)
-    .sortOn('test', (val, a, b) => b.name.localeCompare(a.name))
-    .mount();
+    .sortOn('test', (_, a, b) => b.name.localeCompare(a.name))
+    ['mount']();
 
   data.set('players.1', { name: '1' });
   data.set('players.2', { name: '2' });
@@ -201,7 +201,7 @@ test('onFilter and onSort', t => {
   const { data, html } = setup('players.*')
     .map(player => <p>{player.name}</p>)
     .sortOn('filter.by', (val, a, b) => a[val].localeCompare(b[val]))
-    .mount();
+    ['mount']();
   data.set('filter.by', 'name');
   data.set('players.1', { name: '1', age: '3' });
   data.set('players.2', { name: '2', age: '2' });
@@ -215,7 +215,7 @@ test('onFilter and onSort', t => {
 test('Pathifier sub-array', t => {
   const { data, html } = setup('players')
     .map(player => player.name)
-    .mount();
+    ['mount']();
   data.set('players', [
     { name: 'a' },
     { name: 'b' }

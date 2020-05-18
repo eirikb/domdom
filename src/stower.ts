@@ -2,12 +2,12 @@ export function isProbablyPlainObject(obj) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
 }
 
-interface Stower {
-  add(child: HTMLElement, index: number, subIndex?: number);
+export interface Stower {
+  add(child: any, index?: number, subIndex?: number);
 
-  remove(index: number, subIndex: number);
+  remove(index: number, subIndex?: number);
 
-  or(or: Function, index: number);
+  or(or: any, index: number);
 }
 
 export default function (element): Stower {

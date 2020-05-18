@@ -1,12 +1,25 @@
-import test from 'ava';
+import anyTest, { TestInterface } from 'ava';
 import browserEnv from 'browser-env';
-import Stower from '../src/stower';
+import createStower, { Stower } from '../src/stower';
+
+interface StowerContext {
+  element: HTMLElement;
+  stower: Stower;
+  a: HTMLElement;
+  b: HTMLElement;
+  c: HTMLElement;
+  d: HTMLElement;
+  span: HTMLElement;
+  div: HTMLElement;
+}
+
+const test = anyTest as TestInterface<StowerContext>
 
 browserEnv();
 
 test.beforeEach(t => {
   t.context.element = document.createElement('div');
-  t.context.stower = new Stower(t.context.element);
+  t.context.stower = createStower(t.context.element);
   t.context.a = document.createElement('a');
   t.context.b = document.createElement('b');
   t.context.c = document.createElement('c');
@@ -285,37 +298,6 @@ test('subIndex with array and before', t => {
   stower.add(c, 0);
 });
 
-test.skip('Reorder subindex', t => {
-  const { element, stower, a, b, c } = t.context;
-  stower.add(a, 0, 0);
-  stower.add(b, 0, 1);
-  stower.add(c, 0, 2);
-  t.deepEqual(element.innerHTML, '<a></a><b></b><c></c>');
-  stower.update(0, { children: [], order: [2, 1, 0], remove: [] });
-  t.deepEqual(element.innerHTML, '<c></c><b></b><a></a>');
-});
-
-test.skip('Remove subIndexes', t => {
-  const { element, stower, a, b, c, d } = t.context;
-  stower.add(a, 0, 0);
-  stower.add(b, 0, 1);
-  stower.add(c, 0, 2);
-  stower.add(d, 0, 3);
-  t.deepEqual(element.innerHTML, '<a></a><b></b><c></c><d></d>');
-  stower.update(0, { children: [], order: [2, 3], remove: [1, 0] });
-  t.deepEqual(element.innerHTML, '<c></c><d></d>');
-});
-
-test.skip('Reorder non-elements', t => {
-  const { element, stower, } = t.context;
-  stower.update(0, {
-    children: ['yes'],
-    order: [0],
-    remove: []
-  });
-  t.deepEqual(element.innerHTML, 'yes');
-});
-
 test('or', t => {
   const { element, stower, div, a } = t.context;
   stower.or(a, 0);
@@ -346,45 +328,6 @@ test('or as function', t => {
   t.deepEqual(element.innerHTML, '<div></div>');
   stower.remove(0);
   t.deepEqual(element.innerHTML, '2');
-});
-
-test.skip('or + Remove subIndexes', t => {
-  const { element, stower, a, b, c, d } = t.context;
-  stower.or('yes', 0);
-  t.deepEqual(element.innerHTML, 'yes');
-  stower.add(a, 0, 0);
-  stower.add(b, 0, 1);
-  stower.add(c, 0, 2);
-  stower.add(d, 0, 3);
-  t.deepEqual(element.innerHTML, '<a></a><b></b><c></c><d></d>');
-  stower.update(0, {
-    children: [],
-    order: [],
-    remove: [3, 2, 1, 0]
-  });
-  t.deepEqual(element.innerHTML, 'yes');
-  stower.update(0, {
-    children: [c, d],
-    order: [1, 0],
-    remove: []
-  });
-  t.deepEqual(element.innerHTML, '<c></c><d></d>');
-});
-
-test.skip('Update filterOn on update after data is set', t => {
-  const { element, stower } = t.context;
-  stower.update(0, {
-    children: ['a', 'b'],
-    order: [1, 0],
-    remove: []
-  });
-  t.deepEqual(element.innerHTML, 'ab');
-  stower.update(0, {
-    children: ['a', 'b'],
-    order: [0, 1],
-    remove: []
-  });
-  t.deepEqual(element.innerHTML, 'ab');
 });
 
 test('replace array with subindex', t => {

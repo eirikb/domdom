@@ -1,5 +1,5 @@
 import createData, { Data } from '@eirikb/data';
-import Context from './context';
+import Context, { ContextOptions } from './context';
 import ddProps from './dd-props';
 import Stower from './stower';
 import Hodor from "./hodor";
@@ -8,16 +8,28 @@ export function isProbablyPlainObject(obj) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
 }
 
-export default (parent?: any, view?: any): Data => {
+export interface Domdom {
+  React: Element;
+  data: Data;
+  append: Function
+}
+
+function domdom(): Domdom;
+
+function domdom(parent: HTMLElement, view: Function): Data;
+
+function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
   const data = createData();
   const React = {
-    createElement(tagName: string | Function, props?, ...children) {
+
+
+    createElement(tagName: (contextOptions: ContextOptions) => HTMLElement, props?, ...children) {
       if (typeof tagName === 'function') {
         return Context(data, tagName, props, children);
       }
 
       const hodors = [];
-      const element = document.createElement(tagName);
+      const element = document.createElement(tagName) as HTMLElement;
       const stower = Stower(element);
 
       const addHodor = (index, hodor) => {
@@ -83,8 +95,8 @@ export default (parent?: any, view?: any): Data => {
       element["destroy"] = () => {
         element["isMounted"] = false;
         element.childNodes.forEach(child => {
-          const destroy = child["destroy"] as Function;
-          if (destroy !== null) {
+          if (typeof child['destroy'] === 'function') {
+            const destroy = child["destroy"] as Function;
             destroy();
           }
         });
@@ -131,7 +143,7 @@ export default (parent?: any, view?: any): Data => {
         mutation.addedNodes.forEach(node => {
           mount(node);
           const element = node as HTMLElement;
-          if (element !== null) {
+          if (element !== null && element.getElementsByTagName) {
             const children: Element[] = Array.from(element.getElementsByTagName('*'));
             for (let child of children) {
               mount(child);
@@ -141,7 +153,7 @@ export default (parent?: any, view?: any): Data => {
         mutation.removedNodes.forEach(node => {
           unmount(node);
           const element = node as HTMLElement;
-          if (element !== null) {
+          if (element !== null && element.getElementsByTagName) {
             const children: Element[] = Array.from(element.getElementsByTagName('*'));
             for (let child of children) {
               unmount(child);
@@ -160,7 +172,7 @@ export default (parent?: any, view?: any): Data => {
 
   if (typeof parent === 'undefined') {
     // @ts-ignore
-    return { React, data, append };
+    return { React, data, append } as DD;
   }
 
   // @ts-ignore
@@ -173,3 +185,5 @@ export default (parent?: any, view?: any): Data => {
   append(parent, view);
   return data;
 }
+
+export default domdom;
