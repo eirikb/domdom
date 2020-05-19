@@ -38,6 +38,8 @@ export default function Context(
     return hodor;
   }
 
+  const self = {};
+
   const options: ContextOptions = {
     on: (path, listener) => on(path, listener),
     when: (path, options) => {
@@ -83,14 +85,14 @@ export default function Context(
     options[key] = value;
   }
 
-  this.on = options.on;
-  this.mounted = () => {
+  self["on"] = options.on;
+  self["mounted"] = () => {
     for (let mounted of mounteds) {
       mounted();
     }
   };
   const res = tagName(options);
-  res['context'] = this;
+  res['context'] = self;
   const destroy = res['destroy'];
   res['destroy'] = () => {
     destroy();

@@ -30,7 +30,7 @@ test('Component', async t => {
     return <div>{on('test')}</div>;
   };
 
-  append(document.body, () => <Test />);
+  append(document.body, () => <Test/>);
   dd.set('test', 'Hello, world!');
   t.is(await html(), '<div>Hello, world!</div>');
 });
@@ -287,7 +287,7 @@ test('Simple when', async t => {
         () => true,
         () => <div>Yes!</div>,
         () => true,
-        () => <Test />,
+        () => <Test/>,
       ])}
     </div>
   );
@@ -393,7 +393,7 @@ test('Multiple child paths', async t => {
 
 test('Have some path with flags', async t => {
   const div = () => {
-    const e = <div />;
+    const e = <div/>;
     e.on('!+* wat', wat => (e.innerHTML = wat));
     return e;
   };
@@ -408,7 +408,7 @@ test('Listeners are cleared', async t => {
   let i = 0;
 
   function Child({}) {
-    const e = <div />;
+    const e = <div/>;
     e.on('* test', () => i++);
     return e;
   }
@@ -418,7 +418,7 @@ test('Listeners are cleared', async t => {
   const div = ({ on }) => (
     <div>
       {on('show', () => (
-        <Child />
+        <Child/>
       ))}
     </div>
   );
@@ -438,7 +438,7 @@ test('Listeners are not overcleared', async t => {
   let i = 0;
 
   function Child() {
-    const e = <div />;
+    const e = <div/>;
     e.on('* test', () => i++);
     return e;
   }
@@ -448,7 +448,7 @@ test('Listeners are not overcleared', async t => {
   const div = ({ on }) => (
     <div>
       {on('show', () => (
-        <Child />
+        <Child/>
       ))}
     </div>
   );
@@ -473,7 +473,7 @@ test('Listeners are support change of parent', async t => {
   let i = 0;
 
   function Child() {
-    const e = <p />;
+    const e = <p/>;
     e.on('* test', () => i++);
     return e;
   }
@@ -483,7 +483,7 @@ test('Listeners are support change of parent', async t => {
   const div = ({ on }) => (
     <div>
       {on('show', () => (
-        <Child />
+        <Child/>
       ))}
     </div>
   );
@@ -505,14 +505,14 @@ test('Listeners in when', async t => {
   let i = 0;
 
   function Child() {
-    const e = <div />;
+    const e = <div/>;
     e.on('* test', () => i++);
     return e;
   }
 
   data.set('test', 'a');
   data.set('show', true);
-  const div = ({ when }) => <div>{when('show', [true, () => <Child />])}</div>;
+  const div = ({ when }) => <div>{when('show', [true, () => <Child/>])}</div>;
   append(document.body, div);
   await html();
   data.set('test', 'b');
@@ -529,14 +529,14 @@ test('Listener in when 2', async t => {
   let i = 0;
 
   function Child() {
-    const e = <div />;
+    const e = <div/>;
     e.on('* test', () => i++);
     return e;
   }
 
   data.set('test', 'a');
   data.set('show', true);
-  const div = ({ when }) => <div>{when('show', [true, () => <Child />])}</div>;
+  const div = ({ when }) => <div>{when('show', [true, () => <Child/>])}</div>;
   append(document.body, div);
   await html();
   data.set('test', 'b');
@@ -554,17 +554,19 @@ test('Listener in when 2', async t => {
 });
 
 // TODO: Why 2?
-test.skip('Mounted', async t => {
+test('Mounted', async t => {
   t.plan(1);
 
   const Hello: DomFun = ({ mounted }) => {
     mounted(() => t.pass());
-    return <div />;
+    return <div/>;
   };
 
   const div = () => (
     <div>
-      <Hello />
+      <div>
+        <Hello/>
+      </div>
     </div>
   );
   domdom(document.body, div);
@@ -575,13 +577,13 @@ test('Mounted on/off', async t => {
 
   const Hello: DomFun = ({ mounted }) => {
     mounted(() => t.pass());
-    return <div />;
+    return <div/>;
   };
 
   const div = ({ on }) => (
     <div>
       {on('test', () => (
-        <Hello />
+        <Hello/>
       ))}
     </div>
   );
@@ -618,7 +620,7 @@ test('Do not remove listener on same level', async t => {
   const div = ({ on }) => (
     <div>
       {on('test', () => (
-        <Test />
+        <Test/>
       ))}
       {on('hello')}
     </div>
@@ -733,7 +735,7 @@ test('Remove or on on', async t => {
 test('on attributes', async t => {
   const view = ({ on }) => (
     <div>
-      <button disabled={on('disable', res => res)} />
+      <button disabled={on('disable', res => res)}/>
     </div>
   );
   append(document.body, view);
@@ -746,8 +748,8 @@ test('on attributes', async t => {
 test('on on attributes', async t => {
   const view = ({ on }) => (
     <div>
-      <button disabled={on('canClick', res => !res).or(true)} />
-      <button disabled={on('canNotClick').or(true)} />
+      <button disabled={on('canClick', res => !res).or(true)}/>
+      <button disabled={on('canNotClick').or(true)}/>
     </div>
   );
   append(document.body, view);
@@ -772,7 +774,7 @@ test('on on attributes', async t => {
 test('on on attributes or', async t => {
   const view = ({ on }) => (
     <div>
-      <button disabled={on('canNotClick').or(true)} />
+      <button disabled={on('canNotClick').or(true)}/>
     </div>
   );
   append(document.body, view);
@@ -944,7 +946,7 @@ test('Function context', async t => {
 
   const div = () => (
     <div>
-      <App />
+      <App/>
     </div>
   );
   domdom(document.body, div);
@@ -957,7 +959,7 @@ test('Function context when when', async t => {
   }
 
   const div = ({ when }) => (
-    <div>{when('test', [true, () => <App />, true, () => <App />])}</div>
+    <div>{when('test', [true, () => <App/>, true, () => <App/>])}</div>
   );
   append(document.body, div);
   dd.set('test', true);
@@ -1195,7 +1197,7 @@ test('On child attribute listener', async t => {
     <div>
       {on('yes', ok => (
         <div>
-          {ok.text} <Yes />
+          {ok.text} <Yes/>
         </div>
       ))}
     </div>
@@ -1231,7 +1233,7 @@ test('Same listener twice no problem on when', async t => {
     return <div>{when('test', ['yes', () => 'OK!'])}</div>;
   };
 
-  const view = ({ when }) => <div>{when('test', ['yes', () => <Yes />])}</div>;
+  const view = ({ when }) => <div>{when('test', ['yes', () => <Yes/>])}</div>;
   append(document.body, view);
   dd.set('test', 'yes');
   t.is(await html(), '<div><div>OK!</div></div>');
@@ -1260,7 +1262,7 @@ test('Function in on', async t => {
   const view = ({ on }) => (
     <div>
       {on('yes', () => (
-        <Yes />
+        <Yes/>
       ))}
     </div>
   );
@@ -1287,7 +1289,7 @@ test('When and on no duplicated', async t => {
   };
 
   const view = ({ when }) => (
-    <div>{when('route', ['ready', () => <Yes />])}</div>
+    <div>{when('route', ['ready', () => <Yes/>])}</div>
   );
   append(document.body, view);
   dd.set('route', 'login1');
@@ -1430,7 +1432,7 @@ test('Flags in components are work and cleared', async t => {
     <div>
       {on('test', test => (
         <div>
-          Test is {test}. <Hello />
+          Test is {test}. <Hello/>
         </div>
       ))}
     </div>
@@ -1490,7 +1492,7 @@ test('Re-usable domdom', async t => {
   data.set('test', 'World!');
   append(document.body, () => (
     <main>
-      <Hello />
+      <Hello/>
     </main>
   ));
   t.is(await html(), '<main><div>Hello World!</div></main>');
@@ -1498,7 +1500,7 @@ test('Re-usable domdom', async t => {
 
 test('Element with hodor but not added via domdom', async t => {
   append(document.body, ({ on }) => {
-    const a = <main />;
+    const a = <main/>;
     const c = <span>{on('test')}</span>;
     setTimeout(() => {
       const b = document.createElement('div');
