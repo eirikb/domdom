@@ -2,6 +2,11 @@
   "name": "@eirikb/domdom",
   "version": "4.8.0",
   "description": "The proactive web framework for the unprofessional",
+  "scripts": {
+    "build": "tsdx build",
+    "lint": "tsdx lint",
+    "test": "ava"
+  },
   "author": {
     "email": "eirikb@eirikb.no",
     "name": "Eirik Brandtzæg"
@@ -26,11 +31,6 @@
   ],
   "engines": {
     "node": ">=10"
-  },
-  "scripts": {
-    "build": "tsdx build",
-    "lint": "tsdx lint",
-    "test": "ava"
   },
   "prettier": {
     "printWidth": 80,
