@@ -85,8 +85,8 @@ export default function Context(
     options[key] = value;
   }
 
-  self["on"] = options.on;
-  self["mounted"] = () => {
+  self['on'] = options.on;
+  self['mounted'] = () => {
     for (let mounted of mounteds) {
       mounted();
     }
