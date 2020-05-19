@@ -1,5 +1,6 @@
 [![npm](https://img.shields.io/npm/v/@eirikb/domdom.svg)](https://npmjs.org/package/@eirikb/domdom)
 [![Build](https://github.com/eirikb/domdom/workflows/Build/badge.svg)](https://github.com/eirikb/domdom/actions?query=workflow%3ABuild)
+[![bundlephobia](https://badgen.net/bundlephobia/minzip/@eirikb/domdom)](https://bundlephobia.com/result?p=@eirikb/domdom)
 
 The proactive web framework for the unprofessional
 
