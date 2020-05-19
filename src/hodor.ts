@@ -79,7 +79,7 @@ export default (data, path, listener) => {
       listening = false;
     },
     paths: [],
-    listen: (path) => {
+    listen: path => {
       if (listening) {
         return;
       }
@@ -135,9 +135,9 @@ export default (data, path, listener) => {
         },
         remove(subIndex) {
           stower.remove(index, subIndex);
-        }
+        },
       });
-    }
+    },
   };
 
   const hasFlags = path.match(/ /);

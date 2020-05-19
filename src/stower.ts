@@ -2,8 +2,16 @@ export function isProbablyPlainObject(obj) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
 }
 
-export default function Stower(element) {
-  const self = {};
+export interface Stower {
+  add(child: any, index?: number, subIndex?: number);
+
+  remove(index: number, subIndex?: number);
+
+  or(or: any, index: number);
+}
+
+export default function(element): Stower {
+  const self = {} as Stower;
   const slots = [];
   const first = [];
   const ors = [];
@@ -12,9 +20,11 @@ export default function Stower(element) {
   function escapeChild(child) {
     if (child === null || typeof child === 'undefined') {
       return document.createTextNode('');
-    } else if (typeof child === 'string'
-      || typeof child === 'number'
-      || typeof child === 'boolean') {
+    } else if (
+      typeof child === 'string' ||
+      typeof child === 'number' ||
+      typeof child === 'boolean'
+    ) {
       return document.createTextNode(`${child}`);
     } else if (isProbablyPlainObject(child)) {
       return document.createTextNode(JSON.stringify(child));
@@ -34,12 +44,15 @@ export default function Stower(element) {
     }
   }
 
-  function remove(index, child) {
+  function remove(index: number, child?: HTMLElement) {
     if (child) {
       element.removeChild(child);
     }
 
-    if (typeof ors[index] !== 'undefined' && (!slots[index] || slots[index].length === 0)) {
+    if (
+      typeof ors[index] !== 'undefined' &&
+      (!slots[index] || slots[index].length === 0)
+    ) {
       let or = ors[index];
       if (typeof or === 'function') or = or();
       or = escapeChild(or);
@@ -157,4 +170,4 @@ export default function Stower(element) {
   };
 
   return self;
-};
+}

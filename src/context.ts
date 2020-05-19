@@ -1,6 +1,30 @@
+import { Data } from '@eirikb/data';
 import Hodor from './hodor';
 
-export default function Context(data, tagName, props, ...children) {
+export interface ContextOptions {
+  on?(path: string, listener?: Function);
+
+  when?(path: string, options: any);
+
+  unset?(path: string);
+
+  set?(path: string, value: any);
+
+  get?(path: string);
+
+  trigger?(path: string, value: any);
+
+  children?: Array<any>;
+
+  mounted?(cb: Function);
+}
+
+export default function Context(
+  data: Data,
+  tagName: (contextOptions: ContextOptions) => HTMLElement,
+  props,
+  ...children
+) {
   children = children.flatMap(child => child);
   const mounteds = [];
   const headlessHodors = [];
@@ -14,7 +38,9 @@ export default function Context(data, tagName, props, ...children) {
     return hodor;
   }
 
-  const options = {
+  const self = {};
+
+  const options: ContextOptions = {
     on: (path, listener) => on(path, listener),
     when: (path, options) => {
       if (!Array.isArray(options)) {
@@ -51,24 +77,24 @@ export default function Context(data, tagName, props, ...children) {
     trigger: data.trigger,
     children,
     mounted(cb) {
-      mounteds.push(cb)
-    }
-  };
+      mounteds.push(cb);
+    },
+  } as ContextOptions;
 
   for (let [key, value] of Object.entries(props || {})) {
     options[key] = value;
   }
 
-  this.on = options.on;
-  this.mounted = () => {
+  self["on"] = options.on;
+  self["mounted"] = () => {
     for (let mounted of mounteds) {
       mounted();
     }
   };
   const res = tagName(options);
-  res.context = this;
-  const destroy = res.destroy;
-  res.destroy = () => {
+  res['context'] = self;
+  const destroy = res['destroy'];
+  res['destroy'] = () => {
     destroy();
     for (let hodor of headlessHodors) {
       hodor.destroy();

@@ -1,42 +1,53 @@
 {
   "name": "@eirikb/domdom",
-  "version": "4.8.0",
+  "version": "4.9.0",
   "description": "The proactive web framework for the unprofessional",
+  "scripts": {
+    "build": "tsdx build",
+    "lint": "tsdx lint",
+    "test": "ava"
+  },
   "author": {
     "email": "eirikb@eirikb.no",
     "name": "Eirik Brandtzæg"
   },
-  "scripts": {
-    "test": "ava"
-  },
   "license": "MIT",
-  "main": "src/index.js",
-  "source": true,
   "repository": {
     "url": "https://github.com/eirikb/domdom"
   },
+  "ava": {
+    "extensions": [
+      "tsx"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
+  },
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "prettier": {
+    "printWidth": 80,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
+  "module": "dist/domdom.esm.js",
   "dependencies": {
-    "@ava/babel": "^1.0.1",
-    "@babel/polyfill": "^7.8.7",
-    "@eirikb/data": "^2.1.0"
+    "@eirikb/data": "file:../data"
   },
   "devDependencies": {
-    "@babel/core": "^7.9.6",
-    "@babel/preset-env": "^7.9.6",
-    "@babel/preset-react": "^7.9.4",
-    "@babel/register": "^7.9.0",
-    "ava": "^3.8.2",
+    "ava": "3.8.2",
+    "ts-node": "^8.10.1",
+    "tsdx": "^0.13.2",
+    "tslib": "^2.0.0",
+    "typescript": "^3.9.2",
     "browser-env": "3.3.0"
-  },
-  "ava": {
-    "require": [
-      "@babel/register",
-      "@babel/polyfill"
-    ],
-    "babel": {
-      "extensions": [
-        "jsx"
-      ]
-    }
   }
 }

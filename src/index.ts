@@ -1,23 +1,37 @@
-import Data from '@eirikb/data';
-import Context from './context';
+import createData, { Data } from '@eirikb/data';
+import Context, { ContextOptions } from './context';
 import ddProps from './dd-props';
 import Stower from './stower';
-import Hodor from "./hodor";
+import Hodor from './hodor';
 
 export function isProbablyPlainObject(obj) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
 }
 
-export default (parent, view) => {
-  const data = Data();
+export interface Domdom {
+  React: Element;
+  data: Data;
+  append: Function;
+}
+
+function domdom(): Domdom;
+
+function domdom(parent: HTMLElement, view: Function): Data;
+
+function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
+  const data = createData();
   const React = {
-    createElement(tagName, props, ...children) {
+    createElement(
+      tagName: (contextOptions: ContextOptions) => HTMLElement,
+      props?,
+      ...children
+    ) {
       if (typeof tagName === 'function') {
-        return new Context(data, tagName, props, children);
+        return Context(data, tagName, props, children);
       }
 
       const hodors = [];
-      const element = document.createElement(tagName);
+      const element = document.createElement(tagName) as HTMLElement;
       const stower = Stower(element);
 
       const addHodor = (index, hodor) => {
@@ -26,8 +40,8 @@ export default (parent, view) => {
         hodor.stower(index, stower);
       };
 
-      const appendChild = (index, child, path) => {
-        stower.add(child, index, path);
+      const appendChild = (index, child) => {
+        stower.add(child, index);
       };
 
       const setElementValue = (key, value) => {
@@ -54,15 +68,18 @@ export default (parent, view) => {
       }
 
       for (let [key, value] of Object.entries(props || {})) {
-        if (value.isHodor) {
-          value.element = element;
+        if (value['isHodor']) {
+          value['element'] = element;
         }
 
         const isEventProp = key.match(/^on[A-Z]/);
         if (isEventProp) {
           const event = key[2].toLowerCase() + key.slice(3);
           element.addEventListener(event, (...args) => {
-            return value(...args);
+            const valueFn = value as Function;
+            if (valueFn !== null) {
+              return valueFn(...args);
+            }
           });
         }
 
@@ -71,30 +88,35 @@ export default (parent, view) => {
           if (key === 'class') {
             key = 'className';
           }
-          if (!(value && value.isHodor)) {
+          if (!(value && value['isHodor'])) {
             setElementValue(key, value);
           }
         }
       }
 
-      element.destroy = () => {
-        element.isMounted = false;
-        element.childNodes.forEach(child => child.destroy && child.destroy());
+      element['destroy'] = () => {
+        element['isMounted'] = false;
+        element.childNodes.forEach(child => {
+          if (typeof child['destroy'] === 'function') {
+            const destroy = child['destroy'] as Function;
+            destroy();
+          }
+        });
         for (let hodor of hodors) {
           hodor.destroy();
         }
       };
 
-      element.on = (path, listener) => {
+      element['on'] = (path, listener) => {
         hodors.push(Hodor(data, path, listener));
-      }
+      };
 
-      element.mounted = () => {
-        if (element.isMounted) return;
-        element.isMounted = true;
+      element['mounted'] = () => {
+        if (element['isMounted']) return;
+        element['isMounted'] = true;
         hodors.push(...ddProps(data, element, props));
-        if (element.context) {
-          element.context.mounted();
+        if (element['context']) {
+          element['context'].mounted();
         }
         for (let hodor of hodors) {
           hodor.mounted();
@@ -102,7 +124,7 @@ export default (parent, view) => {
       };
 
       return element;
-    }
+    },
   };
 
   function mount(element) {
@@ -118,24 +140,32 @@ export default (parent, view) => {
   }
 
   function squint(parent) {
-    new MutationObserver((mutationList) => {
+    new MutationObserver(mutationList => {
       for (let mutation of mutationList) {
-        for (let node of mutation.addedNodes) {
+        mutation.addedNodes.forEach(node => {
           mount(node);
-          if (node.getElementsByTagName) {
-            for (let child of node.getElementsByTagName('*')) {
+          const element = node as HTMLElement;
+          if (element !== null && element.getElementsByTagName) {
+            const children: Element[] = Array.from(
+              element.getElementsByTagName('*')
+            );
+            for (let child of children) {
               mount(child);
             }
           }
-        }
-        for (let node of mutation.removedNodes) {
+        });
+        mutation.removedNodes.forEach(node => {
           unmount(node);
-          if (node.getElementsByTagName) {
-            for (let child of node.getElementsByTagName('*')) {
+          const element = node as HTMLElement;
+          if (element !== null && element.getElementsByTagName) {
+            const children: Element[] = Array.from(
+              element.getElementsByTagName('*')
+            );
+            for (let child of children) {
               unmount(child);
             }
           }
-        }
+        });
       }
     }).observe(parent, { childList: true, subtree: true });
   }
@@ -147,14 +177,19 @@ export default (parent, view) => {
   }
 
   if (typeof parent === 'undefined') {
-    return { React, data, append };
+    // @ts-ignore
+    return { React, data, append } as DD;
   }
 
+  // @ts-ignore
   window.React = React;
   if (typeof global !== 'undefined') {
+    // @ts-ignore
     global.React = React;
   }
 
   append(parent, view);
   return data;
 }
+
+export default domdom;
