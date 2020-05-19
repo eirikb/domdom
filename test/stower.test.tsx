@@ -13,7 +13,7 @@ interface StowerContext {
   div: HTMLElement;
 }
 
-const test = anyTest as TestInterface<StowerContext>
+const test = anyTest as TestInterface<StowerContext>;
 
 browserEnv();
 
@@ -163,20 +163,20 @@ test('remove first by subIndex for all', t => {
 });
 
 test('strings', t => {
-  const { element, stower, } = t.context;
+  const { element, stower } = t.context;
   stower.add('Hello, world!');
   t.deepEqual(element.innerHTML, 'Hello, world!');
 });
 
 test('string remove', t => {
-  const { element, stower, } = t.context;
+  const { element, stower } = t.context;
   stower.add('Hello, world!', 0);
   stower.remove(0);
   t.deepEqual(element.innerHTML, '');
 });
 
 test('strings as array', t => {
-  const { element, stower, } = t.context;
+  const { element, stower } = t.context;
   stower.add(['Hello', 'world!'], 0);
   t.deepEqual(element.innerHTML, 'Helloworld!');
   stower.remove(0);
@@ -184,7 +184,7 @@ test('strings as array', t => {
 });
 
 test('strings with subIndex', t => {
-  const { element, stower, } = t.context;
+  const { element, stower } = t.context;
   stower.add('Hello', 0, 0);
   t.deepEqual(element.innerHTML, 'Hello');
   stower.remove(0, 0);
@@ -192,18 +192,17 @@ test('strings with subIndex', t => {
 });
 
 test('JSON.stringify', t => {
-  const { element, stower, } = t.context;
+  const { element, stower } = t.context;
   stower.add({ hello: 'world' });
   t.deepEqual(element.innerHTML, '{"hello":"world"}');
 });
 
 test('JSON.stringify remove', t => {
-  const { element, stower, } = t.context;
+  const { element, stower } = t.context;
   stower.add({ hello: 'world' }, 0);
   stower.remove(0);
   t.deepEqual(element.innerHTML, '');
 });
-
 
 test('replace single', t => {
   const { element, stower, a, b } = t.context;

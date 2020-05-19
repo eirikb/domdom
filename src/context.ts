@@ -19,7 +19,12 @@ export interface ContextOptions {
   mounted?(cb: Function);
 }
 
-export default function Context(data: Data, tagName: (contextOptions: ContextOptions) => HTMLElement, props, ...children) {
+export default function Context(
+  data: Data,
+  tagName: (contextOptions: ContextOptions) => HTMLElement,
+  props,
+  ...children
+) {
   children = children.flatMap(child => child);
   const mounteds = [];
   const headlessHodors = [];
@@ -70,8 +75,8 @@ export default function Context(data: Data, tagName: (contextOptions: ContextOpt
     trigger: data.trigger,
     children,
     mounted(cb) {
-      mounteds.push(cb)
-    }
+      mounteds.push(cb);
+    },
   } as ContextOptions;
 
   for (let [key, value] of Object.entries(props || {})) {
@@ -85,9 +90,9 @@ export default function Context(data: Data, tagName: (contextOptions: ContextOpt
     }
   };
   const res = tagName(options);
-  res["context"] = this;
-  const destroy = res["destroy"];
-  res["destroy"] = () => {
+  res['context'] = this;
+  const destroy = res['destroy'];
+  res['destroy'] = () => {
     destroy();
     for (let hodor of headlessHodors) {
       hodor.destroy();

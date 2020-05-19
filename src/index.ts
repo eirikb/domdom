@@ -2,7 +2,7 @@ import createData, { Data } from '@eirikb/data';
 import Context, { ContextOptions } from './context';
 import ddProps from './dd-props';
 import Stower from './stower';
-import Hodor from "./hodor";
+import Hodor from './hodor';
 
 export function isProbablyPlainObject(obj) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
@@ -11,7 +11,7 @@ export function isProbablyPlainObject(obj) {
 export interface Domdom {
   React: Element;
   data: Data;
-  append: Function
+  append: Function;
 }
 
 function domdom(): Domdom;
@@ -21,9 +21,11 @@ function domdom(parent: HTMLElement, view: Function): Data;
 function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
   const data = createData();
   const React = {
-
-
-    createElement(tagName: (contextOptions: ContextOptions) => HTMLElement, props?, ...children) {
+    createElement(
+      tagName: (contextOptions: ContextOptions) => HTMLElement,
+      props?,
+      ...children
+    ) {
       if (typeof tagName === 'function') {
         return Context(data, tagName, props, children);
       }
@@ -66,8 +68,8 @@ function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
       }
 
       for (let [key, value] of Object.entries(props || {})) {
-        if (value["isHodor"]) {
-          value["element"] = element;
+        if (value['isHodor']) {
+          value['element'] = element;
         }
 
         const isEventProp = key.match(/^on[A-Z]/);
@@ -86,17 +88,17 @@ function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
           if (key === 'class') {
             key = 'className';
           }
-          if (!(value && value["isHodor"])) {
+          if (!(value && value['isHodor'])) {
             setElementValue(key, value);
           }
         }
       }
 
-      element["destroy"] = () => {
-        element["isMounted"] = false;
+      element['destroy'] = () => {
+        element['isMounted'] = false;
         element.childNodes.forEach(child => {
           if (typeof child['destroy'] === 'function') {
-            const destroy = child["destroy"] as Function;
+            const destroy = child['destroy'] as Function;
             destroy();
           }
         });
@@ -105,16 +107,16 @@ function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
         }
       };
 
-      element["on"] = (path, listener) => {
+      element['on'] = (path, listener) => {
         hodors.push(Hodor(data, path, listener));
-      }
+      };
 
-      element["mounted"] = () => {
-        if (element["isMounted"]) return;
-        element["isMounted"] = true;
+      element['mounted'] = () => {
+        if (element['isMounted']) return;
+        element['isMounted'] = true;
         hodors.push(...ddProps(data, element, props));
-        if (element["context"]) {
-          element["context"].mounted();
+        if (element['context']) {
+          element['context'].mounted();
         }
         for (let hodor of hodors) {
           hodor.mounted();
@@ -122,7 +124,7 @@ function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
       };
 
       return element;
-    }
+    },
   };
 
   function mount(element) {
@@ -138,13 +140,15 @@ function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
   }
 
   function squint(parent) {
-    new MutationObserver((mutationList) => {
+    new MutationObserver(mutationList => {
       for (let mutation of mutationList) {
         mutation.addedNodes.forEach(node => {
           mount(node);
           const element = node as HTMLElement;
           if (element !== null && element.getElementsByTagName) {
-            const children: Element[] = Array.from(element.getElementsByTagName('*'));
+            const children: Element[] = Array.from(
+              element.getElementsByTagName('*')
+            );
             for (let child of children) {
               mount(child);
             }
@@ -154,7 +158,9 @@ function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
           unmount(node);
           const element = node as HTMLElement;
           if (element !== null && element.getElementsByTagName) {
-            const children: Element[] = Array.from(element.getElementsByTagName('*'));
+            const children: Element[] = Array.from(
+              element.getElementsByTagName('*')
+            );
             for (let child of children) {
               unmount(child);
             }

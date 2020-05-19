@@ -57,7 +57,7 @@ test('With named card', t => {
   const { data, html } = setup('users.$id')['mount']();
   data.set('users', {
     a: 'mr a',
-    b: 'mr b'
+    b: 'mr b',
   });
   t.deepEqual('<div>mr amr b</div>', html());
 });
@@ -67,7 +67,7 @@ test('With named card add remove', t => {
   data.set('users', {
     a: 'mr a',
     b: 'mr b',
-    c: 'mr c'
+    c: 'mr c',
   });
   t.deepEqual('<div><p>mr a</p><p>mr b</p><p>mr c</p></div>', html());
   data.unset('users.b');
@@ -81,28 +81,34 @@ test('With named card add remove', t => {
 });
 
 test('Map', t => {
-  const { data, html } = setup('users').map(u => u)['mount']();
+  const { data, html } = setup('users')
+    .map(u => u)
+    ['mount']();
   data.set('users', {
     a: 'mr a',
-    b: 'mr b'
+    b: 'mr b',
   });
   t.deepEqual('<div>mr amr b</div>', html());
 });
 
 test('Map jsx', t => {
-  const { data, html } = setup('users').map(u => <p>{u}</p>)['mount']();
+  const { data, html } = setup('users')
+    .map(u => <p>{u}</p>)
+    ['mount']();
   data.set('users', {
     a: 'mr a',
-    b: 'mr b'
+    b: 'mr b',
   });
   t.deepEqual('<div><p>mr a</p><p>mr b</p></div>', html());
 });
 
 test('Map add', t => {
-  const { data, html } = setup('users.*').map(u => u)['mount']();
+  const { data, html } = setup('users.*')
+    .map(u => u)
+    ['mount']();
   data.set('users', {
     a: 'mr a',
-    b: 'mr b'
+    b: 'mr b',
   });
   t.deepEqual('<div>mr amr b</div>', html());
   data.set('users.c', 'mr c');
@@ -110,10 +116,12 @@ test('Map add', t => {
 });
 
 test('Map add default sort', t => {
-  const { data, html } = setup('users.*').map(u => u)['mount']();
+  const { data, html } = setup('users.*')
+    .map(u => u)
+    ['mount']();
   data.set('users', {
     a: 'mr a',
-    c: 'mr c'
+    c: 'mr c',
   });
   t.deepEqual('<div>mr amr c</div>', html());
   data.set('users.b', 'mr b');
@@ -121,11 +129,14 @@ test('Map add default sort', t => {
 });
 
 test('Map filter', t => {
-  const { data, html } = setup('users').map(u => u).filter(u => u !== 'mr b')['mount']();
+  const { data, html } = setup('users')
+    .map(u => u)
+    .filter(u => u !== 'mr b')
+    ['mount']();
   data.set('users', {
     a: 'mr a',
     b: 'mr b',
-    c: 'mr c'
+    c: 'mr c',
   });
   t.deepEqual('<div>mr amr c</div>', html());
 });
@@ -133,9 +144,8 @@ test('Map filter', t => {
 test('Update filterOn on update after data is set', t => {
   const { data, html } = setup('users')
     .map(user => user)
-    .filterOn('test', (filter, user) =>
-      new RegExp(filter, 'i').test(user)
-    )['mount']();
+    .filterOn('test', (filter, user) => new RegExp(filter, 'i').test(user))
+    ['mount']();
   data.set('test', '');
   data.set('users', { a: 'a', b: 'b' });
   t.is('<div>ab</div>', html());
@@ -162,9 +172,8 @@ test('on sortOn - custom order', t => {
 test('filterOn and back', t => {
   const { data, html } = setup('users')
     .map(user => <a>{user.name}</a>)
-    .filterOn('test', (filter, user) =>
-      new RegExp(filter, 'i').test(user.name)
-    )['mount']();
+    .filterOn('test', (filter, user) => new RegExp(filter, 'i').test(user.name))
+    ['mount']();
 
   data.set('test', '');
   data.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
@@ -216,14 +225,8 @@ test('Pathifier sub-array', t => {
   const { data, html } = setup('players')
     .map(player => player.name)
     ['mount']();
-  data.set('players', [
-    { name: 'a' },
-    { name: 'b' }
-  ]);
+  data.set('players', [{ name: 'a' }, { name: 'b' }]);
   t.is(html(), '<div>ab</div>');
-  data.set('players', [
-    { name: 'a', x: [1] },
-  ]);
+  data.set('players', [{ name: 'a', x: [1] }]);
   t.is(html(), '<div>a</div>');
 });
-
