@@ -8,16 +8,6 @@ export function isProbablyPlainObject(obj) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
 }
 
-export interface Domdom {
-  React: Element;
-  data: Data;
-  append: Function;
-}
-
-function domdom(): Domdom;
-
-function domdom(parent: HTMLElement, view: Function): Data;
-
 function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
   const data = createData();
   const React = {

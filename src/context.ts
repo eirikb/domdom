@@ -1,24 +1,6 @@
 import { Data } from '@eirikb/data';
 import Hodor from './hodor';
 
-export interface ContextOptions {
-  on?(path: string, listener?: Function);
-
-  when?(path: string, options: any);
-
-  unset?(path: string);
-
-  set?(path: string, value: any);
-
-  get?(path: string);
-
-  trigger?(path: string, value: any);
-
-  children?: Array<any>;
-
-  mounted?(cb: Function);
-}
-
 export default function Context(
   data: Data,
   tagName: (contextOptions: ContextOptions) => HTMLElement,
