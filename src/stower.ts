@@ -1,23 +1,17 @@
-export function isProbablyPlainObject(obj) {
+import { Stower } from "@eirikb/data";
+
+export function isProbablyPlainObject(obj: any) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
 }
 
-export interface Stower {
-  add(child: any, index?: number, subIndex?: number);
-
-  remove(index: number, subIndex?: number);
-
-  or(or: any, index: number);
-}
-
-export default function(element): Stower {
+export default function (element: HTMLElement): Stower {
   const self = {} as Stower;
-  const slots = [];
-  const first = [];
-  const ors = [];
-  const hasOr = [];
+  const slots: HTMLElement[][] = [];
+  const first: HTMLElement[] = [];
+  const ors: any[] = [];
+  const hasOr: any[] = [];
 
-  function escapeChild(child) {
+  function escapeChild(child: any) {
     if (child === null || typeof child === 'undefined') {
       return document.createTextNode('');
     } else if (
@@ -32,7 +26,7 @@ export default function(element): Stower {
     return child;
   }
 
-  function add(index, child, before) {
+  function add(index: number, child: any, before: HTMLElement) {
     if (typeof hasOr[index] !== 'undefined') {
       element.removeChild(hasOr[index]);
       delete hasOr[index];
@@ -61,43 +55,43 @@ export default function(element): Stower {
     }
   }
 
-  function addSingle(child, index) {
+  function addSingle(child: any, index: number) {
     child = escapeChild(child);
     if (slots[index]) {
       removeSingle(slots[index], index);
     }
     const before = first.slice(index).find(element => element);
-    add(index, child, before);
+    add(index, child, before!);
     first[index] = child;
     slots[index] = child;
   }
 
-  function addArray(children, index) {
+  function addArray(children: any[], index: number) {
     children = children.map(escapeChild);
     if (slots[index]) {
       removeArray(slots[index], index);
     }
     const before = first.slice(index).find(element => element);
-    children.map(child => add(index, child, before));
+    children.map(child => add(index, child, before!));
     first[index] = children[0];
     slots[index] = children;
   }
 
-  function addWithSubIndex(child, index, subIndex) {
+  function addWithSubIndex(child: any, index: number, subIndex: number) {
     const isArray = Array.isArray(child);
     child = isArray ? child.map(escapeChild) : escapeChild(child);
-    let before;
+    let before: HTMLElement | undefined;
     if (first[index]) {
       before = slots[index][subIndex];
     }
-    if (!before) {
+    if (before === undefined) {
       before = first.slice(index + 1).find(element => element);
     }
 
     if (isArray) {
-      child.forEach(child => add(index, child, before));
+      (child as any[]).forEach(child => add(index, child, before!));
     } else {
-      add(index, child, before);
+      add(index, child, before!);
     }
     slots[index] = slots[index] || [];
     if (slots[index][subIndex]) {
@@ -110,7 +104,7 @@ export default function(element): Stower {
     }
   }
 
-  self.add = (child, index, subIndex) => {
+  self.add = (child: any, index: number, subIndex: number) => {
     if (typeof subIndex !== 'undefined') {
       addWithSubIndex(child, index, subIndex);
     } else if (Array.isArray(child)) {
@@ -120,13 +114,13 @@ export default function(element): Stower {
     }
   };
 
-  function removeSingle(child, index) {
+  function removeSingle(child: any, index: number) {
     delete slots[index];
     delete first[index];
     if (child) remove(index, child);
   }
 
-  function removeArray(children, index) {
+  function removeArray(children: any[], index: number) {
     delete slots[index];
     delete first[index];
     for (let child of children) {
@@ -134,7 +128,7 @@ export default function(element): Stower {
     }
   }
 
-  function removeWithSubIndex(index, subIndex) {
+  function removeWithSubIndex(index: number, subIndex: number) {
     const child = (slots[index] || {})[subIndex];
     if (!child) return;
 
@@ -151,7 +145,7 @@ export default function(element): Stower {
     }
   }
 
-  self.remove = (index, subIndex) => {
+  self.remove = (index: number, subIndex: number) => {
     if (typeof subIndex !== 'undefined') {
       removeWithSubIndex(index, subIndex);
     } else {
@@ -164,7 +158,7 @@ export default function(element): Stower {
     }
   };
 
-  self.or = (or, index) => {
+  self.or = (or: any, index: number) => {
     ors[index] = or;
     remove(index);
   };
