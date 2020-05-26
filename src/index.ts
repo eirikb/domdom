@@ -1,8 +1,9 @@
 import createData, { Data } from '@eirikb/data';
-import Context, { ContextOptions } from './context';
+import Context from './context';
 import ddProps from './dd-props';
 import Stower from './stower';
-import Hodor from './hodor';
+import createHodor from './hodor';
+import { Domdom, ContextOptions, Hodor, Domode } from 'types';
 
 export function isProbablyPlainObject(obj) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
@@ -14,17 +15,17 @@ function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
     createElement(
       tagName: (contextOptions: ContextOptions) => HTMLElement,
       props?,
-      ...children
+      ...children: (Domode | Hodor)[]
     ) {
       if (typeof tagName === 'function') {
-        return Context(data, tagName, props, children);
+        return Context(data, tagName, props, ...children);
       }
 
-      const hodors = [];
-      const element = document.createElement(tagName) as HTMLElement;
+      const hodors: Hodor[] = [];
+      const element = document.createElement(tagName) as Domode;
       const stower = Stower(element);
 
-      const addHodor = (index, hodor) => {
+      const addHodor = (index: number, hodor: Hodor) => {
         hodor.element = element;
         hodors.push(hodor);
         hodor.stower(index, stower);
@@ -47,19 +48,20 @@ function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
       };
 
       let counter = 0;
-      for (let child of [].concat(...children)) {
+      for (let child of children) {
         const index = counter++;
         if (typeof child === 'undefined' || child === null) {
         } else if (child.isHodor) {
-          addHodor(index, child);
+          addHodor(index, child as Hodor);
         } else {
           appendChild(index, child);
         }
       }
 
       for (let [key, value] of Object.entries(props || {})) {
-        if (value['isHodor']) {
-          value['element'] = element;
+        const valueAsHodor = value as Hodor;
+        if (valueAsHodor.isHodor) {
+          valueAsHodor.element = element;
         }
 
         const isEventProp = key.match(/^on[A-Z]/);
@@ -78,7 +80,7 @@ function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
           if (key === 'class') {
             key = 'className';
           }
-          if (!(value && value['isHodor'])) {
+          if (!(value && valueAsHodor.isHodor)) {
             setElementValue(key, value);
           }
         }
@@ -98,7 +100,7 @@ function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
       };
 
       element['on'] = (path, listener) => {
-        hodors.push(Hodor(data, path, listener));
+        hodors.push(createHodor(data, path, listener));
       };
 
       element['mounted'] = () => {

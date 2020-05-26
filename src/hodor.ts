@@ -1,55 +1,75 @@
-export default (data, path, listener) => {
+import {
+  SorterOn,
+  Sorter,
+  FilterOn,
+  Filter,
+  Stower,
+  Data,
+  Pathifier,
+  Callback,
+} from '@eirikb/data';
+import { Domode, Hodor } from "types";
+
+export default (data: Data, path: string, listener: Callback) => {
   const listenerSet = !!listener;
   if (!listener) {
-    listener = _ => _;
+    listener = (_: any) => _;
   }
   if (typeof listener !== 'function') {
     throw new Error('Listener must be a function');
   }
 
-  let stower, _or, index, pathifier, listening;
-  let _filter, _filterOn, _sort, _sortOn, _map;
+  let stower: Stower,
+    _or: Function,
+    index: Number,
+    pathifier: Pathifier,
+    listening: boolean;
+  let _filter: Filter,
+    _filterOn: FilterOn,
+    _sort: Sorter,
+    _sortOn: SorterOn,
+    _map: Function;
 
-  const listeners = [];
+  const listeners: { flagsAndPath: string; cb: Function; ref: string }[] = [];
 
-  function on(flagsAndPath, cb) {
+  function on(flagsAndPath: string, cb: Function) {
     const ref = data.on(flagsAndPath, cb);
     listeners.push({ flagsAndPath, cb, ref });
   }
 
   let isMounted = false;
-  const hodor = {
+  const hodor: Hodor = {
     path,
     element: null,
     isHodor: true,
-    or(or) {
+    or(or: Function) {
       _or = or;
       return hodor;
     },
-    filter(filter) {
+    filter(filter: Filter) {
       _filter = filter;
       return hodor;
     },
-    filterOn(path, filter) {
+    filterOn(path: string, filter: FilterOn) {
       _filterOn = { path, filter };
       return hodor;
     },
-    sort(sort) {
+    sort(sort: Sorter) {
       _sort = sort;
       return hodor;
     },
-    sortOn(path, sort) {
+    sortOn(path: string, sort: SorterOn) {
       _sortOn = { path, sort };
       return hodor;
     },
-    map(map) {
+    map(map: Function) {
       if (listenerSet) {
         throw new Error(`Sorry, can't combine listener and map`);
       }
       _map = map;
       return hodor;
     },
-    stower(i, s) {
+    stower(i: number, s: Stower) {
       index = i;
       stower = s;
       if (_or) {
@@ -95,12 +115,12 @@ export default (data, path, listener) => {
             path = path.replace(/^>/, parentNode.path);
             break;
           }
-          parentNode = parentNode.parentNode;
+          parentNode = parentNode.parentNode as Domode;
         }
       }
 
       if (!_map) {
-        on(`!+* ${path}`, (val, { path }) => {
+        on(`!+* ${path}`, (val: any, { path }: { path: string }) => {
           const subIndex = hodor.paths.indexOf(path);
           if (subIndex >= 0) {
             hodor.paths.splice(subIndex, 1);
@@ -113,7 +133,7 @@ export default (data, path, listener) => {
           stower.add(res, index, hodor.paths.length);
           hodor.paths.push(path);
         });
-        on(`- ${path}`, (_, { path }) => {
+        on(`- ${path}`, (_: any, { path }: { path: string }) => {
           const subIndex = hodor.paths.indexOf(path);
           hodor.paths.splice(subIndex, 1);
           stower.remove(index, subIndex);
@@ -127,13 +147,13 @@ export default (data, path, listener) => {
       if (_sort) pathifier.sort(_sort);
       if (_sortOn) pathifier.sortOn(_sortOn.path, _sortOn.sort);
       pathifier.toArray({
-        add(subIndex, p, value) {
+        add(subIndex: number, p: string, value: any) {
           if (typeof value === 'object') {
             value.path = [pathifier.from, p].join('.');
           }
           stower.add(value, index, subIndex);
         },
-        remove(subIndex) {
+        remove(subIndex: number) {
           stower.remove(index, subIndex);
         },
       });

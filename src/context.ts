@@ -1,19 +1,20 @@
 import { Data } from '@eirikb/data';
-import Hodor from './hodor';
+import createHodor from './hodor';
+import { ContextOptions, Domode, Hodor } from 'types';
 
 export default function Context(
   data: Data,
   tagName: (contextOptions: ContextOptions) => HTMLElement,
   props,
-  ...children
+  ...children: (Domode | Hodor)[]
 ) {
   children = children.flatMap(child => child);
-  const mounteds = [];
-  const headlessHodors = [];
+  const mounteds: Function[] = [];
+  const headlessHodors: Hodor[] = [];
 
   function on(path, listener) {
     const hasFlags = path.match(/ /);
-    const hodor = Hodor(data, path, listener);
+    const hodor = createHodor(data, path, listener);
     if (hasFlags) {
       headlessHodors.push(hodor);
     }
@@ -24,13 +25,13 @@ export default function Context(
 
   const options: ContextOptions = {
     on: (path, listener) => on(path, listener),
-    when: (path, options) => {
+    when: (path, options: (string | Function)[]) => {
       if (!Array.isArray(options)) {
         throw new Error('Second arguments must be an array');
       }
-      return on(path, (...args) => {
+      return on(path, (...args: any[]) => {
         const res = args[0];
-        const result = [];
+        const result: (Domode | Hodor)[] = [];
         for (let i = 0; i < options.length; i += 2) {
           const cond = options[i];
           const listener = options[i + 1];
@@ -46,8 +47,6 @@ export default function Context(
             } else {
               throw new Error('Listener must be a function');
             }
-          } else {
-            result.push(null);
           }
         }
         return result;
@@ -58,7 +57,7 @@ export default function Context(
     get: data.get,
     trigger: data.trigger,
     children,
-    mounted(cb) {
+    mounted(cb: Function) {
       mounteds.push(cb);
     },
   } as ContextOptions;

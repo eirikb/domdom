@@ -1,3 +1,6 @@
+import { Data } from '@eirikb/data/dist/types';
+import { Domode, Hodor } from 'types';
+
 function setVal(element, key, value) {
   if (typeof element[key] === 'object') {
     Object.assign(element[key], value);
@@ -6,27 +9,29 @@ function setVal(element, key, value) {
   }
 }
 
-export default (data, element, props) => {
-  const hodors = [];
+export default (data: Data, element: Domode | HTMLInputElement, props: (any | Hodor)[]) => {
+  const hodors: Hodor[] = [];
   let _value;
+  const inputElement = element as HTMLInputElement;
+  const domOde = element as Domode;
 
   function onChange(cb) {
-    element.addEventListener('keyup', () => cb(element.value));
+    element.addEventListener('keyup', () => cb(inputElement.value));
     element.addEventListener('input', () => {
       const value =
-        element.type === 'checkbox' ? element.checked : element.value;
+        inputElement.type === 'checkbox' ? inputElement.checked : inputElement.value;
       cb(value);
     });
-    element.addEventListener('value', () => cb(element.value));
-    element.addEventListener('checked', () => cb(element.value));
+    element.addEventListener('value', () => cb(inputElement.value));
+    element.addEventListener('checked', () => cb(inputElement.value));
   }
 
   function setValue(value) {
     _value = value;
-    if (element.type === 'checkbox') {
-      element.checked = value;
+    if (inputElement.type === 'checkbox') {
+      inputElement.checked = value;
     } else {
-      element.value = value || '';
+      inputElement.value = value || '';
     }
   }
 
@@ -34,7 +39,7 @@ export default (data, element, props) => {
     const model = props['dd-model'];
     if (model) {
       onChange(value => data.set(model, value));
-      element.on(`!+* ${model}`, setValue);
+      domOde.on(`!+* ${model}`, setValue);
       // Special handling for select elements
       new MutationObserver(() => {
         if (typeof _value !== 'undefined') {
