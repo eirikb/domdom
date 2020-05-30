@@ -1,4 +1,7 @@
-function setVal(element, key, value) {
+import { Data } from '@eirikb/data';
+import { Domode, Hodor } from 'types';
+
+function setVal(element: any, key: string, value: any) {
   if (typeof element[key] === 'object') {
     Object.assign(element[key], value);
   } else {
@@ -6,35 +9,44 @@ function setVal(element, key, value) {
   }
 }
 
-export default (data, element, props) => {
-  const hodors = [];
-  let _value;
+export default (
+  data: Data,
+  element: Domode | HTMLInputElement,
+  props: (any | Hodor)[]
+) => {
+  const hodors: Hodor[] = [];
+  let _value: any;
+  const inputElement = element as HTMLInputElement;
+  const domOde = element as Domode;
 
-  function onChange(cb) {
-    element.addEventListener('keyup', () => cb(element.value));
+  function onChange(cb: Function) {
+    element.addEventListener('keyup', () => cb(inputElement.value));
     element.addEventListener('input', () => {
       const value =
-        element.type === 'checkbox' ? element.checked : element.value;
+        inputElement.type === 'checkbox'
+          ? inputElement.checked
+          : inputElement.value;
       cb(value);
     });
-    element.addEventListener('value', () => cb(element.value));
-    element.addEventListener('checked', () => cb(element.value));
+    element.addEventListener('value', () => cb(inputElement.value));
+    element.addEventListener('checked', () => cb(inputElement.value));
   }
 
-  function setValue(value) {
+  function setValue(value: any) {
     _value = value;
-    if (element.type === 'checkbox') {
-      element.checked = value;
+    if (inputElement.type === 'checkbox') {
+      inputElement.checked = value;
     } else {
-      element.value = value || '';
+      inputElement.value = value || '';
     }
   }
 
   if (props) {
-    const model = props['dd-model'];
+    const propsAsAny = props as any;
+    const model = propsAsAny['dd-model'];
     if (model) {
-      onChange(value => data.set(model, value));
-      element.on(`!+* ${model}`, setValue);
+      onChange((value: any) => data.set(model, value));
+      domOde.on(`!+* ${model}`, setValue);
       // Special handling for select elements
       new MutationObserver(() => {
         if (typeof _value !== 'undefined') {
@@ -45,15 +57,15 @@ export default (data, element, props) => {
 
     for (let [key, value] of Object.entries(props)) {
       if (value && value['isHodor']) {
-        let _or;
+        let _or: any;
         value['stower'](0, {
-          add: s => setVal(element, key, s),
+          add: (s: any) => setVal(element, key, s),
           remove: () => {
             if (_or) {
               setVal(element, key, _or);
             }
           },
-          or(or) {
+          or(or: any) {
             _or = or;
             setVal(element, key, or);
           },

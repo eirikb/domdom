@@ -1,6 +1,8 @@
 import anyTest, { TestInterface } from 'ava';
+// @ts-ignore
 import browserEnv from 'browser-env';
-import createStower, { Stower } from '../src/stower';
+import createStower from '../src/stower';
+import { Stower } from '@eirikb/data';
 
 interface StowerContext {
   element: HTMLElement;

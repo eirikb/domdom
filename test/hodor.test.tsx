@@ -1,22 +1,33 @@
 import test from 'ava';
-import Hodor from '../src/hodor';
+import createHodor from '../src/hodor';
 import Data from '@eirikb/data';
 import Stower from '../src/stower';
 import domdom from '../src';
+import { Hodor } from '../src/types';
 
+// @ts-ignore
 import browserEnv from 'browser-env';
+import { Callback } from '@eirikb/data';
+// import { ContextOptions } from "../src/types";
 
 browserEnv();
+
 const { React } = domdom();
 
-function setup(path, listener?) {
+interface HodorWithMount extends Hodor {
+  mount: Function;
+}
+
+// type DomFun = (options: ContextOptions) => HTMLElement;
+
+function setup(path: string, listener?: Callback) {
   const data = Data();
   const element = document.createElement('div');
   const stower = Stower(element);
-  const hodor = Hodor(data, path, listener);
+  const hodor = createHodor(data, path, listener) as HodorWithMount;
   hodor.stower(0, stower);
   const html = () => element.outerHTML;
-  hodor['mount'] = () => {
+  hodor.mount = () => {
     hodor['mounted']();
     return { data, element, stower, html };
   };
@@ -24,13 +35,13 @@ function setup(path, listener?) {
 }
 
 test('Hold door', t => {
-  const { data, html } = setup('yes', v => v)['mount']();
+  const { data, html } = setup('yes', (v: any) => v)['mount']();
   data.set('yes', 'sir');
   t.deepEqual('<div>sir</div>', html());
 });
 
 test('Hold door2', t => {
-  const { data, html } = setup('yes', v => v)['mount']();
+  const { data, html } = setup('yes', (v: any) => v)['mount']();
   data.set('yes', 'no');
   t.deepEqual('<div>no</div>', html());
 });
@@ -48,7 +59,7 @@ test('No listener default to showing value as json', t => {
 });
 
 test('Listener with JSX', t => {
-  const { data, html } = setup('yes', yes => <h1>{yes}</h1>)['mount']();
+  const { data, html } = setup('yes', (yes: any) => <h1>{yes}</h1>)['mount']();
   data.set('yes', { hello: 'world' });
   t.deepEqual('<div><h1>{"hello":"world"}</h1></div>', html());
 });
@@ -63,7 +74,7 @@ test('With named card', t => {
 });
 
 test('With named card add remove', t => {
-  const { data, html } = setup('users.$id', u => <p>{u}</p>)['mount']();
+  const { data, html } = setup('users.$id', (u: any) => <p>{u}</p>)['mount']();
   data.set('users', {
     a: 'mr a',
     b: 'mr b',

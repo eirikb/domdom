@@ -1,54 +1,38 @@
-import { Data } from '@eirikb/data';
-import Hodor from './hodor';
+import { Data, Callback } from '@eirikb/data';
+import createHodor from './hodor';
+import { Context, ContextOptions, Domode, Hodor } from 'types';
 
-export interface ContextOptions {
-  on?(path: string, listener?: Function);
-
-  when?(path: string, options: any);
-
-  unset?(path: string);
-
-  set?(path: string, value: any);
-
-  get?(path: string);
-
-  trigger?(path: string, value: any);
-
-  children?: Array<any>;
-
-  mounted?(cb: Function);
-}
-
-export default function Context(
+// Rename Domponent
+export default function(
   data: Data,
-  tagName: (contextOptions: ContextOptions) => HTMLElement,
-  props,
-  ...children
-) {
+  tagName: (contextOptions: ContextOptions) => Domode,
+  props: any,
+  ...children: (Domode | Hodor)[]
+): Domode {
   children = children.flatMap(child => child);
-  const mounteds = [];
-  const headlessHodors = [];
+  const mounteds: Function[] = [];
+  const headlessHodors: Hodor[] = [];
 
-  function on(path, listener) {
+  function on(path: string, listener: Callback) {
     const hasFlags = path.match(/ /);
-    const hodor = Hodor(data, path, listener);
+    const hodor = createHodor(data, path, listener);
     if (hasFlags) {
       headlessHodors.push(hodor);
     }
     return hodor;
   }
 
-  const self = {};
+  const self: Context = {};
 
   const options: ContextOptions = {
-    on: (path, listener) => on(path, listener),
-    when: (path, options) => {
+    on: (path, listener: Callback) => on(path, listener),
+    when: (path, options: (string | Function)[]) => {
       if (!Array.isArray(options)) {
         throw new Error('Second arguments must be an array');
       }
-      return on(path, (...args) => {
+      return on(path, (...args: any[]) => {
         const res = args[0];
-        const result = [];
+        const result: (Domode | Hodor)[] = [];
         for (let i = 0; i < options.length; i += 2) {
           const cond = options[i];
           const listener = options[i + 1];
@@ -64,8 +48,6 @@ export default function Context(
             } else {
               throw new Error('Listener must be a function');
             }
-          } else {
-            result.push(null);
           }
         }
         return result;
@@ -76,7 +58,7 @@ export default function Context(
     get: data.get,
     trigger: data.trigger,
     children,
-    mounted(cb) {
+    mounted(cb: Function) {
       mounteds.push(cb);
     },
   } as ContextOptions;
@@ -85,16 +67,16 @@ export default function Context(
     options[key] = value;
   }
 
-  self['on'] = options.on;
-  self['mounted'] = () => {
+  self.on = options.on;
+  self.mounted = () => {
     for (let mounted of mounteds) {
       mounted();
     }
   };
   const res = tagName(options);
-  res['context'] = self;
-  const destroy = res['destroy'];
-  res['destroy'] = () => {
+  res.context = self;
+  const destroy = res.destroy;
+  res.destroy = () => {
     destroy();
     for (let hodor of headlessHodors) {
       hodor.destroy();
