@@ -7,24 +7,15 @@ import { Hodor } from '../src/types';
 
 // @ts-ignore
 import browserEnv from 'browser-env';
-import { Callback } from "@eirikb/data";
+import { Callback } from '@eirikb/data';
 // import { ContextOptions } from "../src/types";
 
 browserEnv();
+
 const { React } = domdom();
 
 interface HodorWithMount extends Hodor {
   mount: Function;
-}
-
-declare namespace JSX {
-  interface Element {
-  }
-
-  interface IntrinsicElements {
-    div: any;
-    h1: any;
-  }
 }
 
 // type DomFun = (options: ContextOptions) => HTMLElement;

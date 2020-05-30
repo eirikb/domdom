@@ -5,18 +5,21 @@ import Stower from './stower';
 import createHodor from './hodor';
 import { Domdom, ContextOptions, Hodor, Domode } from 'types';
 
-export function isProbablyPlainObject(obj) {
+export function isProbablyPlainObject(obj: any) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
 }
 
-function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
+export function domdom(
+  parent?: HTMLElement,
+  view?: (contextOptions: ContextOptions) => Domode
+): Domdom | Data {
   const data = createData();
   const React = {
     createElement(
-      tagName: (contextOptions: ContextOptions) => HTMLElement,
-      props?,
+      tagName: (contextOptions: ContextOptions) => Domode,
+      props?: any,
       ...children: (Domode | Hodor)[]
-    ) {
+    ): Domode {
       if (typeof tagName === 'function') {
         return Context(data, tagName, props, ...children);
       }
@@ -31,18 +34,18 @@ function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
         hodor.stower(index, stower);
       };
 
-      const appendChild = (index, child) => {
+      const appendChild = (index: number, child: any) => {
         stower.add(child, index);
       };
 
-      const setElementValue = (key, value) => {
+      const setElementValue = (key: string, value: any) => {
         if (value && value.then) {
-          value.then(res => setElementValue(key, res));
+          value.then((res: any) => setElementValue(key, res));
         } else {
-          if (isProbablyPlainObject(value) && element[key]) {
-            Object.assign(element[key], value);
+          if (isProbablyPlainObject(value) && (element as any)[key]) {
+            Object.assign((element as any)[key], value);
           } else {
-            element[key] = value;
+            (element as any)[key] = value;
           }
         }
       };
@@ -86,11 +89,12 @@ function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
         }
       }
 
-      element['destroy'] = () => {
-        element['isMounted'] = false;
+      element.destroy = () => {
+        element.isMounted = false;
         element.childNodes.forEach(child => {
-          if (typeof child['destroy'] === 'function') {
-            const destroy = child['destroy'] as Function;
+          const asDomode = child as Domode;
+          if (typeof asDomode.destroy === 'function') {
+            const destroy = asDomode.destroy as Function;
             destroy();
           }
         });
@@ -103,12 +107,12 @@ function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
         hodors.push(createHodor(data, path, listener));
       };
 
-      element['mounted'] = () => {
-        if (element['isMounted']) return;
-        element['isMounted'] = true;
+      element.mounted = () => {
+        if (element.isMounted) return;
+        element.isMounted = true;
         hodors.push(...ddProps(data, element, props));
-        if (element['context']) {
-          element['context'].mounted();
+        if (element.context) {
+          element.context.mounted!();
         }
         for (let hodor of hodors) {
           hodor.mounted();
@@ -119,19 +123,21 @@ function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
     },
   };
 
-  function mount(element) {
-    if (element.mounted && !element.isMounted) {
-      element.mounted();
-      element.isMounted = true;
+  function mount(element: Node) {
+    const domode = element as Domode;
+    if (domode.mounted && !domode.isMounted) {
+      domode.mounted();
+      domode.isMounted = true;
     }
   }
 
-  function unmount(element) {
-    if (element.destroy) element.destroy();
-    element.isMounted = false;
+  function unmount(element: Node) {
+    const domode = element as Domode;
+    if (domode.destroy) domode.destroy();
+    domode.isMounted = false;
   }
 
-  function squint(parent) {
+  function squint(parent: HTMLElement) {
     new MutationObserver(mutationList => {
       for (let mutation of mutationList) {
         mutation.addedNodes.forEach(node => {
@@ -162,7 +168,10 @@ function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
     }).observe(parent, { childList: true, subtree: true });
   }
 
-  function append(parent, view) {
+  function append(
+    parent: HTMLElement,
+    view: (contextOptions: ContextOptions) => Domode
+  ) {
     squint(parent);
     const element = React.createElement(view);
     parent.appendChild(element);
@@ -180,7 +189,7 @@ function domdom(parent?: HTMLElement, view?: Function): Domdom | Data {
     global.React = React;
   }
 
-  append(parent, view);
+  append(parent, view!);
   return data;
 }
 

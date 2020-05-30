@@ -1,18 +1,19 @@
-import { Data } from '@eirikb/data';
+import { Data, Callback } from '@eirikb/data';
 import createHodor from './hodor';
-import { ContextOptions, Domode, Hodor } from 'types';
+import { Context, ContextOptions, Domode, Hodor } from 'types';
 
-export default function Context(
+// Rename Domponent
+export default function(
   data: Data,
-  tagName: (contextOptions: ContextOptions) => HTMLElement,
-  props,
+  tagName: (contextOptions: ContextOptions) => Domode,
+  props: any,
   ...children: (Domode | Hodor)[]
-) {
+): Domode {
   children = children.flatMap(child => child);
   const mounteds: Function[] = [];
   const headlessHodors: Hodor[] = [];
 
-  function on(path, listener) {
+  function on(path: string, listener: Callback) {
     const hasFlags = path.match(/ /);
     const hodor = createHodor(data, path, listener);
     if (hasFlags) {
@@ -21,10 +22,10 @@ export default function Context(
     return hodor;
   }
 
-  const self = {};
+  const self: Context = {};
 
   const options: ContextOptions = {
-    on: (path, listener) => on(path, listener),
+    on: (path, listener: Callback) => on(path, listener),
     when: (path, options: (string | Function)[]) => {
       if (!Array.isArray(options)) {
         throw new Error('Second arguments must be an array');
@@ -66,16 +67,16 @@ export default function Context(
     options[key] = value;
   }
 
-  self['on'] = options.on;
-  self['mounted'] = () => {
+  self.on = options.on;
+  self.mounted = () => {
     for (let mounted of mounteds) {
       mounted();
     }
   };
   const res = tagName(options);
-  res['context'] = self;
-  const destroy = res['destroy'];
-  res['destroy'] = () => {
+  res.context = self;
+  const destroy = res.destroy;
+  res.destroy = () => {
     destroy();
     for (let hodor of headlessHodors) {
       hodor.destroy();

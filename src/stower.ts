@@ -1,10 +1,10 @@
-import { Stower } from "@eirikb/data";
+import { Stower } from '@eirikb/data';
 
 export function isProbablyPlainObject(obj: any) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
 }
 
-export default function (element: HTMLElement): Stower {
+export default function(element: HTMLElement): Stower {
   const self = {} as Stower;
   const slots: HTMLElement[][] = [];
   const first: HTMLElement[] = [];

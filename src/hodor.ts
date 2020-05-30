@@ -8,9 +8,9 @@ import {
   Pathifier,
   Callback,
 } from '@eirikb/data';
-import { Domode, Hodor } from "types";
+import { Domode, Hodor } from 'types';
 
-export default (data: Data, path: string, listener: Callback) => {
+export default (data: Data, path: string, listener: Callback): Hodor => {
   const listenerSet = !!listener;
   if (!listener) {
     listener = (_: any) => _;

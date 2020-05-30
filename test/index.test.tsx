@@ -1,13 +1,14 @@
 import { serial as test } from 'ava';
+// @ts-ignore
 import browserEnv from 'browser-env';
 import domdom from '../src';
-import { ContextOptions } from 'types';
+import { ContextOptions, Domdom } from 'types';
 
 browserEnv();
 
 let React;
-let dd;
-let append;
+let dd: Domdom;
+let append: Function;
 
 async function html() {
   // Force update of Observables
@@ -19,7 +20,7 @@ test.beforeEach(() => {
   document.body.innerHTML = '';
   const d = domdom();
   React = d.React;
-  dd = d.data;
+  dd = d.data as Domdom;
   append = d.append;
 });
 

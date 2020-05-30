@@ -1,4 +1,11 @@
-import { Data, Filter, FilterOn, Sorter, SorterOn, Stower } from '@eirikb/data';
+import {
+  Data,
+  Filter,
+  FilterOn,
+  Sorter,
+  SorterOn,
+  Stower,
+} from '@eirikb/data/dist/types';
 
 export interface ContextOptions {
   on?(path: string, listener?: Function): void;
@@ -16,21 +23,23 @@ export interface ContextOptions {
   children?: Array<any>;
 
   mounted?(cb: Function): void;
+
+  [key: string]: any;
 }
 
-export interface Domdom {
+export interface Domdom extends Data {
   React: Element;
   data: Data;
   append: Function;
 }
 
-export function domdom(): Domdom;
-
-export function domdom(parent: HTMLElement, view: Function): Data;
-
 export interface Domode extends HTMLElement {
+  destroy: Function;
   path: string;
   isHodor: boolean;
+  context?: Context;
+  isMounted: boolean;
+  mounted: Function;
 
   on(path: string, listener?: Function): void;
 }
@@ -65,4 +74,10 @@ export interface Hodor {
   off(): void;
 
   or(or: Function): void;
+}
+
+export interface Context {
+  on?(path: string, listener?: Function): void;
+
+  mounted?: Function;
 }

@@ -1,7 +1,7 @@
-import { Data } from '@eirikb/data/dist/types';
+import { Data } from '@eirikb/data';
 import { Domode, Hodor } from 'types';
 
-function setVal(element, key, value) {
+function setVal(element: any, key: string, value: any) {
   if (typeof element[key] === 'object') {
     Object.assign(element[key], value);
   } else {
@@ -9,24 +9,30 @@ function setVal(element, key, value) {
   }
 }
 
-export default (data: Data, element: Domode | HTMLInputElement, props: (any | Hodor)[]) => {
+export default (
+  data: Data,
+  element: Domode | HTMLInputElement,
+  props: (any | Hodor)[]
+) => {
   const hodors: Hodor[] = [];
-  let _value;
+  let _value: any;
   const inputElement = element as HTMLInputElement;
   const domOde = element as Domode;
 
-  function onChange(cb) {
+  function onChange(cb: Function) {
     element.addEventListener('keyup', () => cb(inputElement.value));
     element.addEventListener('input', () => {
       const value =
-        inputElement.type === 'checkbox' ? inputElement.checked : inputElement.value;
+        inputElement.type === 'checkbox'
+          ? inputElement.checked
+          : inputElement.value;
       cb(value);
     });
     element.addEventListener('value', () => cb(inputElement.value));
     element.addEventListener('checked', () => cb(inputElement.value));
   }
 
-  function setValue(value) {
+  function setValue(value: any) {
     _value = value;
     if (inputElement.type === 'checkbox') {
       inputElement.checked = value;
@@ -36,9 +42,10 @@ export default (data: Data, element: Domode | HTMLInputElement, props: (any | Ho
   }
 
   if (props) {
-    const model = props['dd-model'];
+    const propsAsAny = props as any;
+    const model = propsAsAny['dd-model'];
     if (model) {
-      onChange(value => data.set(model, value));
+      onChange((value: any) => data.set(model, value));
       domOde.on(`!+* ${model}`, setValue);
       // Special handling for select elements
       new MutationObserver(() => {
@@ -50,15 +57,15 @@ export default (data: Data, element: Domode | HTMLInputElement, props: (any | Ho
 
     for (let [key, value] of Object.entries(props)) {
       if (value && value['isHodor']) {
-        let _or;
+        let _or: any;
         value['stower'](0, {
-          add: s => setVal(element, key, s),
+          add: (s: any) => setVal(element, key, s),
           remove: () => {
             if (_or) {
               setVal(element, key, _or);
             }
           },
-          or(or) {
+          or(or: any) {
             _or = or;
             setVal(element, key, or);
           },
