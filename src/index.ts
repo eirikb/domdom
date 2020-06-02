@@ -4,6 +4,7 @@ import ddProps from './dd-props';
 import Stower from './stower';
 import createHodor from './hodor';
 import { Domdom, ContextOptions, Hodor, Domode } from 'types';
+import {Callback} from "@eirikb/data/dist/types";
 
 export function isProbablyPlainObject(obj: any) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
@@ -103,7 +104,7 @@ export function domdom(
         }
       };
 
-      element['on'] = (path, listener) => {
+      element['on'] = (path, listener: Callback) => {
         hodors.push(createHodor(data, path, listener));
       };
 
