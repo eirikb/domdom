@@ -68,7 +68,7 @@ test('remove by index', t => {
   stower.add(span, 1);
   stower.add(div, 0);
 
-  stower.remove(0);
+  stower.remove(null, 0);
   t.deepEqual(element.innerHTML, '<span></span><a></a>');
 });
 
@@ -79,8 +79,8 @@ test('remove and add by index', t => {
   stower.add(span, 1);
   stower.add(div, 0);
 
-  stower.remove(1);
-  stower.remove(2);
+  stower.remove(null, 1);
+  stower.remove(null, 2);
   t.deepEqual(element.innerHTML, '<div></div><b></b>');
   stower.add(span, 1);
   t.deepEqual(element.innerHTML, '<div></div><span></span><b></b>');
@@ -107,7 +107,7 @@ test('Add and remove array', t => {
   stower.add([a, b], 1);
   stower.add(span, 2);
   t.deepEqual(element.innerHTML, '<div></div><a></a><b></b><span></span>');
-  stower.remove(1);
+  stower.remove(null, 1);
   t.deepEqual(element.innerHTML, '<div></div><span></span>');
 });
 
@@ -136,13 +136,13 @@ test('add and remove by subIndex', t => {
   stower.add(div, 1, 0);
   stower.add(span, 1, 1);
   t.deepEqual(element.innerHTML, '<a></a><div></div><span></span><b></b>');
-  stower.remove(1, 1);
+  stower.remove(null, 1, 1);
   t.deepEqual(element.innerHTML, '<a></a><div></div><b></b>');
 });
 
 test('remove unknown by subIndex', t => {
   const { stower } = t.context;
-  stower.remove(0, 0);
+  stower.remove(null, 0, 0);
   t.pass();
 });
 
@@ -150,7 +150,7 @@ test('first on remove by subIndex', t => {
   const { element, stower, div, a, b } = t.context;
   stower.add(a, 1, 0);
   stower.add(b, 1, 1);
-  stower.remove(1, 0);
+  stower.remove(null, 1, 0);
   t.deepEqual(element.innerHTML, '<b></b>');
   stower.add(div, 0);
   t.deepEqual(element.innerHTML, '<div></div><b></b>');
@@ -159,21 +159,21 @@ test('first on remove by subIndex', t => {
 test('remove first by subIndex for all', t => {
   const { element, stower, a, b } = t.context;
   stower.add(b, 1, 0);
-  stower.remove(1, 0);
+  stower.remove(null, 1, 0);
   stower.add(a, 2);
   t.deepEqual(element.innerHTML, '<a></a>');
 });
 
 test('strings', t => {
   const { element, stower } = t.context;
-  stower.add('Hello, world!');
+  stower.add('Hello, world!', 0);
   t.deepEqual(element.innerHTML, 'Hello, world!');
 });
 
 test('string remove', t => {
   const { element, stower } = t.context;
   stower.add('Hello, world!', 0);
-  stower.remove(0);
+  stower.remove(null, 0);
   t.deepEqual(element.innerHTML, '');
 });
 
@@ -181,7 +181,7 @@ test('strings as array', t => {
   const { element, stower } = t.context;
   stower.add(['Hello', 'world!'], 0);
   t.deepEqual(element.innerHTML, 'Helloworld!');
-  stower.remove(0);
+  stower.remove(null, 0);
   t.deepEqual(element.innerHTML, '');
 });
 
@@ -189,20 +189,20 @@ test('strings with subIndex', t => {
   const { element, stower } = t.context;
   stower.add('Hello', 0, 0);
   t.deepEqual(element.innerHTML, 'Hello');
-  stower.remove(0, 0);
+  stower.remove(null, 0, 0);
   t.deepEqual(element.innerHTML, '');
 });
 
 test('JSON.stringify', t => {
   const { element, stower } = t.context;
-  stower.add({ hello: 'world' });
+  stower.add({ hello: 'world' }, 0);
   t.deepEqual(element.innerHTML, '{"hello":"world"}');
 });
 
 test('JSON.stringify remove', t => {
   const { element, stower } = t.context;
   stower.add({ hello: 'world' }, 0);
-  stower.remove(0);
+  stower.remove(null, 0);
   t.deepEqual(element.innerHTML, '');
 });
 
@@ -261,7 +261,7 @@ test('subIndex with array remove', t => {
   stower.add([a, b], 1, 0);
   stower.add(span, 2);
   t.deepEqual(element.innerHTML, '<div></div><a></a><b></b><span></span>');
-  stower.remove(1, 0);
+  stower.remove(null, 1, 0);
   t.deepEqual(element.innerHTML, '<div></div><span></span>');
   stower.add([a, b], 1, 0);
   t.deepEqual(element.innerHTML, '<div></div><a></a><b></b><span></span>');
@@ -272,7 +272,7 @@ test('first is updated when removing by subIndex', t => {
   stower.add(a, 1, 0);
   stower.add(b, 1, 1);
   t.deepEqual(element.innerHTML, '<a></a><b></b>');
-  stower.remove(1, 0);
+  stower.remove(null, 1, 0);
   t.deepEqual(element.innerHTML, '<b></b>');
   stower.add(div, 0);
   t.deepEqual(element.innerHTML, '<div></div><b></b>');
@@ -284,11 +284,11 @@ test('inserting over another index should push the rest', t => {
   stower.add(b, 1, 0);
   stower.add(c, 1, 0);
   t.deepEqual(element.innerHTML, '<c></c><b></b><a></a>');
-  stower.remove(1, 0);
+  stower.remove(null, 1, 0);
   t.deepEqual(element.innerHTML, '<b></b><a></a>');
   stower.add(div, 0);
   t.deepEqual(element.innerHTML, '<div></div><b></b><a></a>');
-  stower.remove(1, 0);
+  stower.remove(null, 1, 0);
   t.deepEqual(element.innerHTML, '<div></div><a></a>');
 });
 
@@ -301,21 +301,21 @@ test('subIndex with array and before', t => {
 
 test('or', t => {
   const { element, stower, div, a } = t.context;
-  stower.or(a, 0);
+  stower.or(0, a);
   t.deepEqual(element.innerHTML, '<a></a>');
   stower.add(div, 0);
   t.deepEqual(element.innerHTML, '<div></div>');
-  stower.remove(0);
+  stower.remove(null, 0);
   t.deepEqual(element.innerHTML, '<a></a>');
 });
 
 test('or can be false(y)', t => {
   const { element, stower, div } = t.context;
-  stower.or(false, 0);
+  stower.or(0, false);
   t.deepEqual(element.innerHTML, 'false');
   stower.add(div, 0);
   t.deepEqual(element.innerHTML, '<div></div>');
-  stower.remove(0);
+  stower.remove(null, 0);
   t.deepEqual(element.innerHTML, 'false');
 });
 
@@ -323,20 +323,20 @@ test('or as function', t => {
   const { element, stower, div } = t.context;
   let hello = 0;
   const or = () => ++hello;
-  stower.or(or, 0);
+  stower.or(0, or);
   t.deepEqual(element.innerHTML, '1');
   stower.add(div, 0);
   t.deepEqual(element.innerHTML, '<div></div>');
-  stower.remove(0);
+  stower.remove(null, 0);
   t.deepEqual(element.innerHTML, '2');
 });
 
 test('replace array with subindex', t => {
   const { element, stower } = t.context;
-  stower.or('+', 0);
+  stower.or(0, '+');
   stower.add(['-', null], 0, 0);
   t.deepEqual(element.innerHTML, '-');
-  stower.remove(0, 0);
+  stower.remove(null, 0, 0);
   t.deepEqual(element.innerHTML, '+');
   stower.add([null, '+'], 0, 0);
   t.deepEqual(element.innerHTML, '+');

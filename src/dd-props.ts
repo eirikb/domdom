@@ -1,5 +1,5 @@
 import { Data } from '@eirikb/data';
-import { Domode, Hodor } from 'types';
+import { Domode, Hodor } from './types';
 
 function setVal(element: any, key: string, value: any) {
   if (typeof element[key] === 'object') {
@@ -65,7 +65,7 @@ export default (
               setVal(element, key, _or);
             }
           },
-          or(or: any) {
+          or(_: number, or: any) {
             _or = or;
             setVal(element, key, or);
           },

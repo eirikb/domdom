@@ -1,11 +1,10 @@
 import { Data, Callback } from '@eirikb/data';
 import createHodor from './hodor';
-import { Context, ContextOptions, Domode, Hodor } from 'types';
+import { Context, ContextOptions, Domode, Hodor, Domponent } from './types';
 
-// Rename Domponent
 export default function(
   data: Data,
-  tagName: (contextOptions: ContextOptions) => Domode,
+  tagName: Domponent,
   props: any,
   ...children: (Domode | Hodor)[]
 ): Domode {
