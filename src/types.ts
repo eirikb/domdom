@@ -5,7 +5,9 @@ import {
   Sorter,
   SorterOn,
   Stower,
-} from '@eirikb/data/dist/types';
+} from '@eirikb/data';
+
+export declare type Domponent = (contextOptions: ContextOptions) => Domode;
 
 export interface ContextOptions {
   on?(path: string, listener?: Function): void;

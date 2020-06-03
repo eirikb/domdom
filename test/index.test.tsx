@@ -1,8 +1,7 @@
 import { serial as test } from 'ava';
 // @ts-ignore
 import browserEnv from 'browser-env';
-import domdom from '../src';
-import { ContextOptions, Domdom } from 'types';
+import domdom, { Domponent, Domdom } from '../src';
 
 browserEnv();
 
@@ -24,10 +23,8 @@ test.beforeEach(() => {
   append = d.append;
 });
 
-type DomFun = (options: ContextOptions) => HTMLElement;
-
 test('Component', async t => {
-  const Test: DomFun = ({ on }) => {
+  const Test: Domponent = ({ on }) => {
     return <div>{on!('test')}</div>;
   };
 
@@ -276,7 +273,7 @@ test('Child listener', async t => {
 });
 
 test('Simple when', async t => {
-  const Test: DomFun = ({ on }) => {
+  const Test: Domponent = ({ on }) => {
     return <div>{on!('test', t => t)}</div>;
   };
 
@@ -558,7 +555,7 @@ test('Listener in when 2', async t => {
 test('Mounted', async t => {
   t.plan(1);
 
-  const Hello: DomFun = ({ mounted }) => {
+  const Hello: Domponent = ({ mounted }) => {
     mounted!(() => t.pass());
     return <div />;
   };
@@ -576,7 +573,7 @@ test('Mounted', async t => {
 test('Mounted on/off', async t => {
   t.plan(2);
 
-  const Hello: DomFun = ({ mounted }) => {
+  const Hello: Domponent = ({ mounted }) => {
     mounted!(() => t.pass());
     return <div />;
   };
@@ -684,7 +681,7 @@ test('Update array without element', async t => {
 });
 
 test('Containment', async t => {
-  const Button: DomFun = ({ children }) => <button>{children}</button>;
+  const Button: Domponent = ({ children }) => <button>{children}</button>;
 
   domdom(document.body, () => <Button>Test</Button>);
   t.is(await html(), '<button>Test</button>');
@@ -1190,7 +1187,7 @@ test('When + filterOn const text', async t => {
 });
 
 test('On child attribute listener', async t => {
-  const Yes: DomFun = ({ on }) => {
+  const Yes: Domponent = ({ on }) => {
     return <a href={on!('>.link')}>test</a>;
   };
 
@@ -1230,7 +1227,7 @@ test('Same listener twice no problem', async t => {
 });
 
 test('Same listener twice no problem on when', async t => {
-  const Yes: DomFun = ({ when }) => {
+  const Yes: Domponent = ({ when }) => {
     return <div>{when!('test', ['yes', () => 'OK!'])}</div>;
   };
 
@@ -1243,7 +1240,7 @@ test('Same listener twice no problem on when', async t => {
 test('Function in on', async t => {
   const { React, data, append } = domdom();
 
-  const Yes: DomFun = ({ on }) => {
+  const Yes: Domponent = ({ on }) => {
     return (
       <div>
         {on!('yes', () => (
@@ -1273,7 +1270,7 @@ test('Function in on', async t => {
 });
 
 test('When and on no duplicated', async t => {
-  const Yes: DomFun = ({ on }) => {
+  const Yes: Domponent = ({ on }) => {
     return (
       <div>
         {on!('myse.type', () => (
@@ -1420,7 +1417,7 @@ test('Convenience view before domdom', async t => {
 test('Flags in components are work and cleared', async t => {
   let counter = 0;
 
-  const Hello: DomFun = ({ on }) => {
+  const Hello: Domponent = ({ on }) => {
     const e = <div>Hello!</div>;
     on!('!+* tast', test => {
       counter++;
@@ -1469,7 +1466,7 @@ test('Element with event but not added via domdom', async t => {
 });
 
 test.skip('Hodor as a child', async t => {
-  const Parent: DomFun = ({ children }) => {
+  const Parent: Domponent = ({ children }) => {
     return <div>{children}</div>;
   };
 
@@ -1486,7 +1483,7 @@ test.skip('Hodor as a child', async t => {
 test('Re-usable domdom', async t => {
   const { React, data, append } = domdom();
 
-  const Hello: DomFun = ({ on }) => {
+  const Hello: Domponent = ({ on }) => {
     return <div>Hello {on!('test')}</div>;
   };
 

@@ -1,14 +1,11 @@
 import test from 'ava';
 import createHodor from '../src/hodor';
-import Data from '@eirikb/data';
-import Stower from '../src/stower';
-import domdom from '../src';
-import { Hodor } from '../src/types';
+import createStower from '../src/stower';
+import domdom, { Hodor, Callback } from '../src';
+import createData from '@eirikb/data';
 
 // @ts-ignore
 import browserEnv from 'browser-env';
-import { Callback } from '@eirikb/data';
-// import { ContextOptions } from "../src/types";
 
 browserEnv();
 
@@ -18,12 +15,10 @@ interface HodorWithMount extends Hodor {
   mount: Function;
 }
 
-// type DomFun = (options: ContextOptions) => HTMLElement;
-
 function setup(path: string, listener?: Callback) {
-  const data = Data();
+  const data = createData();
   const element = document.createElement('div');
-  const stower = Stower(element);
+  const stower = createStower(element);
   const hodor = createHodor(data, path, listener) as HodorWithMount;
   hodor.stower(0, stower);
   const html = () => element.outerHTML;

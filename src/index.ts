@@ -1,18 +1,25 @@
-import createData, { Data } from '@eirikb/data';
+import createData, { Data, Callback } from '@eirikb/data';
 import Context from './context';
 import ddProps from './dd-props';
-import Stower from './stower';
+import createStower from './stower';
 import createHodor from './hodor';
-import { Domdom, ContextOptions, Hodor, Domode } from 'types';
+import { Domdom, ContextOptions, Hodor, Domode, Domponent } from './types';
+
+export * from './types';
+export * from '@eirikb/data';
 
 export function isProbablyPlainObject(obj: any) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
 }
 
+export function domdom(): Domdom;
+
 export function domdom(
-  parent?: HTMLElement,
-  view?: (contextOptions: ContextOptions) => Domode
-): Domdom | Data {
+  parent: HTMLElement,
+  view: (contextOptions: ContextOptions) => Domode
+): Data;
+
+export function domdom(parent?: HTMLElement, view?: Domponent): Domdom | Data {
   const data = createData();
   const React = {
     createElement(
@@ -26,7 +33,7 @@ export function domdom(
 
       const hodors: Hodor[] = [];
       const element = document.createElement(tagName) as Domode;
-      const stower = Stower(element);
+      const stower = createStower(element);
 
       const addHodor = (index: number, hodor: Hodor) => {
         hodor.element = element;
@@ -103,7 +110,7 @@ export function domdom(
         }
       };
 
-      element['on'] = (path, listener) => {
+      element['on'] = (path, listener: Callback) => {
         hodors.push(createHodor(data, path, listener));
       };
 

@@ -4,8 +4,7 @@ export function isProbablyPlainObject(obj: any) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
 }
 
-export default function(element: HTMLElement): Stower {
-  const self = {} as Stower;
+export default function (element: HTMLElement): Stower {
   const slots: HTMLElement[][] = [];
   const first: HTMLElement[] = [];
   const ors: any[] = [];
@@ -104,16 +103,6 @@ export default function(element: HTMLElement): Stower {
     }
   }
 
-  self.add = (child: any, index: number, subIndex: number) => {
-    if (typeof subIndex !== 'undefined') {
-      addWithSubIndex(child, index, subIndex);
-    } else if (Array.isArray(child)) {
-      addArray(child, index);
-    } else {
-      addSingle(child, index);
-    }
-  };
-
   function removeSingle(child: any, index: number) {
     delete slots[index];
     delete first[index];
@@ -145,23 +134,33 @@ export default function(element: HTMLElement): Stower {
     }
   }
 
-  self.remove = (index: number, subIndex: number) => {
-    if (typeof subIndex !== 'undefined') {
-      removeWithSubIndex(index, subIndex);
-    } else {
-      const child = slots[index];
-      if (Array.isArray(child)) {
-        removeArray(child, index);
+  return {
+    add(child: any, index: number, subIndex: number) {
+      if (typeof subIndex !== 'undefined') {
+        addWithSubIndex(child, index, subIndex);
+      } else if (Array.isArray(child)) {
+        addArray(child, index);
       } else {
-        removeSingle(child, index);
+        addSingle(child, index);
       }
+    },
+
+    remove(_: any, index: number, subIndex: number) {
+      if (typeof subIndex !== 'undefined') {
+        removeWithSubIndex(index, subIndex);
+      } else {
+        const child = slots[index];
+        if (Array.isArray(child)) {
+          removeArray(child, index);
+        } else {
+          removeSingle(child, index);
+        }
+      }
+    },
+
+    or(index: number, or: any) {
+      ors[index] = or;
+      remove(index);
     }
   };
-
-  self.or = (or: any, index: number) => {
-    ors[index] = or;
-    remove(index);
-  };
-
-  return self;
 }

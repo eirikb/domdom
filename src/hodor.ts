@@ -8,11 +8,11 @@ import {
   Pathifier,
   Callback,
 } from '@eirikb/data';
-import { Domode, Hodor } from 'types';
+import { Domode, Hodor } from './types';
 
-export default (data: Data, path: string, listener: Callback): Hodor => {
+export default (data: Data, path: string, listener?: Callback): Hodor => {
   const listenerSet = !!listener;
-  if (!listener) {
+  if (listener === undefined) {
     listener = (_: any) => _;
   }
   if (typeof listener !== 'function') {
@@ -21,18 +21,18 @@ export default (data: Data, path: string, listener: Callback): Hodor => {
 
   let stower: Stower,
     _or: Function,
-    index: Number,
+    index: number,
     pathifier: Pathifier,
     listening: boolean;
   let _filter: Filter,
-    _filterOn: FilterOn,
+    _filterOn: { path: string; filterOn: FilterOn },
     _sort: Sorter,
-    _sortOn: SorterOn,
-    _map: Function;
+    _sortOn: { path: string; sorterOn: SorterOn },
+    _map: Callback;
 
   const listeners: { flagsAndPath: string; cb: Function; ref: string }[] = [];
 
-  function on(flagsAndPath: string, cb: Function) {
+  function on(flagsAndPath: string, cb: Callback) {
     const ref = data.on(flagsAndPath, cb);
     listeners.push({ flagsAndPath, cb, ref });
   }
@@ -50,19 +50,19 @@ export default (data: Data, path: string, listener: Callback): Hodor => {
       _filter = filter;
       return hodor;
     },
-    filterOn(path: string, filter: FilterOn) {
-      _filterOn = { path, filter };
+    filterOn(path: string, filterOn: FilterOn) {
+      _filterOn = { path, filterOn };
       return hodor;
     },
     sort(sort: Sorter) {
       _sort = sort;
       return hodor;
     },
-    sortOn(path: string, sort: SorterOn) {
-      _sortOn = { path, sort };
+    sortOn(path: string, sorterOn: SorterOn) {
+      _sortOn = { path, sorterOn };
       return hodor;
     },
-    map(map: Function) {
+    map(map: Callback) {
       if (listenerSet) {
         throw new Error(`Sorry, can't combine listener and map`);
       }
@@ -73,7 +73,7 @@ export default (data: Data, path: string, listener: Callback): Hodor => {
       index = i;
       stower = s;
       if (_or) {
-        stower.or(_or, index);
+        stower.or(index, _or);
       }
       return hodor;
     },
@@ -124,37 +124,41 @@ export default (data: Data, path: string, listener: Callback): Hodor => {
           const subIndex = hodor.paths.indexOf(path);
           if (subIndex >= 0) {
             hodor.paths.splice(subIndex, 1);
-            stower.remove(index, subIndex);
+            stower.remove(null, index, subIndex);
           }
-          const res = listener(val);
+          const res = listener!(val, {}) as any;
           if (typeof res === 'object') {
             res.path = path;
           }
-          stower.add(res, index, hodor.paths.length);
+          stower.add(res, index, hodor.paths.length, path);
           hodor.paths.push(path);
         });
         on(`- ${path}`, (_: any, { path }: { path: string }) => {
           const subIndex = hodor.paths.indexOf(path);
           hodor.paths.splice(subIndex, 1);
-          stower.remove(index, subIndex);
+          stower.remove(null, index, subIndex);
         });
         return;
       }
       pathifier = data.on(path);
       if (_map) pathifier.map(_map);
       if (_filter) pathifier.filter(_filter);
-      if (_filterOn) pathifier.filterOn(_filterOn.path, _filterOn.filter);
+      if (_filterOn) pathifier.filterOn(_filterOn.path, _filterOn.filterOn);
       if (_sort) pathifier.sort(_sort);
-      if (_sortOn) pathifier.sortOn(_sortOn.path, _sortOn.sort);
+      if (_sortOn) pathifier.sortOn(_sortOn.path, _sortOn.sorterOn);
       pathifier.toArray({
-        add(subIndex: number, p: string, value: any) {
-          if (typeof value === 'object') {
-            value.path = [pathifier.from, p].join('.');
-          }
-          stower.add(value, index, subIndex);
+        or(_: number, __: any): void {
         },
-        remove(subIndex: number) {
-          stower.remove(index, subIndex);
+
+        add(value: any, subIndex: number, _?: number, path?: string) {
+          if (typeof value === 'object') {
+            value.path = [(pathifier as any).from, path].join('.');
+          }
+
+          stower.add(value, index, subIndex, path);
+        },
+        remove(value: any, subIndex: number, _: number, path: string) {
+          stower.remove(value, index, subIndex, path);
         },
       });
     },
