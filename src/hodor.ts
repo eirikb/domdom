@@ -147,8 +147,7 @@ export default (data: Data, path: string, listener?: Callback): Hodor => {
       if (_sort) pathifier.sort(_sort);
       if (_sortOn) pathifier.sortOn(_sortOn.path, _sortOn.sorterOn);
       pathifier.toArray({
-        or(_: number, __: any): void {
-        },
+        or(_: number, __: any): void {},
 
         add(value: any, subIndex: number, _?: number, path?: string) {
           if (typeof value === 'object') {

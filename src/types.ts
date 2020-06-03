@@ -1,11 +1,4 @@
-import {
-  Data,
-  Filter,
-  FilterOn,
-  Sorter,
-  SorterOn,
-  Stower,
-} from '@eirikb/data';
+import { Data, Filter, FilterOn, Sorter, SorterOn, Stower } from '@eirikb/data';
 
 export declare type Domponent = (contextOptions: ContextOptions) => Domode;
 

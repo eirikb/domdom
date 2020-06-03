@@ -4,7 +4,7 @@ export function isProbablyPlainObject(obj: any) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
 }
 
-export default function (element: HTMLElement): Stower {
+export default function(element: HTMLElement): Stower {
   const slots: HTMLElement[][] = [];
   const first: HTMLElement[] = [];
   const ors: any[] = [];
@@ -161,6 +161,6 @@ export default function (element: HTMLElement): Stower {
     or(index: number, or: any) {
       ors[index] = or;
       remove(index);
-    }
+    },
   };
 }
