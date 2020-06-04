@@ -1,4 +1,4 @@
-import createData, { Data, Callback } from '@eirikb/data';
+import createData, { Data, Callback } from './deps.ts';
 import Context from './context.ts';
 import ddProps from './dd-props.ts';
 import createStower from './stower.ts';

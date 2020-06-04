@@ -1,5 +1,5 @@
-import { Data } from '@eirikb/data';
-import { Domode, Hodor } from './types';
+import { Data } from './deps.ts';
+import { Domode, Hodor } from './types.ts';
 
 function setVal(element: any, key: string, value: any) {
   if (typeof element[key] === 'object') {

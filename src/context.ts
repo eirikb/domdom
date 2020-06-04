@@ -1,6 +1,6 @@
-import { Data, Callback } from '@eirikb/data';
-import createHodor from './hodor';
-import { Context, ContextOptions, Domode, Hodor, Domponent } from './types';
+import { Data, Callback } from './deps.ts';
+import createHodor from './hodor.ts';
+import { Context, ContextOptions, Domode, Hodor, Domponent } from './types.ts';
 
 export default function(
   data: Data,
