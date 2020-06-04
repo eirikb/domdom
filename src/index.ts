@@ -6,7 +6,7 @@ import createHodor from "./hodor.ts";
 import { Domdom, ContextOptions, Hodor, Domode, Domponent } from "./types.ts";
 
 export * from "./types.ts";
-export * from "@eirikb/data";
+export * from "./deps.ts";
 
 export function isProbablyPlainObject(obj: any) {
   return typeof obj === "object" && obj !== null && obj.constructor === Object;
