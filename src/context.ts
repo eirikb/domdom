@@ -1,14 +1,14 @@
-import { Data, Callback } from './deps.ts';
-import createHodor from './hodor.ts';
-import { Context, ContextOptions, Domode, Hodor, Domponent } from './types.ts';
+import { Data, Callback } from "./deps.ts";
+import createHodor from "./hodor.ts";
+import { Context, ContextOptions, Domode, Hodor, Domponent } from "./types.ts";
 
-export default function(
+export default function (
   data: Data,
   tagName: Domponent,
   props: any,
   ...children: (Domode | Hodor)[]
 ): Domode {
-  children = children.flatMap(child => child);
+  children = children.flatMap((child) => child);
   const mounteds: Function[] = [];
   const headlessHodors: Hodor[] = [];
 
@@ -27,7 +27,7 @@ export default function(
     on: (path, listener: Callback) => on(path, listener),
     when: (path, options: (string | Function)[]) => {
       if (!Array.isArray(options)) {
-        throw new Error('Second arguments must be an array');
+        throw new Error("Second arguments must be an array");
       }
       return on(path, (...args: any[]) => {
         const res = args[0];
@@ -36,16 +36,16 @@ export default function(
           const cond = options[i];
           const listener = options[i + 1];
           let pass = false;
-          if (typeof cond === 'function') {
+          if (typeof cond === "function") {
             pass = cond(res, args);
           } else {
             pass = cond === res;
           }
           if (pass) {
-            if (typeof listener === 'function') {
+            if (typeof listener === "function") {
               result.push(listener(...args));
             } else {
-              throw new Error('Listener must be a function');
+              throw new Error("Listener must be a function");
             }
           }
         }

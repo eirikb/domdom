@@ -1,22 +1,22 @@
-import { Stower } from './deps.ts';
+import { Stower } from "./deps.ts";
 
 export function isProbablyPlainObject(obj: any) {
-  return typeof obj === 'object' && obj !== null && obj.constructor === Object;
+  return typeof obj === "object" && obj !== null && obj.constructor === Object;
 }
 
-export default function(element: HTMLElement): Stower {
+export default function (element: HTMLElement): Stower {
   const slots: HTMLElement[][] = [];
   const first: HTMLElement[] = [];
   const ors: any[] = [];
   const hasOr: any[] = [];
 
   function escapeChild(child: any) {
-    if (child === null || typeof child === 'undefined') {
-      return document.createTextNode('');
+    if (child === null || typeof child === "undefined") {
+      return document.createTextNode("");
     } else if (
-      typeof child === 'string' ||
-      typeof child === 'number' ||
-      typeof child === 'boolean'
+      typeof child === "string" ||
+      typeof child === "number" ||
+      typeof child === "boolean"
     ) {
       return document.createTextNode(`${child}`);
     } else if (isProbablyPlainObject(child)) {
@@ -26,7 +26,7 @@ export default function(element: HTMLElement): Stower {
   }
 
   function add(index: number, child: any, before: HTMLElement) {
-    if (typeof hasOr[index] !== 'undefined') {
+    if (typeof hasOr[index] !== "undefined") {
       element.removeChild(hasOr[index]);
       delete hasOr[index];
     }
@@ -43,11 +43,11 @@ export default function(element: HTMLElement): Stower {
     }
 
     if (
-      typeof ors[index] !== 'undefined' &&
+      typeof ors[index] !== "undefined" &&
       (!slots[index] || slots[index].length === 0)
     ) {
       let or = ors[index];
-      if (typeof or === 'function') or = or();
+      if (typeof or === "function") or = or();
       or = escapeChild(or);
       hasOr[index] = or;
       element.appendChild(or);
@@ -59,7 +59,7 @@ export default function(element: HTMLElement): Stower {
     if (slots[index]) {
       removeSingle(slots[index], index);
     }
-    const before = first.slice(index).find(element => element);
+    const before = first.slice(index).find((element) => element);
     add(index, child, before!);
     first[index] = child;
     slots[index] = child;
@@ -70,8 +70,8 @@ export default function(element: HTMLElement): Stower {
     if (slots[index]) {
       removeArray(slots[index], index);
     }
-    const before = first.slice(index).find(element => element);
-    children.map(child => add(index, child, before!));
+    const before = first.slice(index).find((element) => element);
+    children.map((child) => add(index, child, before!));
     first[index] = children[0];
     slots[index] = children;
   }
@@ -84,11 +84,11 @@ export default function(element: HTMLElement): Stower {
       before = slots[index][subIndex];
     }
     if (before === undefined) {
-      before = first.slice(index + 1).find(element => element);
+      before = first.slice(index + 1).find((element) => element);
     }
 
     if (isArray) {
-      (child as any[]).forEach(child => add(index, child, before!));
+      (child as any[]).forEach((child) => add(index, child, before!));
     } else {
       add(index, child, before!);
     }
@@ -122,7 +122,7 @@ export default function(element: HTMLElement): Stower {
     if (!child) return;
 
     if (Array.isArray(child)) {
-      child.forEach(child => remove(index, child));
+      child.forEach((child) => remove(index, child));
       slots[index] = [];
       remove(index);
     } else {
@@ -136,7 +136,7 @@ export default function(element: HTMLElement): Stower {
 
   return {
     add(child: any, index: number, subIndex: number) {
-      if (typeof subIndex !== 'undefined') {
+      if (typeof subIndex !== "undefined") {
         addWithSubIndex(child, index, subIndex);
       } else if (Array.isArray(child)) {
         addArray(child, index);
@@ -146,7 +146,7 @@ export default function(element: HTMLElement): Stower {
     },
 
     remove(_: any, index: number, subIndex: number) {
-      if (typeof subIndex !== 'undefined') {
+      if (typeof subIndex !== "undefined") {
         removeWithSubIndex(index, subIndex);
       } else {
         const child = slots[index];

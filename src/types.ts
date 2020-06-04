@@ -1,4 +1,4 @@
-import { Data, Filter, FilterOn, Sorter, SorterOn, Stower } from './deps.ts';
+import { Data, Filter, FilterOn, Sorter, SorterOn, Stower } from "./deps.ts";
 
 export declare type Domponent = (contextOptions: ContextOptions) => Domode;
 

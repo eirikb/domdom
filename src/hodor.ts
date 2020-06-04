@@ -7,16 +7,16 @@ import {
   Data,
   Pathifier,
   Callback,
-} from './deps.ts';
-import { Domode, Hodor } from './types.ts';
+} from "./deps.ts";
+import { Domode, Hodor } from "./types.ts";
 
 export default (data: Data, path: string, listener?: Callback): Hodor => {
   const listenerSet = !!listener;
   if (listener === undefined) {
     listener = (_: any) => _;
   }
-  if (typeof listener !== 'function') {
-    throw new Error('Listener must be a function');
+  if (typeof listener !== "function") {
+    throw new Error("Listener must be a function");
   }
 
   let stower: Stower,
@@ -82,7 +82,7 @@ export default (data: Data, path: string, listener?: Callback): Hodor => {
         return;
       }
       isMounted = true;
-      if (typeof hodor.listen === 'function') {
+      if (typeof hodor.listen === "function") {
         hodor.listen(path);
       }
     },
@@ -92,14 +92,14 @@ export default (data: Data, path: string, listener?: Callback): Hodor => {
     },
     off() {
       if (pathifier) pathifier.off();
-      for (let listener of listeners.filter(l => l.ref)) {
+      for (let listener of listeners.filter((l) => l.ref)) {
         data.off(listener.ref);
         delete listener.ref;
       }
       listening = false;
     },
     paths: [],
-    listen: path => {
+    listen: (path) => {
       if (listening) {
         return;
       }
@@ -127,7 +127,7 @@ export default (data: Data, path: string, listener?: Callback): Hodor => {
             stower.remove(null, index, subIndex);
           }
           const res = listener!(val, {}) as any;
-          if (typeof res === 'object') {
+          if (typeof res === "object") {
             res.path = path;
           }
           stower.add(res, index, hodor.paths.length, path);
@@ -150,8 +150,8 @@ export default (data: Data, path: string, listener?: Callback): Hodor => {
         or(_: number, __: any): void {},
 
         add(value: any, subIndex: number, _?: number, path?: string) {
-          if (typeof value === 'object') {
-            value.path = [(pathifier as any).from, path].join('.');
+          if (typeof value === "object") {
+            value.path = [(pathifier as any).from, path].join(".");
           }
 
           stower.add(value, index, subIndex, path);

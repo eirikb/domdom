@@ -1,22 +1,22 @@
-import createData, { Data, Callback } from './deps.ts';
-import Context from './context.ts';
-import ddProps from './dd-props.ts';
-import createStower from './stower.ts';
-import createHodor from './hodor.ts';
-import { Domdom, ContextOptions, Hodor, Domode, Domponent } from './types.ts';
+import createData, { Data, Callback } from "./deps.ts";
+import Context from "./context.ts";
+import ddProps from "./dd-props.ts";
+import createStower from "./stower.ts";
+import createHodor from "./hodor.ts";
+import { Domdom, ContextOptions, Hodor, Domode, Domponent } from "./types.ts";
 
-export * from './types.ts';
-export * from '@eirikb/data';
+export * from "./types.ts";
+export * from "@eirikb/data";
 
 export function isProbablyPlainObject(obj: any) {
-  return typeof obj === 'object' && obj !== null && obj.constructor === Object;
+  return typeof obj === "object" && obj !== null && obj.constructor === Object;
 }
 
 export function domdom(): Domdom;
 
 export function domdom(
   parent: HTMLElement,
-  view: (contextOptions: ContextOptions) => Domode
+  view: (contextOptions: ContextOptions) => Domode,
 ): Data;
 
 export function domdom(parent?: HTMLElement, view?: Domponent): Domdom | Data {
@@ -27,7 +27,7 @@ export function domdom(parent?: HTMLElement, view?: Domponent): Domdom | Data {
       props?: any,
       ...children: (Domode | Hodor)[]
     ): Domode {
-      if (typeof tagName === 'function') {
+      if (typeof tagName === "function") {
         return Context(data, tagName, props, ...children);
       }
 
@@ -60,7 +60,7 @@ export function domdom(parent?: HTMLElement, view?: Domponent): Domdom | Data {
       let counter = 0;
       for (let child of children) {
         const index = counter++;
-        if (typeof child === 'undefined' || child === null) {
+        if (typeof child === "undefined" || child === null) {
         } else if (child.isHodor) {
           addHodor(index, child as Hodor);
         } else {
@@ -87,8 +87,8 @@ export function domdom(parent?: HTMLElement, view?: Domponent): Domdom | Data {
 
         const nonSpecialProp = !key.match(/(^dd-|on[A-Z])/);
         if (nonSpecialProp) {
-          if (key === 'class') {
-            key = 'className';
+          if (key === "class") {
+            key = "className";
           }
           if (!(value && valueAsHodor.isHodor)) {
             setElementValue(key, value);
@@ -98,9 +98,9 @@ export function domdom(parent?: HTMLElement, view?: Domponent): Domdom | Data {
 
       element.destroy = () => {
         element.isMounted = false;
-        element.childNodes.forEach(child => {
+        element.childNodes.forEach((child) => {
           const asDomode = child as Domode;
-          if (typeof asDomode.destroy === 'function') {
+          if (typeof asDomode.destroy === "function") {
             const destroy = asDomode.destroy as Function;
             destroy();
           }
@@ -110,7 +110,7 @@ export function domdom(parent?: HTMLElement, view?: Domponent): Domdom | Data {
         }
       };
 
-      element['on'] = (path, listener: Callback) => {
+      element["on"] = (path, listener: Callback) => {
         hodors.push(createHodor(data, path, listener));
       };
 
@@ -145,26 +145,26 @@ export function domdom(parent?: HTMLElement, view?: Domponent): Domdom | Data {
   }
 
   function squint(parent: HTMLElement) {
-    new MutationObserver(mutationList => {
+    new MutationObserver((mutationList) => {
       for (let mutation of mutationList) {
-        mutation.addedNodes.forEach(node => {
+        mutation.addedNodes.forEach((node) => {
           mount(node);
           const element = node as HTMLElement;
           if (element !== null && element.getElementsByTagName) {
             const children: Element[] = Array.from(
-              element.getElementsByTagName('*')
+              element.getElementsByTagName("*"),
             );
             for (let child of children) {
               mount(child);
             }
           }
         });
-        mutation.removedNodes.forEach(node => {
+        mutation.removedNodes.forEach((node) => {
           unmount(node);
           const element = node as HTMLElement;
           if (element !== null && element.getElementsByTagName) {
             const children: Element[] = Array.from(
-              element.getElementsByTagName('*')
+              element.getElementsByTagName("*"),
             );
             for (let child of children) {
               unmount(child);
@@ -177,21 +177,21 @@ export function domdom(parent?: HTMLElement, view?: Domponent): Domdom | Data {
 
   function append(
     parent: HTMLElement,
-    view: (contextOptions: ContextOptions) => Domode
+    view: (contextOptions: ContextOptions) => Domode,
   ) {
     squint(parent);
     const element = React.createElement(view);
     parent.appendChild(element);
   }
 
-  if (typeof parent === 'undefined') {
+  if (typeof parent === "undefined") {
     // @ts-ignore
     return { React, data, append } as DD;
   }
 
   // @ts-ignore
   window.React = React;
-  if (typeof global !== 'undefined') {
+  if (typeof global !== "undefined") {
     // @ts-ignore
     global.React = React;
   }
