@@ -1,11 +1,11 @@
 import createData, { Data, Callback } from '@eirikb/data';
-import Context from './context';
-import ddProps from './dd-props';
-import createStower from './stower';
-import createHodor from './hodor';
-import { Domdom, ContextOptions, Hodor, Domode, Domponent } from './types';
+import Context from './context.ts';
+import ddProps from './dd-props.ts';
+import createStower from './stower.ts';
+import createHodor from './hodor.ts';
+import { Domdom, ContextOptions, Hodor, Domode, Domponent } from './types.ts';
 
-export * from './types';
+export * from './types.ts';
 export * from '@eirikb/data';
 
 export function isProbablyPlainObject(obj: any) {
