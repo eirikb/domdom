@@ -1,5 +1,5 @@
-import { basename, dirname, isAbsolute, resolve } from 'path';
-import * as fs from 'fs';
+const { basename, dirname, isAbsolute, resolve } = require('path');
+const fs = require("fs");
 
 function isFile ( file ) {
     try {
@@ -27,7 +27,7 @@ function addExtensionIfNecessary ( file, extensions ) {
     return null;
 }
 
-export default function extensions ({extensions}) {
+function extensions ({extensions}) {
     if (!extensions || !extensions.length) {
         throw new Error( `Must specify { extensions: [..] } as non-empty array!` );
     }
@@ -53,3 +53,5 @@ export default function extensions ({extensions}) {
         }
     };
 }
+
+module.exports = extensions;
