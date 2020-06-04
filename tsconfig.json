@@ -8,6 +8,7 @@
     "rootDir": "./src",
     "strict": true,
     "noUnusedLocals": true,
+    "moduleResolution": "node",
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noImplicitAny": false,
