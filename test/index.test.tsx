@@ -1518,3 +1518,24 @@ test('Element with hodor but not added via domdom', async t => {
     }, 150);
   });
 });
+
+test('on with properties', async t => {
+  const div = ({ on }) => (
+    <div>
+      {on('users.$id', (user, { $id }) => {
+        return (
+          <div>
+            {$id}: {user.name}
+          </div>
+        );
+      })}
+    </div>
+  );
+  append(document.body, div);
+
+  dd.set('users', {
+    a: { name: 'A!' },
+    b: { name: 'B!' },
+  });
+  t.is(await html(), '<div><div>a: A!</div><div>b: B!</div></div>');
+});

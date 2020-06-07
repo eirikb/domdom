@@ -7,6 +7,7 @@ import {
   Data,
   Pathifier,
   Callback,
+  LooseObject,
 } from '@eirikb/data';
 import { Domode, Hodor } from './types';
 
@@ -120,20 +121,22 @@ export default (data: Data, path: string, listener?: Callback): Hodor => {
       }
 
       if (!_map) {
-        on(`!+* ${path}`, (val: any, { path }: { path: string }) => {
+        on(`!+* ${path}`, (val: any, props: LooseObject) => {
+          const path = props.path;
           const subIndex = hodor.paths.indexOf(path);
           if (subIndex >= 0) {
             hodor.paths.splice(subIndex, 1);
             stower.remove(null, index, subIndex);
           }
-          const res = listener!(val, {}) as any;
+          const res = listener!(val, props) as any;
           if (typeof res === 'object') {
             res.path = path;
           }
           stower.add(res, index, hodor.paths.length, path);
           hodor.paths.push(path);
         });
-        on(`- ${path}`, (_: any, { path }: { path: string }) => {
+        on(`- ${path}`, (_: any, props: LooseObject) => {
+          const path = props.path;
           const subIndex = hodor.paths.indexOf(path);
           hodor.paths.splice(subIndex, 1);
           stower.remove(null, index, subIndex);
