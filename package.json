@@ -1,7 +1,7 @@
 {
   "name": "@eirikb/domdom",
   "version": "4.11.10",
-  "description": "The proactive web framework for the unprofessional",
+  "description": "The proactive web front-end framework for the unprofessional",
   "scripts": {
     "build": "tsdx build",
     "lint": "tsdx lint",

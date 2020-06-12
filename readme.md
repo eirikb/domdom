@@ -1,18 +1,29 @@
+<h1 align="center">domdom</h1>
+<p align="center">The proactive web front-end framework for the unprofessional</p>
 <p align="center">
 
-![out4](https://user-images.githubusercontent.com/241706/83919341-b0a9fb00-a77a-11ea-9965-beea17502fdd.gif)
-
-<h1 align="center">Domdom</h1>
-<p align="center">The proactive web framework for the unprofessional</p>
+  <a href="https://npmjs.org/package/@eirikb/domdom">
+    <img src="https://img.shields.io/npm/v/@eirikb/domdom.svg">
+  </a>
+  <a href="https://github.com/eirikb/domdom/actions?query=workflow%3ABuild">
+    <img src="https://github.com/eirikb/domdom/workflows/Build/badge.svg">
+  </a>
+  <a href="https://bundlephobia.com/result?p=@eirikb/domdom">
+    <img src="https://badgen.net/bundlephobia/minzip/@eirikb/domdom">
+  </a>
+</p>
 <p align="center">
-
-[![npm](https://img.shields.io/npm/v/@eirikb/domdom.svg)](https://npmjs.org/package/@eirikb/domdom)
-[![Build](https://github.com/eirikb/domdom/workflows/Build/badge.svg)](https://github.com/eirikb/domdom/actions?query=workflow%3ABuild)
-[![bundlephobia](https://badgen.net/bundlephobia/minzip/@eirikb/domdom)](https://bundlephobia.com/result?p=@eirikb/domdom)
-
+	<a href="https://www.npmjs.com/package/@eirikb/domdom">npm</a> ·
+	<a href="https://deno.land/x/domdom">Deno</a>
+</p>
+<p align="center">
+<a target="_blank" rel="noopener noreferrer"
+     href="https://user-images.githubusercontent.com/241706/83919341-b0a9fb00-a77a-11ea-9965-beea17502fdd.gif"><img
+    src="https://user-images.githubusercontent.com/241706/83919341-b0a9fb00-a77a-11ea-9965-beea17502fdd.gif"
+    style=""></a>
 </p>
 
-<p align="center">
+---
 
 **Facts** - not highlights, just facts:
 
@@ -29,7 +40,7 @@
 
   - It's not as bad as you might think - Not great, not terrible
 
-</p>
+## Menu
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -62,7 +73,7 @@
 
 ## Deno
 
-Domdom has full support for Deno!  
+domdom has full support for Deno!  
 See https://github.com/eirikb/domdom-deno and https://deno.land/x/domdom .
 
 ## Getting started
@@ -541,7 +552,7 @@ const view = ({ on, get, set }) => {
 
 ## TypeScript
 
-Domdom has full TypeScript support, it's written in TypeScript after all.
+domdom has full TypeScript support, it's written in TypeScript after all.
 
 Work with `Domponent` like this:
 
