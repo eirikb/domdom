@@ -10,6 +10,7 @@ The proactive web framework for the unprofessional
 
 - Alternative to React + Redux or Vue + Vuex, with support for routing
 - No virtual dom
+- Support for Deno (without jspm or pika)
 - Nothing reactive - totally unreactive - fundamentally different from React
 - One global observable state
   - Support for re-usable components (with partition of global state)
@@ -44,6 +45,11 @@ The proactive web framework for the unprofessional
   - [Animation (garbage collection)](#animation-garbage-collection)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+## Deno
+
+Domdom has full support for Deno!  
+See https://github.com/eirikb/domdom-deno and https://deno.land/x/domdom .
 
 ## Getting started
 
