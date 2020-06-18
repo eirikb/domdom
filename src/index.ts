@@ -68,7 +68,9 @@ export function domdom(parent?: HTMLElement, view?: Domponent): Domdom | Data {
         }
       }
 
-      for (let [key, value] of Object.entries(props || {})) {
+      for (let [key, value] of Object.entries(props || {}).filter(
+        ([key]) => !key.startsWith('__')
+      )) {
         const valueAsHodor = value as Hodor;
         if (valueAsHodor.isHodor) {
           valueAsHodor.element = element;
