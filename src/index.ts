@@ -68,9 +68,11 @@ export function domdom(parent?: HTMLElement, view?: Domponent): Domdom | Data {
         }
       }
 
-      for (let [key, value] of Object.entries(props || {})) {
+      for (let [key, value] of Object.entries(props || {}).filter(
+        ([key]) => !key.startsWith('__')
+      )) {
         const valueAsHodor = value as Hodor;
-        if (valueAsHodor.isHodor) {
+        if (valueAsHodor && valueAsHodor.isHodor) {
           valueAsHodor.element = element;
         }
 
@@ -79,7 +81,7 @@ export function domdom(parent?: HTMLElement, view?: Domponent): Domdom | Data {
           const event = key[2].toLowerCase() + key.slice(3);
           element.addEventListener(event, (...args) => {
             const valueFn = value as Function;
-            if (valueFn !== null) {
+            if (valueFn !== undefined) {
               return valueFn(...args);
             }
           });

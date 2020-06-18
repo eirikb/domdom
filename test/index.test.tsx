@@ -1539,3 +1539,8 @@ test('on with properties', async t => {
   });
   t.is(await html(), '<div><div>a: A!</div><div>b: B!</div></div>');
 });
+
+test('properties without value should not crash', async t => {
+  append(document.body, () => <div style={undefined}></div>);
+  t.is(await html(), '<div style=""></div>');
+});
