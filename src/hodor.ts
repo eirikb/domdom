@@ -129,8 +129,8 @@ export default (data: Data, path: string, listener?: Callback): Hodor => {
             stower.remove(null, index, subIndex);
           }
           const res = listener!(val, props) as any;
-          if (typeof res === 'object') {
-            res.path = path;
+          if (res instanceof Element) {
+            (res as any).path = path;
           }
           stower.add(res, index, hodor.paths.length, path);
           hodor.paths.push(path);

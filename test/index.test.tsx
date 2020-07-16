@@ -674,10 +674,10 @@ test('Update array without element', async t => {
   append(document.body, view);
 
   dd.set('x', ['hello', 'world']);
-  t.is(await html(), '<div>{"0":"hello","1":"world","path":"x"}</div>');
+  t.is(await html(), '<div>{"0":"hello","1":"world"}</div>');
 
   dd.set('x', ['hello']);
-  t.is(await html(), '<div>{"0":"hello","path":"x"}</div>');
+  t.is(await html(), '<div>{"0":"hello"}</div>');
 });
 
 test('Containment', async t => {
@@ -1543,4 +1543,19 @@ test('on with properties', async t => {
 test('properties without value should not crash', async t => {
   append(document.body, () => <div style={undefined}></div>);
   t.is(await html(), '<div style=""></div>');
+});
+
+test('path should not be part of data', async t => {
+  t.plan(3);
+  append(document.body, ({ on }) => <div>{on('test')}</div>);
+  dd.on('!+* test', val => {
+    t.deepEqual(val, { hello: 'world' });
+  });
+  dd.set('test', {
+    hello: 'world',
+  });
+  dd.on('!+* test', val => {
+    t.deepEqual(val, { hello: 'world' });
+  });
+  t.is('<div>{"hello":"world"}</div>', await html());
 });
