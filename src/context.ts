@@ -1,4 +1,4 @@
-import { Data, Callback } from '@eirikb/data';
+import Data, { Callback } from '@eirikb/data';
 import createHodor from './hodor';
 import { Context, ContextOptions, Domode, Hodor, Domponent } from './types';
 

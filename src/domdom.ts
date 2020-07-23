@@ -1,4 +1,4 @@
-import createData, { Data, Callback } from '@eirikb/data';
+import Data, { Callback } from '@eirikb/data';
 import Context from './context';
 import ddProps from './dd-props';
 import createStower from './stower';
@@ -20,7 +20,7 @@ export function domdom(
 ): Data;
 
 export function domdom(parent?: HTMLElement, view?: Domponent): Domdom | Data {
-  const data = createData();
+  const data = new Data();
   const React = {
     createElement(
       tagName: (contextOptions: ContextOptions) => Domode,

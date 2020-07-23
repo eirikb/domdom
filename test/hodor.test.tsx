@@ -2,7 +2,7 @@ import test from 'ava';
 import createHodor from '../src/hodor';
 import createStower from '../src/stower';
 import domdom, { Hodor, Callback } from '../src';
-import createData from '@eirikb/data';
+import Data from '@eirikb/data';
 
 // @ts-ignore
 import browserEnv from 'browser-env';
@@ -16,7 +16,7 @@ interface HodorWithMount extends Hodor {
 }
 
 function setup(path: string, listener?: Callback) {
-  const data = createData();
+  const data = new Data();
   const element = document.createElement('div');
   const stower = createStower(element);
   const hodor = createHodor(data, path, listener) as HodorWithMount;

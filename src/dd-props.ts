@@ -1,4 +1,4 @@
-import { Data } from '@eirikb/data';
+import Data from '@eirikb/data';
 import { Domode, Hodor } from './types';
 
 function setVal(element: any, key: string, value: any) {

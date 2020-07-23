@@ -1,10 +1,9 @@
-import {
+import Data, {
   SorterOn,
   Sorter,
   FilterOn,
   Filter,
   Stower,
-  Data,
   Pathifier,
   Callback,
   LooseObject,
