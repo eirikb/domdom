@@ -4,13 +4,18 @@ export function isProbablyPlainObject(obj: any) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
 }
 
-export default function(element: HTMLElement): Stower {
-  const slots: HTMLElement[][] = [];
-  const first: HTMLElement[] = [];
-  const ors: any[] = [];
-  const hasOr: any[] = [];
+export default class implements Stower {
+  constructor(element: HTMLElement) {
+    this.element = element;
+  }
 
-  function escapeChild(child: any) {
+  element: HTMLElement;
+  slots: HTMLElement[][] = [];
+  first: HTMLElement[] = [];
+  ors: any[] = [];
+  hasOr: any[] = [];
+
+  escapeChild(child: any) {
     if (child === null || typeof child === 'undefined') {
       return document.createTextNode('');
     } else if (
@@ -25,142 +30,140 @@ export default function(element: HTMLElement): Stower {
     return child;
   }
 
-  function add(index: number, child: any, before: HTMLElement) {
-    if (typeof hasOr[index] !== 'undefined') {
-      element.removeChild(hasOr[index]);
-      delete hasOr[index];
+  _add(index: number, child: any, before: HTMLElement) {
+    if (typeof this.hasOr[index] !== 'undefined') {
+      this.element.removeChild(this.hasOr[index]);
+      delete this.hasOr[index];
     }
     if (before) {
-      element.insertBefore(child, before);
+      this.element.insertBefore(child, before);
     } else {
-      element.appendChild(child);
+      this.element.appendChild(child);
     }
   }
 
-  function remove(index: number, child?: HTMLElement) {
+  _remove(index: number, child?: HTMLElement) {
     if (child) {
-      element.removeChild(child);
+      this.element.removeChild(child);
     }
 
     if (
-      typeof ors[index] !== 'undefined' &&
-      (!slots[index] || slots[index].length === 0)
+      typeof this.ors[index] !== 'undefined' &&
+      (!this.slots[index] || this.slots[index].length === 0)
     ) {
-      let or = ors[index];
+      let or = this.ors[index];
       if (typeof or === 'function') or = or();
-      or = escapeChild(or);
-      hasOr[index] = or;
-      element.appendChild(or);
+      or = this.escapeChild(or);
+      this.hasOr[index] = or;
+      this.element.appendChild(or);
     }
   }
 
-  function addSingle(child: any, index: number) {
-    child = escapeChild(child);
-    if (slots[index]) {
-      removeSingle(slots[index], index);
+  addSingle(child: any, index: number) {
+    child = this.escapeChild(child);
+    if (this.slots[index]) {
+      this.removeSingle(this.slots[index], index);
     }
-    const before = first.slice(index).find(element => element);
-    add(index, child, before!);
-    first[index] = child;
-    slots[index] = child;
+    const before = this.first.slice(index).find(element => element);
+    this._add(index, child, before!);
+    this.first[index] = child;
+    this.slots[index] = child;
   }
 
-  function addArray(children: any[], index: number) {
-    children = children.map(escapeChild);
-    if (slots[index]) {
-      removeArray(slots[index], index);
+  addArray(children: any[], index: number) {
+    children = children.map(this.escapeChild);
+    if (this.slots[index]) {
+      this.removeArray(this.slots[index], index);
     }
-    const before = first.slice(index).find(element => element);
-    children.map(child => add(index, child, before!));
-    first[index] = children[0];
-    slots[index] = children;
+    const before = this.first.slice(index).find(element => element);
+    children.map(child => this._add(index, child, before!));
+    this.first[index] = children[0];
+    this.slots[index] = children;
   }
 
-  function addWithSubIndex(child: any, index: number, subIndex: number) {
+  addWithSubIndex(child: any, index: number, subIndex: number) {
     const isArray = Array.isArray(child);
-    child = isArray ? child.map(escapeChild) : escapeChild(child);
+    child = isArray ? child.map(this.escapeChild) : this.escapeChild(child);
     let before: HTMLElement | undefined;
-    if (first[index]) {
-      before = slots[index][subIndex];
+    if (this.first[index]) {
+      before = this.slots[index][subIndex];
     }
     if (before === undefined) {
-      before = first.slice(index + 1).find(element => element);
+      before = this.first.slice(index + 1).find(element => element);
     }
 
     if (isArray) {
-      (child as any[]).forEach(child => add(index, child, before!));
+      (child as any[]).forEach(child => this._add(index, child, before!));
     } else {
-      add(index, child, before!);
+      this._add(index, child, before!);
     }
-    slots[index] = slots[index] || [];
-    if (slots[index][subIndex]) {
-      slots[index].splice(subIndex, 0, child);
+    this.slots[index] = this.slots[index] || [];
+    if (this.slots[index][subIndex]) {
+      this.slots[index].splice(subIndex, 0, child);
     } else {
-      slots[index][subIndex] = child;
+      this.slots[index][subIndex] = child;
     }
     if (subIndex === 0) {
-      first[index] = isArray ? child[0] : child;
+      this.first[index] = isArray ? child[0] : child;
     }
   }
 
-  function removeSingle(child: any, index: number) {
-    delete slots[index];
-    delete first[index];
-    if (child) remove(index, child);
+  removeSingle(child: any, index: number) {
+    delete this.slots[index];
+    delete this.first[index];
+    if (child) this._remove(index, child);
   }
 
-  function removeArray(children: any[], index: number) {
-    delete slots[index];
-    delete first[index];
+  removeArray(children: any[], index: number) {
+    delete this.slots[index];
+    delete this.first[index];
     for (let child of children) {
-      remove(index, child);
+      this._remove(index, child);
     }
   }
 
-  function removeWithSubIndex(index: number, subIndex: number) {
-    const child = (slots[index] || {})[subIndex];
+  removeWithSubIndex(index: number, subIndex: number) {
+    const child = (this.slots[index] || {})[subIndex];
     if (!child) return;
 
     if (Array.isArray(child)) {
-      child.forEach(child => remove(index, child));
-      slots[index] = [];
-      remove(index);
+      child.forEach(child => this._remove(index, child));
+      this.slots[index] = [];
+      this._remove(index);
     } else {
-      slots[index].splice(subIndex, 1);
-      remove(index, child);
+      this.slots[index].splice(subIndex, 1);
+      this._remove(index, child);
     }
     if (subIndex === 0) {
-      first[index] = slots[index][0];
+      this.first[index] = this.slots[index][0];
     }
   }
 
-  return {
-    add(child: any, index: number, subIndex: number) {
-      if (typeof subIndex !== 'undefined') {
-        addWithSubIndex(child, index, subIndex);
-      } else if (Array.isArray(child)) {
-        addArray(child, index);
-      } else {
-        addSingle(child, index);
-      }
-    },
+  add(child: any, index: number, subIndex?: number) {
+    if (typeof subIndex !== 'undefined') {
+      this.addWithSubIndex(child, index, subIndex);
+    } else if (Array.isArray(child)) {
+      this.addArray(child, index);
+    } else {
+      this.addSingle(child, index);
+    }
+  }
 
-    remove(_: any, index: number, subIndex: number) {
-      if (typeof subIndex !== 'undefined') {
-        removeWithSubIndex(index, subIndex);
+  remove(_: any, index: number, subIndex?: number) {
+    if (typeof subIndex !== 'undefined') {
+      this.removeWithSubIndex(index, subIndex);
+    } else {
+      const child = this.slots[index];
+      if (Array.isArray(child)) {
+        this.removeArray(child, index);
       } else {
-        const child = slots[index];
-        if (Array.isArray(child)) {
-          removeArray(child, index);
-        } else {
-          removeSingle(child, index);
-        }
+        this.removeSingle(child, index);
       }
-    },
+    }
+  }
 
-    or(index: number, or: any) {
-      ors[index] = or;
-      remove(index);
-    },
-  };
+  or(index: number, or: any) {
+    this.ors[index] = or;
+    this._remove(index);
+  }
 }
