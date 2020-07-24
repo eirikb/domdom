@@ -1,8 +1,8 @@
 import test from 'ava';
-import createHodor from '../src/hodor';
+import { Hodor } from '../src/hodor';
 import Stower from '../src/stower';
-import domdom, { Hodor, Callback } from '../src';
-import Data from '@eirikb/data';
+import domdom from '../src/domdom';
+import { Data, Callback } from '@eirikb/data';
 
 // @ts-ignore
 import browserEnv from 'browser-env';
@@ -19,7 +19,7 @@ function setup(path: string, listener?: Callback) {
   const data = new Data();
   const element = document.createElement('div');
   const stower = new Stower(element);
-  const hodor = createHodor(data, path, listener) as HodorWithMount;
+  const hodor = new Hodor(data, path, listener) as HodorWithMount;
   hodor.stower(0, stower);
   const html = () => element.outerHTML;
   hodor.mount = () => {

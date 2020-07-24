@@ -1,6 +1,6 @@
-import Data, { Filter, FilterOn, Sorter, SorterOn, Stower } from '@eirikb/data';
+import { Data } from '@eirikb/data';
 
-export declare type Domponent = (contextOptions: ContextOptions) => Domode;
+export type Domponent = (contextOptions: ContextOptions) => Domode;
 
 export interface ContextOptions {
   on?(path: string, listener?: Function): void;
@@ -37,38 +37,6 @@ export interface Domode extends HTMLElement {
   mounted: Function;
 
   on(path: string, listener?: Function): void;
-}
-
-export interface Hodor {
-  path: string;
-
-  paths: string[];
-
-  element: Domode | null;
-
-  isHodor: boolean;
-
-  filter(filter: Filter): Hodor;
-
-  filterOn(path: string, filter: FilterOn): Hodor;
-
-  sort(sort: Sorter): Hodor;
-
-  sortOn(path: string, sort: SorterOn): Hodor;
-
-  map(map: Function): Hodor;
-
-  listen(path: string): void;
-
-  stower(i: number, stower: Stower): void;
-
-  mounted(): void;
-
-  destroy(): void;
-
-  off(): void;
-
-  or(or: Function): void;
 }
 
 export interface Context {

@@ -1,5 +1,6 @@
-import Data from '@eirikb/data';
-import { Domode, Hodor } from './types';
+import { Data } from '@eirikb/data';
+import { Domode } from './types';
+import { Hodor } from './hodor';
 
 function setVal(element: any, key: string, value: any) {
   if (typeof element[key] === 'object') {

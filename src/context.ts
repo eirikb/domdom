@@ -1,6 +1,6 @@
-import Data, { Callback } from '@eirikb/data';
-import createHodor from './hodor';
-import { Context, ContextOptions, Domode, Hodor, Domponent } from './types';
+import { Data, Callback } from '@eirikb/data';
+import { Hodor } from './hodor';
+import { Context, ContextOptions, Domode, Domponent } from './types';
 
 export default function(
   data: Data,
@@ -14,7 +14,7 @@ export default function(
 
   function on(path: string, listener: Callback) {
     const hasFlags = path.match(/ /);
-    const hodor = createHodor(data, path, listener);
+    const hodor = new Hodor(data, path, listener);
     if (hasFlags) {
       headlessHodors.push(hodor);
     }

@@ -1,12 +1,9 @@
-import Data, { Callback } from '@eirikb/data';
+import { Data, Callback } from '@eirikb/data';
 import Context from './context';
 import ddProps from './dd-props';
 import Stower from './stower';
-import createHodor from './hodor';
-import { Domdom, ContextOptions, Hodor, Domode, Domponent } from './types';
-
-export * from './types';
-export * from '@eirikb/data';
+import { Hodor } from './hodor';
+import { Domdom, ContextOptions, Domode, Domponent } from './types';
 
 export function isProbablyPlainObject(obj: any) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
@@ -113,7 +110,7 @@ export function domdom(parent?: HTMLElement, view?: Domponent): Domdom | Data {
       };
 
       element['on'] = (path, listener: Callback) => {
-        hodors.push(createHodor(data, path, listener));
+        hodors.push(new Hodor(data, path, listener));
       };
 
       element.mounted = () => {
