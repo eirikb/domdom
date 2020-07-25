@@ -4,7 +4,7 @@ export function isProbablyPlainObject(obj: any) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
 }
 
-export default class implements Stower {
+export class DomStower implements Stower {
   constructor(element: HTMLElement) {
     this.element = element;
   }

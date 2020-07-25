@@ -1,11 +1,11 @@
 import anyTest, { TestInterface } from 'ava';
 // @ts-ignore
 import browserEnv from 'browser-env';
-import Stower from '../src/stower';
+import { DomStower } from '../src/dom-stower';
 
 interface StowerContext {
   element: HTMLElement;
-  stower: Stower;
+  stower: DomStower;
   a: HTMLElement;
   b: HTMLElement;
   c: HTMLElement;
@@ -20,7 +20,7 @@ browserEnv();
 
 test.beforeEach(t => {
   t.context.element = document.createElement('div');
-  t.context.stower = new Stower(t.context.element);
+  t.context.stower = new DomStower(t.context.element);
   t.context.a = document.createElement('a');
   t.context.b = document.createElement('b');
   t.context.c = document.createElement('c');

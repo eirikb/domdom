@@ -1,7 +1,8 @@
 import { serial as test } from 'ava';
 // @ts-ignore
 import browserEnv from 'browser-env';
-import domdom, { Domponent, Domdom } from '../src';
+import domdom from '../src/domdom';
+import { Domponent, Domdom } from '../src/types';
 
 browserEnv();
 

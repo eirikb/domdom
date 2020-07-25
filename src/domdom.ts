@@ -1,7 +1,7 @@
 import { Data, Callback } from '@eirikb/data';
 import Context from './context';
 import ddProps from './dd-props';
-import Stower from './stower';
+import { DomStower } from './dom-stower';
 import { Hodor } from './hodor';
 import { Domdom, ContextOptions, Domode, Domponent } from './types';
 
@@ -30,7 +30,7 @@ export function domdom(parent?: HTMLElement, view?: Domponent): Domdom | Data {
 
       const hodors: Hodor[] = [];
       const element = document.createElement(tagName) as Domode;
-      const stower = new Stower(element);
+      const stower = new DomStower(element);
 
       const addHodor = (index: number, hodor: Hodor) => {
         hodor.element = element;
