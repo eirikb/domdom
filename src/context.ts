@@ -1,4 +1,4 @@
-import { Data, Callback } from '@eirikb/data';
+import { Data, ListenerCallback } from '@eirikb/data';
 import { Hodor } from './hodor';
 import { Context, ContextOptions, Domode, Domponent } from './types';
 
@@ -12,7 +12,7 @@ export default function(
   const mounteds: Function[] = [];
   const headlessHodors: Hodor[] = [];
 
-  function on(path: string, listener: Callback) {
+  function on(path: string, listener: ListenerCallback) {
     const hasFlags = path.match(/ /);
     const hodor = new Hodor(data, path, listener);
     if (hasFlags) {
@@ -24,7 +24,7 @@ export default function(
   const self: Context = {};
 
   const options: ContextOptions = {
-    on: (path, listener: Callback) => on(path, listener),
+    on: (path, listener: ListenerCallback) => on(path, listener),
     when: (path, options: (string | Function)[]) => {
       if (!Array.isArray(options)) {
         throw new Error('Second arguments must be an array');
@@ -53,7 +53,8 @@ export default function(
       });
     },
     unset: data.unset,
-    set: data.set,
+    set: (path: string, value: any, byKey?: string) =>
+      data.set(path, value, byKey),
     get: data.get,
     trigger: data.trigger,
     children,

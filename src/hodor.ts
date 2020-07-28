@@ -6,7 +6,7 @@ import {
   Filter,
   Stower,
   Pathifier,
-  Callback,
+  ListenerCallback,
   LooseObject,
 } from '@eirikb/data';
 import { Domode } from './types';
@@ -27,12 +27,12 @@ export class Hodor {
   _filterOn?: { path: string; filterOn: FilterOn };
   _sort?: Sorter;
   _sortOn?: { path: string; sorterOn: SorterOn };
-  _map?: Callback;
+  _map?: ListenerCallback;
   listenerSet = false;
   paths: string[] = [];
-  listener?: Callback;
+  listener?: ListenerCallback;
 
-  constructor(data: Data, path: string, listener?: Callback) {
+  constructor(data: Data, path: string, listener?: ListenerCallback) {
     this.data = data;
     this.listenerSet = !!listener;
     if (listener === undefined) {
@@ -50,7 +50,7 @@ export class Hodor {
     this.path = path;
   }
 
-  on(flagsAndPath: string, cb: Callback) {
+  on(flagsAndPath: string, cb: ListenerCallback) {
     const ref = this.data.on(flagsAndPath, cb);
     this.listeners.push({ flagsAndPath, cb, ref });
   }
@@ -75,7 +75,7 @@ export class Hodor {
     this._sortOn = { path, sorterOn };
     return this;
   }
-  map(map: Callback) {
+  map(map: ListenerCallback) {
     if (this.listenerSet) {
       throw new Error(`Sorry, can't combine listener and map`);
     }
@@ -133,7 +133,7 @@ export class Hodor {
     }
 
     if (!this._map) {
-      this.on(`!+* ${path}`, (val: any, props: LooseObject) => {
+      this.on(`!+* ${path}`, (val, props) => {
         const path = props.path;
         const subIndex = this.paths.indexOf(path);
         if (subIndex >= 0) {

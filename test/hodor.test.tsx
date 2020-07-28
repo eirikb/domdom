@@ -2,7 +2,7 @@ import test from 'ava';
 import { Hodor } from '../src/hodor';
 import { DomStower } from '../src/dom-stower';
 import domdom from '../src/domdom';
-import { Data, Callback } from '@eirikb/data';
+import { Data, ListenerCallback } from '@eirikb/data';
 
 // @ts-ignore
 import browserEnv from 'browser-env';
@@ -15,7 +15,7 @@ interface HodorWithMount extends Hodor {
   mount: Function;
 }
 
-function setup(path: string, listener?: Callback) {
+function setup(path: string, listener?: ListenerCallback) {
   const data = new Data();
   const element = document.createElement('div');
   const stower = new DomStower(element);
@@ -177,19 +177,19 @@ test('on sortOn - custom order', t => {
 
 test('filterOn and back', t => {
   const { data, html } = setup('users')
-    .map(user => <a>{user.name}</a>)
+    .map(user => <b>{user.name}</b>)
     .filterOn('test', (filter, user) => new RegExp(filter, 'i').test(user.name))
     ['mount']();
 
   data.set('test', '');
   data.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
-  t.is('<div><a>One!</a><a>Two!</a></div>', html());
+  t.is('<div><b>One!</b><b>Two!</b></div>', html());
 
   data.set('test', 'two');
-  t.is('<div><a>Two!</a></div>', html());
+  t.is('<div><b>Two!</b></div>', html());
 
   data.set('test', '');
-  t.is('<div><a>One!</a><a>Two!</a></div>', html());
+  t.is('<div><b>One!</b><b>Two!</b></div>', html());
   t.pass();
 });
 

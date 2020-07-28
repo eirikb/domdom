@@ -1,4 +1,4 @@
-import { Data, Callback } from '@eirikb/data';
+import { Data, ListenerCallback } from '@eirikb/data';
 import Context from './context';
 import ddProps from './dd-props';
 import { DomStower } from './dom-stower';
@@ -109,7 +109,7 @@ export function domdom(parent?: HTMLElement, view?: Domponent): Domdom | Data {
         }
       };
 
-      element['on'] = (path, listener: Callback) => {
+      element['on'] = (path, listener: ListenerCallback) => {
         hodors.push(new Hodor(data, path, listener));
       };
 

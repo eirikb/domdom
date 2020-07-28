@@ -1560,3 +1560,15 @@ test('path should not be part of data', async t => {
   });
   t.is('<div>{"hello":"world"}</div>', await html());
 });
+
+test('ContextOptions destructuring', async t => {
+  append(document.body, ({ on, set }) => (
+    <div>
+      {on('yes', () => set('no', 'ok'))}
+      {on('no')}
+    </div>
+  ));
+
+  dd.set('yes', ':)');
+  t.is(await html(), '<div>ok</div>');
+});
