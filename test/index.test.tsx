@@ -406,7 +406,7 @@ test('Listeners are cleared', async t => {
 
   let i = 0;
 
-  function Child({}) {
+  function Child() {
     const e = <div />;
     e.on('* test', () => i++);
     return e;
@@ -861,7 +861,7 @@ test('Update filterOn on update after data is set', async t => {
   const view = ({ on }) => (
     <div>
       {on('users')
-        .map(user => <a>{user.name}</a>)
+        .map(user => <b>{user.name}</b>)
         .filterOn('test', (filter, user) =>
           new RegExp(filter, 'i').test(user.name)
         )}
@@ -871,9 +871,9 @@ test('Update filterOn on update after data is set', async t => {
 
   dd.set('test', '');
   dd.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
-  t.is(await html(), '<div><a>One!</a><a>Two!</a></div>');
+  t.is(await html(), '<div><b>One!</b><b>Two!</b></div>');
   dd.set('test', 'two');
-  t.is(await html(), '<div><a>Two!</a></div>');
+  t.is(await html(), '<div><b>Two!</b></div>');
 });
 
 test('on sortOn - custom order', async t => {
@@ -969,7 +969,7 @@ test('filterOn and back', async t => {
   const view = ({ on }) => (
     <div>
       {on('users')
-        .map(user => <a>{user.name}</a>)
+        .map(user => <b>{user.name}</b>)
         .filterOn('test', (filter, user) =>
           new RegExp(filter, 'i').test(user.name)
         )}
@@ -979,11 +979,11 @@ test('filterOn and back', async t => {
   append(document.body, view);
   dd.set('test', '');
   dd.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
-  t.is(await html(), '<div><a>One!</a><a>Two!</a><p>Because</p></div>');
+  t.is(await html(), '<div><b>One!</b><b>Two!</b><p>Because</p></div>');
   dd.set('test', 'two');
-  t.is(await html(), '<div><a>Two!</a><p>Because</p></div>');
+  t.is(await html(), '<div><b>Two!</b><p>Because</p></div>');
   dd.set('test', '');
-  t.is(await html(), '<div><a>One!</a><a>Two!</a><p>Because</p></div>');
+  t.is(await html(), '<div><b>One!</b><b>Two!</b><p>Because</p></div>');
 });
 
 test('When + change', async t => {
@@ -1018,7 +1018,7 @@ test('When + filterOn', async t => {
         () => (
           <div>
             {on('users')
-              .map(user => <a>{user.name}</a>)
+              .map(user => <b>{user.name}</b>)
               .filterOn('test', (filter, user) =>
                 new RegExp(filter, 'i').test(user.name)
               )}
@@ -1032,14 +1032,14 @@ test('When + filterOn', async t => {
   dd.set('test', 'two');
   dd.set('yes', true);
   dd.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
-  t.is(await html(), '<div><div><a>Two!</a><p>Because</p></div></div>');
+  t.is(await html(), '<div><div><b>Two!</b><p>Because</p></div></div>');
   dd.set('yes', false);
   t.is(await html(), '<div></div>');
   dd.set('yes', true);
   dd.set('test', '');
   t.is(
     await html(),
-    '<div><div><a>One!</a><a>Two!</a><p>Because</p></div></div>'
+    '<div><div><b>One!</b><b>Two!</b><p>Because</p></div></div>'
   );
 });
 
