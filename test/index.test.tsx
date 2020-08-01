@@ -150,24 +150,21 @@ test('on Sort - sort method', async t => {
   data.set('players.cthree', { name: '3' });
   t.is(await html(), '<div><p>3</p><p>2</p><p>1</p></div>');
 });
-//
-// test('on Sort - sort method2', async t => {
-//   const div =  (
-//     <div>
-//       {don('players.*')
-//         .map(
-//           player => <p>{player.name}</p>,
-//           (a, b) => a.name.localeCompare(b.name)
-//         )
-//         .sort((a, b) => a.name.localeCompare(b.name))}
-//     </div>
-//   );
-//   const data = init(element, div);
-//  data.set('players.aone', { name: '1' });
-//  data.set('players.btwo', { name: '2' });
-//  data.set('players.cthree', { name: '3' });
-//   t.is(await html(), '<div><p>1</p><p>2</p><p>3</p></div>');
-// });
+
+test('on Sort - sort method2', async t => {
+  const div = (
+    <div>
+      {don('players.*')
+        .map(player => <p>{player.name}</p>)
+        .sort((a, b) => a.name.localeCompare(b.name))}
+    </div>
+  );
+  const data = init(element, div);
+  data.set('players.aone', { name: '1' });
+  data.set('players.btwo', { name: '2' });
+  data.set('players.cthree', { name: '3' });
+  t.is(await html(), '<div><p>1</p><p>2</p><p>3</p></div>');
+});
 
 test('Multiple on-siblings', async t => {
   const div = (
@@ -228,29 +225,26 @@ test('on Sort - custom order', async t => {
   t.is(await html(), '<div><p>7</p><p>3</p><p>2</p></div>');
 });
 
-// test('on Sort - remove $first - with sort', async t => {
-//   const div =  (
-//     <div>
-//       {don('players.*').map(
-//         player => (
-//           <p>{player.name}</p>
-//         ),
-//         (_, __, aPath, bPath) => aPath.localeCompare(bPath)
-//       )}
-//     </div>
-//   );
-//   const data = init(element, div);
-//  data.set('players.1', { name: '1' });
-//  data.set('players.2', { name: '2' });
-//  data.set('players.3', { name: '3' });
-//   t.is(await html(), '<div><p>1</p><p>2</p><p>3</p></div>');
-//
-//  data.unset('players.1');
-//   t.is(await html(), '<div><p>2</p><p>3</p></div>');
-//
-//  data.set('players.1', { name: '1' });
-//   t.is(await html(), '<div><p>1</p><p>2</p><p>3</p></div>');
-// });
+test('on Sort - remove $first - with sort', async t => {
+  const div = (
+    <div>
+      {don('players.*')
+        .map(player => <p>{player.name}</p>)
+        .sort((_, __, aPath, bPath) => aPath.localeCompare(bPath))}
+    </div>
+  );
+  const data = init(element, div);
+  data.set('players.1', { name: '1' });
+  data.set('players.2', { name: '2' });
+  data.set('players.3', { name: '3' });
+  t.is(await html(), '<div><p>1</p><p>2</p><p>3</p></div>');
+
+  data.unset('players.1');
+  t.is(await html(), '<div><p>2</p><p>3</p></div>');
+
+  data.set('players.1', { name: '1' });
+  t.is(await html(), '<div><p>1</p><p>2</p><p>3</p></div>');
+});
 
 // test('Child listener', async t => {
 //   const div = (
