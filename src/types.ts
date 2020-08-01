@@ -1,46 +1,28 @@
 import { Data } from '@eirikb/data';
+import { ContextOptions } from './context-options';
+import { Hodor } from 'hodor';
 
 export type Domponent = (contextOptions: ContextOptions) => Domode;
-
-export interface ContextOptions {
-  on?(path: string, listener?: Function): void;
-
-  when?(path: string, options: any): void;
-
-  unset?(path: string): void;
-
-  set?(path: string, value: any): void;
-
-  get?(path: string): void;
-
-  trigger?(path: string, value: any): void;
-
-  children?: Array<any>;
-
-  mounted?(cb: Function): void;
-
-  [key: string]: any;
-}
 
 export interface Domdom extends Data {
   React: Element;
   data: Data;
-  append: Function;
+  append: (
+    parent: Element,
+    contextOptions: (ContextOptions) => Domode
+  ) => Domode;
 }
 
 export interface Domode extends HTMLElement {
-  destroy: Function;
-  path: string;
-  isHodor: boolean;
-  context?: Context;
+  mounted(data: Data);
+  unmounted();
+  hodors: Hodor[];
   isMounted: boolean;
-  mounted: Function;
-
-  on(path: string, listener?: Function): void;
-}
-
-export interface Context {
-  on?(path: string, listener?: Function): void;
-
-  mounted?: Function;
+  // destroy: () => void;
+  // path: string;
+  // isHodor: boolean;
+  // isMounted: boolean;
+  // mounted: () => void;
+  //
+  // on(path: string, listener?: Function): void;
 }

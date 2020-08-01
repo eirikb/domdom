@@ -12,14 +12,12 @@ import {
 import { Domode } from './types';
 
 export class Hodor {
-  data: Data;
-  listeners: { flagsAndPath: string; cb: Function; ref: string }[] = [];
-  isMounted = false;
+  data?: Data;
   path: string;
   element?: Domode;
   isHodor = true;
   _stower?: Stower;
-  _or?: Function;
+  _or?: ListenerCallback;
   index?: number;
   pathifier?: Pathifier;
   listening?: boolean;
@@ -31,9 +29,9 @@ export class Hodor {
   listenerSet = false;
   paths: string[] = [];
   listener?: ListenerCallback;
+  ref?: string;
 
-  constructor(data: Data, path: string, listener?: ListenerCallback) {
-    this.data = data;
+  constructor(path: string, listener?: ListenerCallback) {
     this.listenerSet = !!listener;
     if (listener === undefined) {
       listener = (_: any) => _;
@@ -51,11 +49,10 @@ export class Hodor {
   }
 
   on(flagsAndPath: string, cb: ListenerCallback) {
-    const ref = this.data.on(flagsAndPath, cb);
-    this.listeners.push({ flagsAndPath, cb, ref });
+    this.ref = this.data!.on(flagsAndPath, cb);
   }
 
-  or(or: Function) {
+  or(or: ListenerCallback) {
     this._or = or;
     return this;
   }
@@ -90,26 +87,20 @@ export class Hodor {
     }
     return this;
   }
-  mounted() {
-    if (this.isMounted) {
-      return;
-    }
-    this.isMounted = true;
+  mounted(data: Data) {
+    this.data = data;
     if (typeof this.listen === 'function') {
       this.listen(this.path);
     }
   }
-  destroy() {
-    this.isMounted = false;
+  unmounted() {
     this.off();
   }
   off() {
     if (this.pathifier) this.pathifier.off();
-    for (let listener of this.listeners.filter(l => l.ref)) {
-      this.data.off(listener.ref);
-      delete listener.ref;
+    if (this.data && this.ref) {
+      this.data.off(this.ref);
     }
-    this.listening = false;
   }
   listen(path) {
     if (this.listening) {
@@ -155,7 +146,7 @@ export class Hodor {
       });
       return;
     }
-    this.pathifier = this.data.on(path);
+    this.pathifier = this.data!.on(path);
     if (this._map) this.pathifier.map(this._map);
     if (this._filter) this.pathifier.filter(this._filter);
     if (this._filterOn)
