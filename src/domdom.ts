@@ -34,6 +34,7 @@ export const React = {
       if (child instanceof Hodor) {
         const hodor = child as Hodor;
         hodor.stower(index, stower);
+        hodor.element = el;
         el.hodors.push(hodor);
       } else {
         stower.add(child, index);

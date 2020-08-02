@@ -246,23 +246,23 @@ test('on Sort - remove $first - with sort', async t => {
   t.is(await html(), '<div><p>1</p><p>2</p><p>3</p></div>');
 });
 
-// test('Child listener', async t => {
-//   const div = (
-//     <main>
-//       {don('players.$id', () => (
-//         <article>{don('>.name', name => name)}</article>
-//       ))}
-//     </main>
-//   );
-//   const data = init(element, div);
-//   data.set('players.1', { name: '1' });
-//   data.set('players.2', { name: '2' });
-//   data.set('players.3', { name: '3' });
-//   t.is(
-//     await html(),
-//     '<main><article>1</article><article>2</article><article>3</article></main>'
-//   );
-// });
+test('Child listener', async t => {
+  const div = (
+    <main>
+      {don('players.$id', () => (
+        <article>{don('>.name', name => name)}</article>
+      ))}
+    </main>
+  );
+  const data = init(element, div);
+  data.set('players.1', { name: '1' });
+  data.set('players.2', { name: '2' });
+  data.set('players.3', { name: '3' });
+  t.is(
+    await html(),
+    '<main><article>1</article><article>2</article><article>3</article></main>'
+  );
+});
 //
 // // test('Simple when', async t => {
 // //   const Test = <div>{don!('test', t => t)}</div>;
@@ -359,24 +359,24 @@ test('on empty res', async t => {
   data.set('test', '');
   t.is(await html(), '<div></div>');
 });
-//
-// test('Multiple child paths', async t => {
-//   const div = (
-//     <div>
-//       {don('a', () => (
-//         <div>
-//           {don('>.text')}
-//           test
-//           {don('>.text')}
-//         </div>
-//       ))}
-//     </div>
-//   );
-//   const data = init(element, div);
-//   data.set('a', { text: 'ok' });
-//   t.is(await html(), '<div><div>oktestok</div></div>');
-// });
-//
+
+test('Multiple child paths', async t => {
+  const div = (
+    <div>
+      {don('a', () => (
+        <div>
+          {don('>.text')}
+          test
+          {don('>.text')}
+        </div>
+      ))}
+    </div>
+  );
+  const data = init(element, div);
+  data.set('a', { text: 'ok' });
+  t.is(await html(), '<div><div>oktestok</div></div>');
+});
+
 // test('Have some path with flags', async t => {
 //   const div = () => {
 //     const e = <div />;
@@ -387,7 +387,7 @@ test('on empty res', async t => {
 //   data.set('wat', 'ok');
 //   t.is(await html(), '<div>ok</div>');
 // });
-//
+
 // test('Listeners are cleared', async t => {
 //   const data = init(element);
 //
@@ -418,7 +418,7 @@ test('on empty res', async t => {
 //   data.set('test', 'c');
 //   t.is(i, 1);
 // });
-//
+
 // test('Listeners are not overcleared', async t => {
 //   const data = init(element);
 //   let i = 0;
