@@ -52,7 +52,7 @@ export class Hodor {
     this.ref = this.data!.on(flagsAndPath, cb);
   }
 
-  or(or: ListenerCallback) {
+  or(or: any) {
     this._or = or;
     return this;
   }

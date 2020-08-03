@@ -724,15 +724,13 @@ test('Rendering types', async t => {
   t.is(await html(), '<div>a13.6{"hello":"world"}truefalse</div>');
 });
 
-// test('Remove or on on', async t => {
-//   const view =  (
-//     <div>{don('test.$id', t => t.name).or('Loading...')}</div>
-//   );
-//   const data = init(element, view);
-//   t.is(await html(), '<div>Loading...</div>');
-//  data.set('test', { 0: { name: 'hello' } });
-//   t.is(await html(), '<div>hello</div>');
-// });
+test('Remove or on on', async t => {
+  const view = <div>{don('test.$id', t => t.name).or('Loading...')}</div>;
+  const data = init(element, view);
+  t.is(await html(), '<div>Loading...</div>');
+  data.set('test', { 0: { name: 'hello' } });
+  t.is(await html(), '<div>hello</div>');
+});
 
 // test('on attributes', async t => {
 //   const view = (
@@ -1323,26 +1321,26 @@ test('When and on no duplicated', async t => {
   t.is(await html(), '<div><div><p>A</p><p>B</p><p>C</p></div></div>');
 });
 
-// test('when + or', async t => {
-//   const view = (
-//     <div>
-//       {don('test', t => {
-//         switch (t) {
-//           case true:
-//             return '+';
-//           case false:
-//             return '-';
-//         }
-//       }).or('+')}
-//     </div>
-//   );
-//   const data = init(element, view);
-//   t.is(await html(), '<div>+</div>');
-//   data.set('test', true);
-//   t.is(await html(), '<div>-</div>');
-//   data.set('test', false);
-//   t.is(await html(), '<div>+</div>');
-// });
+test('when + or', async t => {
+  const view = (
+    <div>
+      {don('test', t => {
+        switch (t) {
+          case false:
+            return '+';
+          default:
+            return '-';
+        }
+      }).or('+')}
+    </div>
+  );
+  const data = init(element, view);
+  t.is(await html(), '<div>+</div>');
+  data.set('test', true);
+  t.is(await html(), '<div>-</div>');
+  data.set('test', false);
+  t.is(await html(), '<div>+</div>');
+});
 
 test('When + pathifier', async t => {
   const view = (
