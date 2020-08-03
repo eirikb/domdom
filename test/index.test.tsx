@@ -1579,7 +1579,7 @@ test('on with properties', async t => {
 });
 
 test('properties without value should not crash', async t => {
-  init(element, <div style={undefined}></div>);
+  init(element, <div style={undefined} />);
   t.is(await html(), '<div style=""></div>');
 });
 
@@ -1596,4 +1596,14 @@ test('path should not be part of data', async t => {
     t.deepEqual(val, { hello: 'world' });
   });
   t.is('<div>{"hello":"world"}</div>', await html());
+});
+
+test('dd-model', async t => {
+  const input = <input type="text" dd-model="test" />;
+  const data = init(element, <div>{input}</div>);
+  await html();
+  const event = new Event('input');
+  input.value = 'Yes!';
+  input.dispatchEvent(event);
+  t.is(data.get('test'), 'Yes!');
 });

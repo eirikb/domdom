@@ -2,7 +2,7 @@ import { Data, ListenerCallback } from '@eirikb/data';
 import { Hodor } from 'hodor';
 
 export interface DomOptions {
-  mounted?: (cb: () => void) => void;
+  mounted?: (cb: (data: Data) => void) => void;
   children?: any[];
 }
 
@@ -19,7 +19,7 @@ export interface Domdom extends Data {
 
 export interface Domode extends HTMLElement {
   mounted(data: Data);
-  onMounted(cb: () => void);
+  onMounted(cb: (data: Data) => void);
   unmounted();
   hodors: Hodor[];
   isMounted: boolean;

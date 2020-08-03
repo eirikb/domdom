@@ -43,11 +43,11 @@ export default (
     const propsAsAny = props as any;
     const model = propsAsAny['dd-model'];
     if (model) {
-      onChange((value: any) => {
-        console.log('This is where we want to set - but cant', value);
-        // data.set(model, value)
+      domOde.onMounted(data => {
+        onChange((value: any) => data.set(model, value));
+        data.on(`!+* ${model}`, setValue);
       });
-      domOde.on(`!+* ${model}`, setValue);
+
       // Special handling for select elements
       new MutationObserver(() => {
         if (typeof _value !== 'undefined') {

@@ -22,20 +22,21 @@ export const React = {
     children = flat([], children);
 
     if (typeof input === 'function') {
-      let mounteds: (() => void)[] = [];
+      let mounteds: ((data: Data) => void)[] = [];
       const domOptions: DomOptions = {
         mounted: cb => mounteds.push(cb),
         children,
       };
       const res = input(domOptions);
-      res.onMounted(() => mounteds.forEach(m => m()));
+      res.onMounted(data => mounteds.forEach(m => m(data)));
       return res;
     }
 
     let listeners: { path: string; listener: ListenerCallback }[] = [];
     let refs: string[] = [];
+    let mounteds: ((data: Data) => void)[] = [];
+
     const el = document.createElement(input) as Domode;
-    const mounteds: (() => void)[] = [];
     let d: Data;
     el.hodors = [];
     el.onMounted = cb => {
@@ -51,9 +52,9 @@ export const React = {
       }
       listeners = [];
       for (let m of mounteds) {
-        m();
+        m(data);
       }
-      mounteds;
+      mounteds = [];
     };
     el.unmounted = () => {
       for (let hodor of el.hodors) {
