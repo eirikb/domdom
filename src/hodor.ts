@@ -43,7 +43,7 @@ export class Hodor {
 
     const hasFlags = path.match(/ /);
     if (hasFlags) {
-      this.on(path, listener);
+      throw new Error('Flags not supported here');
     }
     this.path = path;
   }

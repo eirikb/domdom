@@ -1,4 +1,3 @@
-import { Data } from '@eirikb/data';
 import { Domode } from './types';
 import { Hodor } from './hodor';
 
@@ -11,11 +10,9 @@ function setVal(element: any, key: string, value: any) {
 }
 
 export default (
-  data: Data,
   element: Domode | HTMLInputElement,
-  props: (any | Hodor)[]
+  props?: { [key: string]: any }
 ) => {
-  const hodors: Hodor[] = [];
   let _value: any;
   const inputElement = element as HTMLInputElement;
   const domOde = element as Domode;
@@ -46,7 +43,10 @@ export default (
     const propsAsAny = props as any;
     const model = propsAsAny['dd-model'];
     if (model) {
-      onChange((value: any) => data.set(model, value));
+      onChange((value: any) => {
+        console.log('This is where we want to set - but cant', value);
+        // data.set(model, value)
+      });
       domOde.on(`!+* ${model}`, setValue);
       // Special handling for select elements
       new MutationObserver(() => {
@@ -57,9 +57,11 @@ export default (
     }
 
     for (let [key, value] of Object.entries(props)) {
-      if (value && value['isHodor']) {
+      if (value && value.isHodor) {
+        const hodor = value as Hodor;
+        hodor.element = domOde;
         let _or: any;
-        value['stower'](0, {
+        hodor.stower(0, {
           add: (s: any) => setVal(element, key, s),
           remove: () => {
             if (_or) {
@@ -71,10 +73,13 @@ export default (
             setVal(element, key, or);
           },
         });
-        hodors.push(value);
+        domOde.hodors.push(hodor);
+      } else if (key.startsWith('on')) {
+        const name = key[2].toLocaleLowerCase() + key.slice(3);
+        element.addEventListener(name, value);
+      } else {
+        element[key] = value;
       }
     }
   }
-
-  return hodors;
 };

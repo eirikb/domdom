@@ -732,74 +732,74 @@ test('Remove or on on', async t => {
   t.is(await html(), '<div>hello</div>');
 });
 
-// test('on attributes', async t => {
-//   const view = (
-//     <div>
-//       <button disabled={don('disable', res => res)} />
-//     </div>
-//   );
-//   const data = init(element, view);
-//
-//   t.is(await html(), '<div><button></button></div>');
-//   data.set('disable', true);
-//   t.is(await html(), '<div><button disabled=""></button></div>');
-// });
-//
-// test('on on attributes', async t => {
-//   const view =  (
-//     <div>
-//       <button disabled={don('canClick', res => !res).or(true)} />
-//       <button disabled={don('canNotClick').or(true)} />
-//     </div>
-//   );
-//   const data = init(element, view);
-//
-//   t.is(
-//     await html(),
-//     '<div><button disabled=""></button><button disabled=""></button></div>'
-//   );
-//
-//  data.set('canClick', true);
-//  data.set('canNotClick', false);
-//   t.is(await html(), '<div><button></button><button></button></div>');
-//
-//  data.set('canClick', false);
-//  data.set('canNotClick', true);
-//   t.is(
-//     await html(),
-//     '<div><button disabled=""></button><button disabled=""></button></div>'
-//   );
-// });
+test('on attributes', async t => {
+  const view = (
+    <div>
+      <button disabled={don('disable', res => res)} />
+    </div>
+  );
+  const data = init(element, view);
 
-// test('on on attributes or', async t => {
-//   const view = (
-//     <div>
-//       <button disabled={don('canNotClick').or(true)} />
-//     </div>
-//   );
-//   const data = init(element, view);
-//
-//   t.is(await html(), '<div><button disabled=""></button></div>');
-//
-//   data.set('canNotClick', false);
-//   t.is(await html(), '<div><button></button></div>');
-//
-//   data.unset('canNotClick');
-//   t.is(await html(), '<div><button disabled=""></button></div>');
-// });
+  t.is(await html(), '<div><button></button></div>');
+  data.set('disable', true);
+  t.is(await html(), '<div><button disabled=""></button></div>');
+});
 
-// test('On on object attributes', async t => {
-//   const view = (
-//     <div>
-//       <p style={don('style')}>Test</p>
-//     </div>
-//   );
-//   const data = init(element, view);
-//
-//   data.set('style', { color: 'red' });
-//   t.is(await html(), '<div><p style="color: red;">Test</p></div>');
-// });
-//
+test('on on attributes', async t => {
+  const view = (
+    <div>
+      <button disabled={don('canClick', res => !res).or(true)} />
+      <button disabled={don('canNotClick').or(true)} />
+    </div>
+  );
+  const data = init(element, view);
+
+  t.is(
+    await html(),
+    '<div><button disabled=""></button><button disabled=""></button></div>'
+  );
+
+  data.set('canClick', true);
+  data.set('canNotClick', false);
+  t.is(await html(), '<div><button></button><button></button></div>');
+
+  data.set('canClick', false);
+  data.set('canNotClick', true);
+  t.is(
+    await html(),
+    '<div><button disabled=""></button><button disabled=""></button></div>'
+  );
+});
+
+test('on on attributes or', async t => {
+  const view = (
+    <div>
+      <button disabled={don('canNotClick').or(true)} />
+    </div>
+  );
+  const data = init(element, view);
+
+  t.is(await html(), '<div><button disabled=""></button></div>');
+
+  data.set('canNotClick', false);
+  t.is(await html(), '<div><button></button></div>');
+
+  data.unset('canNotClick');
+  t.is(await html(), '<div><button disabled=""></button></div>');
+});
+
+test('On on object attributes', async t => {
+  const view = (
+    <div>
+      <p style={don('style')}>Test</p>
+    </div>
+  );
+  const data = init(element, view);
+
+  data.set('style', { color: 'red' });
+  t.is(await html(), '<div><p style="color: red;">Test</p></div>');
+});
+
 test('Filter array', async t => {
   const view = (
     <div>
@@ -1196,32 +1196,32 @@ test('When + filterOn const text', async t => {
   data.set('show', true);
   t.deepEqual(await html(), '<div><div>a</div></div>');
 });
-//
-// test('On child attribute listener', async t => {
-//   const Yes = () => {
-//     return <a href={don!('>.link')}>test</a>;
-//   };
-//
-//   const view = (
-//     <div>
-//       {don('yes', ok => (
-//         <div>
-//           {ok.text} <Yes />
-//         </div>
-//       ))}
-//     </div>
-//   );
-//   const data = init(element, view);
-//   data.set('yes', {
-//     link: 'https://nrk.no',
-//     text: 'Some link:',
-//   });
-//   t.is(
-//     await html(),
-//     '<div><div>Some link: <a href="https://nrk.no">test</a></div></div>'
-//   );
-// });
-//
+
+test('On child attribute listener', async t => {
+  const Yes = () => {
+    return <a href={don!('>.link')}>test</a>;
+  };
+
+  const view = (
+    <div>
+      {don('yes', ok => (
+        <div>
+          {ok.text} <Yes />
+        </div>
+      ))}
+    </div>
+  );
+  const data = init(element, view);
+  data.set('yes', {
+    link: 'https://nrk.no',
+    text: 'Some link:',
+  });
+  t.is(
+    await html(),
+    '<div><div>Some link: <a href="https://nrk.no">test</a></div></div>'
+  );
+});
+
 test('Same listener twice no problem', async t => {
   const view = (
     <div>
@@ -1415,25 +1415,25 @@ test('on + on', async t => {
   t.pass();
 });
 
-// test('dd-model select before options are set', async t => {
-//   const view = (
-//     <div>
-//       <select dd-model="yes">
-//         {don('test').map(t => (
-//           <option value={t}>{t}</option>
-//         ))}
-//       </select>
-//     </div>
-//   );
-//   const data = init(element, view);
-//   data.set('yes', 'hello');
-//   data.set('test', ['', 'hello', 'world']);
-//   await html();
-//   const select = document.querySelector('select');
-//   return Promise.resolve().then(() => {
-//     t.is(select!.value, 'hello');
-//   });
-// });
+test('dd-model select before options are set', async t => {
+  const view = (
+    <div>
+      <select dd-model="yes">
+        {don('test').map(t => (
+          <option value={t}>{t}</option>
+        ))}
+      </select>
+    </div>
+  );
+  const data = init(element, view);
+  data.set('yes', 'hello');
+  data.set('test', ['', 'hello', 'world']);
+  await html();
+  const select = document.querySelector('select');
+  return Promise.resolve().then(() => {
+    t.is(select!.value, 'hello');
+  });
+});
 
 test('Convenience', async t => {
   const data = init(element, <div>Hello {don('test')}</div>);
@@ -1448,71 +1448,72 @@ test('Convenience view before domdom', async t => {
   t.pass();
 });
 
-// test('Flags in components are work and cleared', async t => {
-//   let counter = 0;
-//
-//   const Hello = () => {
-//     const e = <div>Hello!</div>;
-//     don('!+* tast', test => {
-//       counter++;
-//       e.textContent = test;
-//     });
-//     return e;
-//   };
-//
-//   const view = (
-//     <div>
-//       {don('test', test => (
-//         <div>
-//           Test is {test}. <Hello />
-//         </div>
-//       ))}
-//     </div>
-//   );
-//   const data = init(element, view);
-//
-//   t.is(await html(), '<div></div>');
-//   data.set('test', 'world!');
-//   t.is(await html(), '<div><div>Test is world!. <div>Hello!</div></div></div>');
-//   t.is(counter, 0);
-//
-//   data.set('tast', 'ing');
-//   t.is(await html(), '<div><div>Test is world!. <div>ing</div></div></div>');
-//   t.is(counter, 1);
-//
-//   data.unset('test');
-//   t.is(await html(), '<div></div>');
-//   t.is(counter, 1);
-//
-//   data.set('tast', 'uhm');
-//   t.is(await html(), '<div></div>');
-//   t.is(counter, 1);
-//
-//   data.set('test', 'yo');
-//   t.is(await html(), '<div><div>Test is yo. <div>uhm</div></div></div>');
-//   t.is(counter, 2);
-// });
+test('Flags in components are work and cleared', async t => {
+  let counter = 0;
 
-// test('Element with event but not added via domdom', async t => {
-//   domdom();
-//   const element = <button onClick={t.pass}>Click me!</button>;
-//   element.click();
-// });
+  const Hello = () => {
+    const e = <div>Hello!</div>;
+    e.on('!+* tast', test => {
+      counter++;
+      e.textContent = test;
+    });
+    return e;
+  };
 
-// test.skip('Hodor as a child', async t => {
-//   const Parent= ({ children }) => {
-//     return <div>{children}</div>;
-//   };
-//
-//   const data = init(element,  (
-//     <div>
-//       <Parent>{don('test')}</Parent>
-//     </div>
-//   ));
-//  data.set('test', 'OK!');
-//   t.is(await html(), '<div><div>OK!</div></div>');
-//   t.pass();
-// });
+  const view = (
+    <div>
+      {don('test', test => (
+        <div>
+          Test is {test}. <Hello />
+        </div>
+      ))}
+    </div>
+  );
+  const data = init(element, view);
+
+  t.is(await html(), '<div></div>');
+  data.set('test', 'world!');
+  t.is(await html(), '<div><div>Test is world!. <div>Hello!</div></div></div>');
+  t.is(counter, 0);
+
+  data.set('tast', 'ing');
+  t.is(await html(), '<div><div>Test is world!. <div>ing</div></div></div>');
+  t.is(counter, 1);
+
+  data.unset('test');
+  t.is(await html(), '<div></div>');
+  t.is(counter, 1);
+
+  data.set('tast', 'uhm');
+  t.is(await html(), '<div></div>');
+  t.is(counter, 1);
+
+  data.set('test', 'yo');
+  t.is(await html(), '<div><div>Test is yo. <div>uhm</div></div></div>');
+  t.is(counter, 2);
+});
+
+test('Element with event but not added via domdom', async t => {
+  const el = <button onClick={t.pass}>Click me!</button>;
+  element.appendChild(el);
+  el.click();
+});
+
+test('Hodor as a child', async t => {
+  const Parent: Domponent = ({ children }) => {
+    return <div>{children}</div>;
+  };
+
+  const data = init(
+    element,
+    <div>
+      <Parent>{don('test')}</Parent>
+    </div>
+  );
+  data.set('test', 'OK!');
+  t.is(await html(), '<div><div>OK!</div></div>');
+  t.pass();
+});
 
 test('Re-usable domdom', async t => {
   const data = init(element);
@@ -1530,28 +1531,31 @@ test('Re-usable domdom', async t => {
   t.is(await html(), '<main><div>Hello World!</div></main>');
 });
 
-// test('Element with hodor but not added via domdom', async t => {
-//   const data = init(element, (() => {
-//     const a = <main />;
-//     const c = <span>{don('test')}</span>;
-//     setTimeout(() => {
-//       const b = document.createElement('div');
-//       a.const data = initChild(b);
-//       setTimeout(() => {
-//         b.const data = initChild(c);
-//       }, 50);
-//     }, 50);
-//
-//     return a;
-//   })());
-//  data.set('test', 'Hello!');
-//   await new Promise(r => {
-//     setTimeout(async () => {
-//       t.is(await html(), '<main><div><span>Hello!</span></div></main>');
-//       r();
-//     }, 150);
-//   });
-// });
+test('Element with hodor but not added via domdom', async t => {
+  const data = init(
+    element,
+    (() => {
+      const a = <main />;
+      const c = <span>{don('test')}</span>;
+      setTimeout(() => {
+        const b = document.createElement('div');
+        a.appendChild(b);
+        setTimeout(() => {
+          b.appendChild(c);
+        }, 50);
+      }, 50);
+
+      return a;
+    })()
+  );
+  data.set('test', 'Hello!');
+  await new Promise(r => {
+    setTimeout(async () => {
+      t.is(await html(), '<main><div><span>Hello!</span></div></main>');
+      r();
+    }, 150);
+  });
+});
 
 test('on with properties', async t => {
   const div = (
@@ -1574,10 +1578,10 @@ test('on with properties', async t => {
   t.is(await html(), '<div><div>a: A!</div><div>b: B!</div></div>');
 });
 
-// test('properties without value should not crash', async t => {
-//   init(element, <div style={undefined}></div>);
-//   t.is(await html(), '<div style=""></div>');
-// });
+test('properties without value should not crash', async t => {
+  init(element, <div style={undefined}></div>);
+  t.is(await html(), '<div style=""></div>');
+});
 
 test('path should not be part of data', async t => {
   t.plan(3);

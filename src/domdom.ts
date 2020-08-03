@@ -1,6 +1,7 @@
-import { DomStower } from './dom-stower';
 import { Data, ListenerCallback } from '@eirikb/data';
+import { DomStower } from './dom-stower';
 import { DomSquint } from './dom-squint';
+import ddProps from './dom-props';
 import { Hodor } from './hodor';
 import { Domode, DomOptions } from './types';
 
@@ -10,6 +11,16 @@ export const React = {
     props?: { [key: string]: any },
     ...children: any[]
   ): Domode {
+    function flat(res: any[], input: any) {
+      if (Array.isArray(input)) {
+        input.forEach(item => flat(res, item));
+      } else {
+        res.push(input);
+      }
+      return res;
+    }
+    children = flat([], children);
+
     if (typeof input === 'function') {
       let mounteds: (() => void)[] = [];
       const domOptions: DomOptions = {
@@ -71,11 +82,7 @@ export const React = {
       }
     }
 
-    if (props) {
-      for (let [key, value] of Object.entries(props)) {
-        console.log(key, '=', value);
-      }
-    }
+    ddProps(el, props);
 
     return el;
   },
