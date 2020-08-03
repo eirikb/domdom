@@ -493,64 +493,58 @@ test('Listeners are support change of parent', async t => {
   t.is(1, i);
 });
 
-// test('Listeners in when', async t => {
-//   const data = init(element);
-//   let i = 0;
-//
-//   function Child() {
-//     const e = <div />;
-//     e.on('* test', () => i++);
-//     return e;
-//   }
-//
-//   data.set('test', 'a');
-//   data.set('show', true);
-//   const div = (
-//     <div>
-//       {don('show', () => (
-//         <Child />
-//       ))}
-//     </div>
-//   );
-//   element.appendChild(div);
-//   await html();
-//   data.set('test', 'b');
-//   t.is(1, i);
-//
-//   data.set('show', false);
-//   await html();
-//   data.set('test', 'c');
-//   t.is(1, i);
-// });
-//
-// test('Listener in when 2', async t => {
-//     const data = init(element);
-//   let i = 0;
-//
-//   function Child() {
-//     const e = <div />;
-//     e.on('* test', () => i++);
-//     return e;
-//   }
-//
-//   data.set('test', 'a');
-//   data.set('show', true);
-//   const div = ({ when }) => <div>{when('show', [true, () => <Child />])}</div>;
-//   element.appendChild(div);
-//   await html();
-//   data.set('test', 'b');
-//   t.is(1, i);
-//
-//   data.set('show', false);
-//   await html();
-//   data.set('test', 'c');
-//   t.is(1, i);
-//
-//   data.set('show', true);
-//   await html();
-//   data.set('test', 'd');
-//   t.is(2, i);
-// });
+test('Listeners in when', async t => {
+  const data = init(element);
+  let i = 0;
+
+  function Child() {
+    const e = <div />;
+    e.on('* test', () => i++);
+    return e;
+  }
+
+  data.set('test', 'a');
+  data.set('show', true);
+  const div = <div>{don('show', show => (show ? <Child /> : null))}</div>;
+  element.appendChild(div);
+  await html();
+  data.set('test', 'b');
+  t.is(1, i);
+
+  data.set('show', false);
+  await html();
+  data.set('test', 'c');
+  t.is(1, i);
+});
+
+test('Listener in when 2', async t => {
+  const data = init(element);
+  let i = 0;
+
+  function Child() {
+    const e = <div />;
+    e.on('* test', () => i++);
+    return e;
+  }
+
+  data.set('test', 'a');
+  data.set('show', true);
+  const div = <div>{don('show', show => (show ? <Child /> : null))}</div>;
+  element.appendChild(div);
+  await html();
+  data.set('test', 'b');
+  t.is(1, i);
+
+  data.set('show', false);
+  await html();
+  data.set('test', 'c');
+  t.is(1, i);
+
+  data.set('show', true);
+  await html();
+  data.set('test', 'd');
+  t.is(2, i);
+});
 
 // TODO: Why 2?
 // test('Mounted', async t => {
