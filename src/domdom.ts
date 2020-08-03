@@ -14,17 +14,32 @@ export const React = {
       return input();
     }
 
+    let listeners: { path: string; listener: ListenerCallback }[] = [];
+    let refs: string[] = [];
     const el = document.createElement(input) as Domode;
+    let d: Data;
     el.hodors = [];
     el.mounted = (data: Data) => {
+      d = data;
       for (const hodor of el.hodors) {
         hodor.mounted(data);
       }
+      for (let { path, listener } of listeners) {
+        refs.push(data.on(path, listener));
+      }
+      listeners = [];
     };
     el.unmounted = () => {
       for (let hodor of el.hodors) {
         hodor.unmounted();
       }
+      for (let ref of refs) {
+        d?.off(ref);
+      }
+      refs = [];
+    };
+    el.on = (path, listener) => {
+      listeners.push({ path, listener });
     };
 
     const stower = new DomStower(el);

@@ -383,115 +383,115 @@ test('Multiple child paths', async t => {
   t.is(await html(), '<div><div>oktestok</div></div>');
 });
 
-// test('Have some path with flags', async t => {
-//   const div = () => {
-//     const e = <div />;
-//     e.on('!+* wat', wat => (e.innerHTML = wat));
-//     return e;
-//   };
-//   const data = init(element, div());
-//   data.set('wat', 'ok');
-//   t.is(await html(), '<div>ok</div>');
-// });
+test('Have some path with flags', async t => {
+  const div = () => {
+    const e = <div />;
+    e.on('!+* wat', wat => (e.innerHTML = wat));
+    return e;
+  };
+  const data = init(element, div());
+  data.set('wat', 'ok');
+  t.is(await html(), '<div>ok</div>');
+});
 
-// test('Listeners are cleared', async t => {
-//   const data = init(element);
-//
-//   let i = 0;
-//
-//   function Child() {
-//     const e = <div />;
-//     e.on('* test', () => i++);
-//     return e;
-//   }
-//
-//   data.set('test', 'a');
-//   data.set('show', true);
-//   const div = (
-//     <div>
-//       {don('show', () => (
-//         <Child />
-//       ))}
-//     </div>
-//   );
-//   element.appendChild(div);
-//   await html();
-//   data.set('test', 'b');
-//   t.is(i, 1);
-//
-//   data.unset('show');
-//   await html();
-//   data.set('test', 'c');
-//   t.is(i, 1);
-// });
+test('Listeners are cleared', async t => {
+  const data = init(element);
 
-// test('Listeners are not overcleared', async t => {
-//   const data = init(element);
-//   let i = 0;
-//
-//   function Child() {
-//     const e = <div />;
-//     e.on('* test', () => i++);
-//     return e;
-//   }
-//
-//   data.set('test', 'a');
-//   data.set('show', 'yes');
-//   const div = (
-//     <div>
-//       {don('show', () => (
-//         <Child />
-//       ))}
-//     </div>
-//   );
-//   element.appendChild(div);
-//   await html();
-//   data.set('test', 'b');
-//   t.is(1, i);
-//
-//   data.set('show', 'yesyes');
-//   await html();
-//   data.set('test', 'c');
-//   t.is(2, i);
-//
-//   data.set('show', 'yesyesyes');
-//   await html();
-//   data.set('test', 'd');
-//   t.is(3, i);
-// });
-//
-// test('Listeners are support change of parent', async t => {
-//   const data = init(element);
-//
-//   let i = 0;
-//
-//   function Child() {
-//     const e = <p />;
-//     e.on('* test', () => i++);
-//     return e;
-//   }
-//
-//   data.set('test', 'a');
-//   data.set('show', 'yes');
-//   const div = (
-//     <div>
-//       {don('show', () => (
-//         <Child />
-//       ))}
-//     </div>
-//   );
-//   element.appendChild(div);
-//
-//   data.set('show', 'yesyes');
-//   await html();
-//   data.set('test', 'c');
-//   t.is(1, i);
-//
-//   data.unset('show');
-//   await html();
-//   data.set('test', 'd');
-//   t.is(1, i);
-// });
+  let i = 0;
+
+  function Child() {
+    const e = <div />;
+    e.on('* test', () => i++);
+    return e;
+  }
+
+  data.set('test', 'a');
+  data.set('show', true);
+  const div = (
+    <div>
+      {don('show', () => (
+        <Child />
+      ))}
+    </div>
+  );
+  element.appendChild(div);
+  await html();
+  data.set('test', 'b');
+  t.is(i, 1);
+
+  data.unset('show');
+  await html();
+  data.set('test', 'c');
+  t.is(i, 1);
+});
+
+test('Listeners are not overcleared', async t => {
+  const data = init(element);
+  let i = 0;
+
+  function Child() {
+    const e = <div />;
+    e.on('* test', () => i++);
+    return e;
+  }
+
+  data.set('test', 'a');
+  data.set('show', 'yes');
+  const div = (
+    <div>
+      {don('show', () => (
+        <Child />
+      ))}
+    </div>
+  );
+  element.appendChild(div);
+  await html();
+  data.set('test', 'b');
+  t.is(1, i);
+
+  data.set('show', 'yesyes');
+  await html();
+  data.set('test', 'c');
+  t.is(2, i);
+
+  data.set('show', 'yesyesyes');
+  await html();
+  data.set('test', 'd');
+  t.is(3, i);
+});
+
+test('Listeners are support change of parent', async t => {
+  const data = init(element);
+
+  let i = 0;
+
+  function Child() {
+    const e = <p />;
+    e.on('* test', () => i++);
+    return e;
+  }
+
+  data.set('test', 'a');
+  data.set('show', 'yes');
+  const div = (
+    <div>
+      {don('show', () => (
+        <Child />
+      ))}
+    </div>
+  );
+  element.appendChild(div);
+
+  data.set('show', 'yesyes');
+  await html();
+  data.set('test', 'c');
+  t.is(1, i);
+
+  data.unset('show');
+  await html();
+  data.set('test', 'd');
+  t.is(1, i);
+});
 
 // test('Listeners in when', async t => {
 //   const data = init(element);
@@ -1595,15 +1595,3 @@ test('path should not be part of data', async t => {
   });
   t.is('<div>{"hello":"world"}</div>', await html());
 });
-//
-// test('ContextOptions destructuring', async t => {
-//   const data = init(element, ({ on, set }) => (
-//     <div>
-//       {don('yes', () => set('no', 'ok'))}
-//       {don('no')}
-//     </div>
-//   ));
-//
-//  data.set('yes', ':)');
-//   t.is(await html(), '<div>ok</div>');
-// });

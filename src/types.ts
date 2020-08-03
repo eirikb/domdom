@@ -1,4 +1,4 @@
-import { Data } from '@eirikb/data';
+import { Data, ListenerCallback } from '@eirikb/data';
 import { ContextOptions } from './context-options';
 import { Hodor } from 'hodor';
 
@@ -24,5 +24,5 @@ export interface Domode extends HTMLElement {
   // isMounted: boolean;
   // mounted: () => void;
   //
-  // on(path: string, listener?: Function): void;
+  on(path: string, listener: ListenerCallback): void;
 }
