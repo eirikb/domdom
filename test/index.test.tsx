@@ -2,6 +2,7 @@ import { serial as test } from 'ava';
 // @ts-ignore
 import browserEnv from 'browser-env';
 import { React, init, don } from '../src/domdom';
+import { Domponent } from '../src/types';
 
 browserEnv();
 
@@ -546,48 +547,47 @@ test('Listener in when 2', async t => {
   t.is(2, i);
 });
 
-// TODO: Why 2?
-// test('Mounted', async t => {
-//   t.plan(1);
-//
-//   const Hello = ({ mounted }) => {
-//     mounted!(() => t.pass());
-//     return <div />;
-//   };
-//
-//   const div = () => (
-//     <div>
-//       <div>
-//         <Hello />
-//       </div>
-//     </div>
-//   );
-//   domdom(element, div);
-// });
+test('Mounted', async t => {
+  t.plan(1);
 
-// test('Mounted on/off', async t => {
-//   t.plan(2);
-//
-//   const Hello: Domponent = ({ mounted }) => {
-//     mounted!(() => t.pass());
-//     return <div />;
-//   };
-//
-//   const div = ({ on }) => (
-//     <div>
-//       {don('test', () => (
-//         <Hello />
-//       ))}
-//     </div>
-//   );
-//   const data = init(element, div);
-//
-//  data.set('test', true);
-//   await html();
-//  data.unset('test');
-//   await html();
-//  data.set('test', true);
-// });
+  const Hello: Domponent = ({ mounted }) => {
+    mounted!(() => t.pass());
+    return <div />;
+  };
+
+  const div = (
+    <div>
+      <div>
+        <Hello />
+      </div>
+    </div>
+  );
+  init(element, div);
+});
+
+test('Mounted on/off', async t => {
+  t.plan(2);
+
+  const Hello: Domponent = ({ mounted }) => {
+    mounted!(() => t.pass());
+    return <div />;
+  };
+
+  const div = (
+    <div>
+      {don('test', () => (
+        <Hello />
+      ))}
+    </div>
+  );
+  const data = init(element, div);
+
+  data.set('test', true);
+  await html();
+  data.unset('test');
+  await html();
+  data.set('test', true);
+});
 
 test('When with initial false value', async t => {
   const div = (

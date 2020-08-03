@@ -2,7 +2,7 @@ import { DomStower } from './dom-stower';
 import { Data, ListenerCallback } from '@eirikb/data';
 import { DomSquint } from './dom-squint';
 import { Hodor } from './hodor';
-import { Domode } from './types';
+import { Domode, DomOptions } from './types';
 
 export const React = {
   createElement(
@@ -11,14 +11,24 @@ export const React = {
     ...children: any[]
   ): Domode {
     if (typeof input === 'function') {
-      return input();
+      let mounteds: (() => void)[] = [];
+      const domOptions: DomOptions = {
+        mounted: cb => mounteds.push(cb),
+      };
+      const res = input(domOptions);
+      res.onMounted(() => mounteds.forEach(m => m()));
+      return res;
     }
 
     let listeners: { path: string; listener: ListenerCallback }[] = [];
     let refs: string[] = [];
     const el = document.createElement(input) as Domode;
+    const mounteds: (() => void)[] = [];
     let d: Data;
     el.hodors = [];
+    el.onMounted = cb => {
+      mounteds.push(cb);
+    };
     el.mounted = (data: Data) => {
       d = data;
       for (const hodor of el.hodors) {
@@ -28,6 +38,10 @@ export const React = {
         refs.push(data.on(path, listener));
       }
       listeners = [];
+      for (let m of mounteds) {
+        m();
+      }
+      mounteds;
     };
     el.unmounted = () => {
       for (let hodor of el.hodors) {
