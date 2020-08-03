@@ -1,66 +1,60 @@
 import test from 'ava';
 import { Hodor } from '../src/hodor';
 import { DomStower } from '../src/dom-stower';
-import domdom from '../src/domdom';
-import { Data, ListenerCallback } from '@eirikb/data';
+import { React } from '../src/domdom';
+import { Data } from '@eirikb/data';
 
 // @ts-ignore
 import browserEnv from 'browser-env';
 
 browserEnv();
 
-const { React } = domdom();
-
-interface HodorWithMount extends Hodor {
-  mount: Function;
-}
-
-function setup(path: string, listener?: ListenerCallback) {
+function setup(hodor: Hodor) {
   const data = new Data();
   const element = document.createElement('div');
   const stower = new DomStower(element);
-  const hodor = new Hodor(data, path, listener) as HodorWithMount;
   hodor.stower(0, stower);
-  const html = () => element.outerHTML;
-  hodor.mount = () => {
-    hodor['mounted']();
-    return { data, element, stower, html };
+  hodor.mounted(data);
+  return {
+    data,
+    html() {
+      return element.outerHTML;
+    },
   };
-  return hodor;
 }
 
 test('Hold door', t => {
-  const { data, html } = setup('yes', (v: any) => v)['mount']();
+  const { data, html } = setup(new Hodor('yes'));
   data.set('yes', 'sir');
   t.deepEqual('<div>sir</div>', html());
 });
 
 test('Hold door2', t => {
-  const { data, html } = setup('yes', (v: any) => v)['mount']();
+  const { data, html } = setup(new Hodor('yes', (v: any) => v));
   data.set('yes', 'no');
   t.deepEqual('<div>no</div>', html());
 });
 
 test('No listener default to showing value', t => {
-  const { data, html } = setup('yes')['mount']();
+  const { data, html } = setup(new Hodor('yes'));
   data.set('yes', 'yes');
   t.deepEqual('<div>yes</div>', html());
 });
 
 test('No listener default to showing value as json', t => {
-  const { data, html } = setup('yes')['mount']();
+  const { data, html } = setup(new Hodor('yes'));
   data.set('yes', { hello: 'world' });
   t.deepEqual('<div>{"hello":"world"}</div>', html());
 });
 
 test('Listener with JSX', t => {
-  const { data, html } = setup('yes', (yes: any) => <h1>{yes}</h1>)['mount']();
+  const { data, html } = setup(new Hodor('yes', (yes: any) => <h1>{yes}</h1>));
   data.set('yes', { hello: 'world' });
   t.deepEqual('<div><h1>{"hello":"world"}</h1></div>', html());
 });
 
 test('With named card', t => {
-  const { data, html } = setup('users.$id')['mount']();
+  const { data, html } = setup(new Hodor('users.$id'));
   data.set('users', {
     a: 'mr a',
     b: 'mr b',
@@ -69,7 +63,7 @@ test('With named card', t => {
 });
 
 test('With named card add remove', t => {
-  const { data, html } = setup('users.$id', (u: any) => <p>{u}</p>)['mount']();
+  const { data, html } = setup(new Hodor('users.$id', (u: any) => <p>{u}</p>));
   data.set('users', {
     a: 'mr a',
     b: 'mr b',
@@ -87,9 +81,7 @@ test('With named card add remove', t => {
 });
 
 test('Map', t => {
-  const { data, html } = setup('users')
-    .map(u => u)
-    ['mount']();
+  const { data, html } = setup(new Hodor('users').map(u => u));
   data.set('users', {
     a: 'mr a',
     b: 'mr b',
@@ -98,9 +90,7 @@ test('Map', t => {
 });
 
 test('Map jsx', t => {
-  const { data, html } = setup('users')
-    .map(u => <p>{u}</p>)
-    ['mount']();
+  const { data, html } = setup(new Hodor('users').map(u => <p>{u}</p>));
   data.set('users', {
     a: 'mr a',
     b: 'mr b',
@@ -109,9 +99,7 @@ test('Map jsx', t => {
 });
 
 test('Map add', t => {
-  const { data, html } = setup('users.*')
-    .map(u => u)
-    ['mount']();
+  const { data, html } = setup(new Hodor('users.*').map(u => u));
   data.set('users', {
     a: 'mr a',
     b: 'mr b',
@@ -122,9 +110,7 @@ test('Map add', t => {
 });
 
 test('Map add default sort', t => {
-  const { data, html } = setup('users.*')
-    .map(u => u)
-    ['mount']();
+  const { data, html } = setup(new Hodor('users.*').map(u => u));
   data.set('users', {
     a: 'mr a',
     c: 'mr c',
@@ -135,10 +121,9 @@ test('Map add default sort', t => {
 });
 
 test('Map filter', t => {
-  const { data, html } = setup('users')
-    .map(u => u)
-    .filter(u => u !== 'mr b')
-    ['mount']();
+  const { data, html } = setup(
+    new Hodor('users').map(u => u).filter(u => u !== 'mr b')
+  );
   data.set('users', {
     a: 'mr a',
     b: 'mr b',
@@ -148,10 +133,11 @@ test('Map filter', t => {
 });
 
 test('Update filterOn on update after data is set', t => {
-  const { data, html } = setup('users')
-    .map(user => user)
-    .filterOn('test', (filter, user) => new RegExp(filter, 'i').test(user))
-    ['mount']();
+  const { data, html } = setup(
+    new Hodor('users')
+      .map(user => user)
+      .filterOn('test', (filter, user) => new RegExp(filter, 'i').test(user))
+  );
   data.set('test', '');
   data.set('users', { a: 'a', b: 'b' });
   t.is('<div>ab</div>', html());
@@ -160,10 +146,11 @@ test('Update filterOn on update after data is set', t => {
 });
 
 test('on sortOn - custom order', t => {
-  const { data, html } = setup('players.*')
-    .map(player => <p>{player.name}</p>)
-    .sortOn('test', (_, a, b) => b.name.localeCompare(a.name))
-    ['mount']();
+  const { data, html } = setup(
+    new Hodor('players.*')
+      .map(player => <p>{player.name}</p>)
+      .sortOn('test', (_, a, b) => b.name.localeCompare(a.name))
+  );
   data.set('test', 'yes');
   data.set('players.1', { name: '1' });
   data.set('players.2', { name: '2' });
@@ -176,10 +163,13 @@ test('on sortOn - custom order', t => {
 });
 
 test('filterOn and back', t => {
-  const { data, html } = setup('users')
-    .map(user => <b>{user.name}</b>)
-    .filterOn('test', (filter, user) => new RegExp(filter, 'i').test(user.name))
-    ['mount']();
+  const { data, html } = setup(
+    new Hodor('users')
+      .map(user => <b>{user.name}</b>)
+      .filterOn('test', (filter, user) =>
+        new RegExp(filter, 'i').test(user.name)
+      )
+  );
 
   data.set('test', '');
   data.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
@@ -194,10 +184,11 @@ test('filterOn and back', t => {
 });
 
 test('on sortOn - custom order update', t => {
-  const { data, html } = setup('players.*')
-    .map(player => <p>{player.name}</p>)
-    .sortOn('test', (_, a, b) => b.name.localeCompare(a.name))
-    ['mount']();
+  const { data, html } = setup(
+    new Hodor('players.*')
+      .map(player => <p>{player.name}</p>)
+      .sortOn('test', (_, a, b) => b.name.localeCompare(a.name))
+  );
 
   data.set('players.1', { name: '1' });
   data.set('players.2', { name: '2' });
@@ -213,10 +204,11 @@ test('on sortOn - custom order update', t => {
 });
 
 test('onFilter and onSort', t => {
-  const { data, html } = setup('players.*')
-    .map(player => <p>{player.name}</p>)
-    .sortOn('filter.by', (val, a, b) => a[val].localeCompare(b[val]))
-    ['mount']();
+  const { data, html } = setup(
+    new Hodor('players.*')
+      .map(player => <p>{player.name}</p>)
+      .sortOn('filter.by', (val, a, b) => a[val].localeCompare(b[val]))
+  );
   data.set('filter.by', 'name');
   data.set('players.1', { name: '1', age: '3' });
   data.set('players.2', { name: '2', age: '2' });
@@ -228,9 +220,7 @@ test('onFilter and onSort', t => {
 });
 
 test('Pathifier sub-array', t => {
-  const { data, html } = setup('players')
-    .map(player => player.name)
-    ['mount']();
+  const { data, html } = setup(new Hodor('players').map(player => player.name));
   data.set('players', [{ name: 'a' }, { name: 'b' }]);
   t.is(html(), '<div>ab</div>');
   data.set('players', [{ name: 'a', x: [1] }]);
