@@ -3,7 +3,7 @@ import { Hodor } from 'hodor';
 
 export interface DomOptions {
   mounted?: (cb: () => void) => void;
-  children?: [];
+  children?: any[];
 }
 
 export type Domponent = (options: DomOptions) => Domode;

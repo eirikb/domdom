@@ -6,7 +6,15 @@ import { Domponent } from '../src/types';
 
 browserEnv();
 
-let element = document.createElement('div');
+let element: HTMLElement;
+
+function createElement() {
+  try {
+    document.body.removeChild(element);
+  } catch (e) {}
+  element = document.createElement('div');
+  document.body.appendChild(element);
+}
 
 async function html() {
   // Force update of Observables
@@ -15,11 +23,7 @@ async function html() {
 }
 
 test.beforeEach(() => {
-  try {
-    document.body.removeChild(element);
-  } catch (e) {}
-  element = document.createElement('div');
-  document.body.appendChild(element);
+  createElement();
 });
 
 test('Component', async t => {
@@ -677,29 +681,31 @@ test('Update array without element', async t => {
   t.is(await html(), '<div>{"0":"hello"}</div>');
 });
 
-// test('Containment', async t => {
-//   const Button: Domponent = ({ children }) => <button>{children}</button>;
-//
-//   domdom(element, () => <Button>Test</Button>);
-//   t.is(await html(), '<button>Test</button>');
-//
-//   element.innerHTML = '';
-//   domdom(element, () => (
-//     <Button>
-//       <span>Test</span>
-//     </Button>
-//   ));
-//   t.is(await html(), '<button><span>Test</span></button>');
-//
-//   element.innerHTML = '';
-//   domdom(element, () => (
-//     <Button>
-//       <span>Test</span>
-//       <i>in</i>g
-//     </Button>
-//   ));
-//   t.is(await html(), '<button><span>Test</span><i>in</i>g</button>');
-// });
+test('Containment', async t => {
+  const Button: Domponent = ({ children }) => <button>{children}</button>;
+
+  init(element, <Button>Test</Button>);
+  t.is(await html(), '<button>Test</button>');
+
+  createElement();
+  init(
+    element,
+    <Button>
+      <span>Test</span>
+    </Button>
+  );
+  t.is(await html(), '<button><span>Test</span></button>');
+
+  createElement();
+  init(
+    element,
+    <Button>
+      <span>Test</span>
+      <i>in</i>g
+    </Button>
+  );
+  t.is(await html(), '<button><span>Test</span><i>in</i>g</button>');
+});
 
 test('Rendering types', async t => {
   init(

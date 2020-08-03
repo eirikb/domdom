@@ -14,6 +14,7 @@ export const React = {
       let mounteds: (() => void)[] = [];
       const domOptions: DomOptions = {
         mounted: cb => mounteds.push(cb),
+        children,
       };
       const res = input(domOptions);
       res.onMounted(() => mounteds.forEach(m => m()));
