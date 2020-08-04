@@ -11,15 +11,7 @@ export const React = {
     props?: { [key: string]: any },
     ...children: any[]
   ): Domode {
-    function flat(res: any[], input: any) {
-      if (Array.isArray(input)) {
-        input.forEach(item => flat(res, item));
-      } else {
-        res.push(input);
-      }
-      return res;
-    }
-    children = flat([], children);
+    children = [].concat(...children);
 
     if (typeof input === 'function') {
       let mounteds: ((data: Data) => void)[] = [];
