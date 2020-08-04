@@ -89,7 +89,7 @@ export const React = {
   },
 };
 
-export const don = (path: string, cb?: ListenerCallback): Hodor =>
+export const on = (path: string, cb?: ListenerCallback): Hodor =>
   new Hodor(path, cb);
 
 export function init(parent: HTMLElement, child?: HTMLElement): Data {
