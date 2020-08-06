@@ -1,7 +1,7 @@
 import { Data, ListenerCallback } from '@eirikb/data';
 import { DomStower } from './dom-stower';
 import { DomSquint } from './dom-squint';
-import ddProps from './dom-props';
+import ddProps from './dd-props';
 import { Hodor } from './hodor';
 import { Domode } from './types';
 
