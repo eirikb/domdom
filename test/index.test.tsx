@@ -1,7 +1,7 @@
 import { serial as test } from 'ava';
 // @ts-ignore
 import browserEnv from 'browser-env';
-import { React, init, on } from '../src/domdom';
+import domdom from '../src/domdom';
 import { Domponent } from '../src/types';
 
 browserEnv();
@@ -22,8 +22,17 @@ async function html() {
   return element.innerHTML;
 }
 
+let { init, React, on, set, unset, get } = domdom();
+
 test.beforeEach(() => {
   createElement();
+  const d = domdom();
+  init = d.init;
+  React = d.React;
+  on = d.on;
+  set = d.set;
+  unset = d.unset;
+  get = d.get;
 });
 
 test('Component', async t => {
@@ -31,8 +40,8 @@ test('Component', async t => {
     return <div>{on('test')}</div>;
   };
 
-  const data = init(element, <Test />);
-  data.set('test', 'Hello, world!');
+  init(element, <Test />);
+  set('test', 'Hello, world!');
   t.is(await html(), '<div>Hello, world!</div>');
 });
 
@@ -41,7 +50,7 @@ test('Component on on', async t => {
     return <div>{on('test')}</div>;
   };
 
-  const data = init(
+  init(
     element,
     <div>
       {on('test', () => (
@@ -49,13 +58,13 @@ test('Component on on', async t => {
       ))}
     </div>
   );
-  data.set('test', 'Hello, world!');
+  set('test', 'Hello, world!');
   t.is(await html(), '<div><div>Hello, world!</div></div>');
 });
 
 test('Array of results from on', async t => {
-  const data = init(element, <div>{on('test', () => ['yes', 'no'])}</div>);
-  data.set('test', 'yes');
+  init(element, <div>{on('test', () => ['yes', 'no'])}</div>);
+  set('test', 'yes');
   t.is(await html(), '<div>yesno</div>');
 });
 
@@ -63,8 +72,8 @@ test('Array of results from on with component', async t => {
   function Yes() {
     return <div>Yes!</div>;
   }
-  const data = init(element, <div>{on('test', () => ['no', <Yes />])}</div>);
-  data.set('test', 'yes');
+  init(element, <div>{on('test', () => ['no', <Yes />])}</div>);
+  set('test', 'yes');
   t.is(await html(), '<div>no<div>Yes!</div></div>');
   t.pass();
 });
@@ -82,32 +91,32 @@ test('Double on', async t => {
       ))}
     </div>
   );
-  const data = init(element, div);
+  init(element, div);
   t.is(await html(), '<div></div>');
 
-  data.set('test', 'hello');
+  set('test', 'hello');
   t.is(await html(), '<div><div>hello</div></div>');
 
-  data.set('testing', 'world');
+  set('testing', 'world');
   t.is(await html(), '<div><div>hello<span>eh world</span></div></div>');
 
-  data.unset('test');
+  unset('test');
   t.is(await html(), '<div></div>');
-  data.set('test', 'hello');
+  set('test', 'hello');
   t.is(await html(), '<div><div>hello<span>eh world</span></div></div>');
 });
 
 test('on without callback', async t => {
   const div = <div>{on('test')}</div>;
-  const data = init(element, div);
+  init(element, div);
 
-  data.set('test', 'hello');
+  set('test', 'hello');
   t.is(await html(), '<div>hello</div>');
 
-  data.set('test', 'world');
+  set('test', 'world');
   t.is(await html(), '<div>world</div>');
 
-  data.unset('test');
+  unset('test');
   t.is(await html(), '<div></div>');
 });
 
@@ -119,19 +128,19 @@ test('Multiple paths', async t => {
       ))}
     </div>
   );
-  const data = init(element, div);
+  init(element, div);
   t.is(await html(), '<div></div>');
 
-  data.set('players.aone', { name: 'Mr. one' });
+  set('players.aone', { name: 'Mr. one' });
   t.is(await html(), '<div><p>Mr. one</p></div>');
 
-  data.set('players.btwo', { name: 'Mr. two' });
+  set('players.btwo', { name: 'Mr. two' });
   t.is(await html(), '<div><p>Mr. one</p><p>Mr. two</p></div>');
 
-  data.set('players.aone', { name: 'Hello' });
+  set('players.aone', { name: 'Hello' });
   t.is(await html(), '<div><p>Mr. two</p><p>Hello</p></div>');
 
-  data.unset('players.aone');
+  unset('players.aone');
   t.is(await html(), '<div><p>Mr. two</p></div>');
 });
 
@@ -143,19 +152,19 @@ test('Multiple paths map', async t => {
       ))}
     </div>
   );
-  const data = init(element, div);
+  init(element, div);
   t.is(await html(), '<div></div>');
 
-  data.set('players.aone', { name: 'Mr. one' });
+  set('players.aone', { name: 'Mr. one' });
   t.is(await html(), '<div><p>Mr. one</p></div>');
 
-  data.set('players.btwo', { name: 'Mr. two' });
+  set('players.btwo', { name: 'Mr. two' });
   t.is(await html(), '<div><p>Mr. one</p><p>Mr. two</p></div>');
 
-  data.set('players.aone', { name: 'Hello' });
+  set('players.aone', { name: 'Hello' });
   t.is(await html(), '<div><p>Hello</p><p>Mr. two</p></div>');
 
-  data.unset('players.aone');
+  unset('players.aone');
   t.is(await html(), '<div><p>Mr. two</p></div>');
 });
 
@@ -167,10 +176,10 @@ test('on Sort - default sort by key', async t => {
       ))}
     </div>
   );
-  const data = init(element, div);
-  data.set('players.aone', { name: '1' });
-  data.set('players.btwo', { name: '2' });
-  data.set('players.cthree', { name: '3' });
+  init(element, div);
+  set('players.aone', { name: '1' });
+  set('players.btwo', { name: '2' });
+  set('players.cthree', { name: '3' });
   t.is(await html(), '<div><p>1</p><p>2</p><p>3</p></div>');
 });
 
@@ -182,10 +191,10 @@ test('on Sort - sort method', async t => {
         .sort((a, b) => b.name.localeCompare(a.name))}
     </div>
   );
-  const data = init(element, div);
-  data.set('players.aone', { name: '1' });
-  data.set('players.btwo', { name: '2' });
-  data.set('players.cthree', { name: '3' });
+  init(element, div);
+  set('players.aone', { name: '1' });
+  set('players.btwo', { name: '2' });
+  set('players.cthree', { name: '3' });
   t.is(await html(), '<div><p>3</p><p>2</p><p>1</p></div>');
 });
 
@@ -197,10 +206,10 @@ test('on Sort - sort method2', async t => {
         .sort((a, b) => a.name.localeCompare(b.name))}
     </div>
   );
-  const data = init(element, div);
-  data.set('players.aone', { name: '1' });
-  data.set('players.btwo', { name: '2' });
-  data.set('players.cthree', { name: '3' });
+  init(element, div);
+  set('players.aone', { name: '1' });
+  set('players.btwo', { name: '2' });
+  set('players.cthree', { name: '3' });
   t.is(await html(), '<div><p>1</p><p>2</p><p>3</p></div>');
 });
 
@@ -215,9 +224,9 @@ test('Multiple on-siblings', async t => {
       ))}
     </div>
   );
-  const data = init(element, div);
-  data.set('a', 'World');
-  data.set('b', 'Hello');
+  init(element, div);
+  set('a', 'World');
+  set('b', 'Hello');
   t.is(await html(), '<div><div>Hello</div><div>World</div></div>');
 });
 
@@ -229,16 +238,16 @@ test('on Sort - keep order', async t => {
       ))}
     </div>
   );
-  const data = init(element, div);
-  data.set('players.1', { name: '1' });
-  data.set('players.2', { name: '2' });
-  data.set('players.3', { name: '3' });
+  init(element, div);
+  set('players.1', { name: '1' });
+  set('players.2', { name: '2' });
+  set('players.3', { name: '3' });
   t.is(await html(), '<div><p>1</p><p>2</p><p>3</p></div>');
 
-  data.unset('players.1');
+  unset('players.1');
   t.is(await html(), '<div><p>2</p><p>3</p></div>');
 
-  data.set('players.1', { name: '1' });
+  set('players.1', { name: '1' });
   t.is(await html(), '<div><p>1</p><p>2</p><p>3</p></div>');
 });
 
@@ -250,16 +259,16 @@ test('on Sort - custom order', async t => {
         .sort((a, b) => b.name.localeCompare(a.name))}
     </div>
   );
-  const data = init(element, div);
-  data.set('players.1', { name: '1' });
-  data.set('players.2', { name: '2' });
-  data.set('players.3', { name: '3' });
+  init(element, div);
+  set('players.1', { name: '1' });
+  set('players.2', { name: '2' });
+  set('players.3', { name: '3' });
   t.is(await html(), '<div><p>3</p><p>2</p><p>1</p></div>');
 
-  data.unset('players.1');
+  unset('players.1');
   t.is(await html(), '<div><p>3</p><p>2</p></div>');
 
-  data.set('players.1', { name: '7' });
+  set('players.1', { name: '7' });
   t.is(await html(), '<div><p>7</p><p>3</p><p>2</p></div>');
 });
 
@@ -271,16 +280,16 @@ test('on Sort - remove $first - with sort', async t => {
         .sort((_, __, aPath, bPath) => aPath.localeCompare(bPath))}
     </div>
   );
-  const data = init(element, div);
-  data.set('players.1', { name: '1' });
-  data.set('players.2', { name: '2' });
-  data.set('players.3', { name: '3' });
+  init(element, div);
+  set('players.1', { name: '1' });
+  set('players.2', { name: '2' });
+  set('players.3', { name: '3' });
   t.is(await html(), '<div><p>1</p><p>2</p><p>3</p></div>');
 
-  data.unset('players.1');
+  unset('players.1');
   t.is(await html(), '<div><p>2</p><p>3</p></div>');
 
-  data.set('players.1', { name: '1' });
+  set('players.1', { name: '1' });
   t.is(await html(), '<div><p>1</p><p>2</p><p>3</p></div>');
 });
 
@@ -292,10 +301,10 @@ test('Child listener', async t => {
       ))}
     </main>
   );
-  const data = init(element, div);
-  data.set('players.1', { name: '1' });
-  data.set('players.2', { name: '2' });
-  data.set('players.3', { name: '3' });
+  init(element, div);
+  set('players.1', { name: '1' });
+  set('players.2', { name: '2' });
+  set('players.3', { name: '3' });
   t.is(
     await html(),
     '<main><article>1</article><article>2</article><article>3</article></main>'
@@ -317,10 +326,10 @@ test('Simple when', async t => {
       })}
     </div>
   );
-  const data = init(element, div);
-  data.set('test', 'no');
+  init(element, div);
+  set('test', 'no');
   t.is(await html(), '<div>t is no</div>');
-  data.set('test', 'yes');
+  set('test', 'yes');
   t.is(await html(), '<div><div>It is yes</div></div>');
 });
 
@@ -339,35 +348,35 @@ test('Quirk on + when', async t => {
       })}
     </div>
   );
-  const data = init(element, div);
-  data.set('test', 'yes');
+  init(element, div);
+  set('test', 'yes');
   t.is(await html(), '<div>yesYes</div>');
-  data.set('test', 'no');
+  set('test', 'no');
   t.is(await html(), '<div>noNo</div>');
-  data.set('test', 'yes');
+  set('test', 'yes');
   t.is(await html(), '<div>yesYes</div>');
-  data.set('test', 'no');
+  set('test', 'no');
   t.is(await html(), '<div>noNo</div>');
 });
 
 test('Simple or', async t => {
   const div = <div>{on('test', t => <div>{t}</div>).or(<div>Nope</div>)}</div>;
-  const data = init(element, div);
+  init(element, div);
   t.is(await html(), '<div><div>Nope</div></div>');
-  data.set('test', 'ing');
+  set('test', 'ing');
   t.is(await html(), '<div><div>ing</div></div>');
-  data.set('test', '');
+  set('test', '');
   t.is(await html(), '<div><div></div></div>');
-  data.unset('test');
+  unset('test');
   t.is(await html(), '<div><div>Nope</div></div>');
 });
 
 test('on empty res', async t => {
   const div = <div>{on('test')}</div>;
-  const data = init(element, div);
-  data.set('test', 'Hello');
+  init(element, div);
+  set('test', 'Hello');
   t.is(await html(), '<div>Hello</div>');
-  data.set('test', '');
+  set('test', '');
   t.is(await html(), '<div></div>');
 });
 
@@ -383,35 +392,60 @@ test('Multiple child paths', async t => {
       ))}
     </div>
   );
-  const data = init(element, div);
-  data.set('a', { text: 'ok' });
+  init(element, div);
+  set('a', { text: 'ok' });
   t.is(await html(), '<div><div>oktestok</div></div>');
 });
 
 test('Have some path with flags', async t => {
-  const div = () => {
-    const e = <div />;
-    e.on('!+* wat', wat => (e.innerHTML = wat));
-    return e;
+  const Ok = () => {
+    const e = <div></div>;
+    on('!+* b', wat => (e.innerHTML = wat));
+    return (
+      <div>
+        {on('a')}
+        {e}
+      </div>
+    );
   };
-  const data = init(element, div());
-  data.set('wat', 'ok');
-  t.is(await html(), '<div>ok</div>');
+  init(element, <Ok />);
+  set('a', 'A');
+  set('b', 'B');
+  t.is(await html(), '<div>A<div>B</div></div>');
+});
+
+test('Have some path with flags without component', async t => {
+  init(
+    element,
+    (() => {
+      const e = <div></div>;
+      on('!+* b', wat => (e.innerHTML = wat));
+      return (
+        <div>
+          {on('a')}
+          {e}
+        </div>
+      );
+    })()
+  );
+  set('a', 'A');
+  set('b', 'B');
+  t.is(await html(), '<div>A<div>B</div></div>');
 });
 
 test('Listeners are cleared', async t => {
-  const data = init(element);
+  init(element);
 
   let i = 0;
 
   function Child() {
     const e = <div />;
-    e.on('* test', () => i++);
+    on('* test', () => i++);
     return e;
   }
 
-  data.set('test', 'a');
-  data.set('show', true);
+  set('test', 'a');
+  set('show', true);
   const div = (
     <div>
       {on('show', () => (
@@ -421,27 +455,27 @@ test('Listeners are cleared', async t => {
   );
   element.appendChild(div);
   await html();
-  data.set('test', 'b');
+  set('test', 'b');
   t.is(i, 1);
 
-  data.unset('show');
+  unset('show');
   await html();
-  data.set('test', 'c');
+  set('test', 'c');
   t.is(i, 1);
 });
 
 test('Listeners are not overcleared', async t => {
-  const data = init(element);
+  init(element);
   let i = 0;
 
   function Child() {
     const e = <div />;
-    e.on('* test', () => i++);
+    on('* test', () => i++);
     return e;
   }
 
-  data.set('test', 'a');
-  data.set('show', 'yes');
+  set('test', 'a');
+  set('show', 'yes');
   const div = (
     <div>
       {on('show', () => (
@@ -451,33 +485,33 @@ test('Listeners are not overcleared', async t => {
   );
   element.appendChild(div);
   await html();
-  data.set('test', 'b');
+  set('test', 'b');
   t.is(1, i);
 
-  data.set('show', 'yesyes');
+  set('show', 'yesyes');
   await html();
-  data.set('test', 'c');
+  set('test', 'c');
   t.is(2, i);
 
-  data.set('show', 'yesyesyes');
+  set('show', 'yesyesyes');
   await html();
-  data.set('test', 'd');
+  set('test', 'd');
   t.is(3, i);
 });
 
 test('Listeners are support change of parent', async t => {
-  const data = init(element);
+  init(element);
 
   let i = 0;
 
   function Child() {
     const e = <p />;
-    e.on('* test', () => i++);
+    on('* test', () => i++);
     return e;
   }
 
-  data.set('test', 'a');
-  data.set('show', 'yes');
+  set('test', 'a');
+  set('show', 'yes');
   const div = (
     <div>
       {on('show', () => (
@@ -487,67 +521,67 @@ test('Listeners are support change of parent', async t => {
   );
   element.appendChild(div);
 
-  data.set('show', 'yesyes');
+  set('show', 'yesyes');
   await html();
-  data.set('test', 'c');
+  set('test', 'c');
   t.is(1, i);
 
-  data.unset('show');
+  unset('show');
   await html();
-  data.set('test', 'd');
+  set('test', 'd');
   t.is(1, i);
 });
 
 test('Listeners in when', async t => {
-  const data = init(element);
+  init(element);
   let i = 0;
 
   function Child() {
     const e = <div />;
-    e.on('* test', () => i++);
+    on('* test', () => i++);
     return e;
   }
 
-  data.set('test', 'a');
-  data.set('show', true);
+  set('test', 'a');
+  set('show', true);
   const div = <div>{on('show', show => (show ? <Child /> : null))}</div>;
   element.appendChild(div);
   await html();
-  data.set('test', 'b');
+  set('test', 'b');
   t.is(1, i);
 
-  data.set('show', false);
+  set('show', false);
   await html();
-  data.set('test', 'c');
+  set('test', 'c');
   t.is(1, i);
 });
 
 test('Listener in when 2', async t => {
-  const data = init(element);
+  init(element);
   let i = 0;
 
   function Child() {
     const e = <div />;
-    e.on('* test', () => i++);
+    on('* test', () => i++);
     return e;
   }
 
-  data.set('test', 'a');
-  data.set('show', true);
+  set('test', 'a');
+  set('show', true);
   const div = <div>{on('show', show => (show ? <Child /> : null))}</div>;
   element.appendChild(div);
   await html();
-  data.set('test', 'b');
+  set('test', 'b');
   t.is(1, i);
 
-  data.set('show', false);
+  set('show', false);
   await html();
-  data.set('test', 'c');
+  set('test', 'c');
   t.is(1, i);
 
-  data.set('show', true);
+  set('show', true);
   await html();
-  data.set('test', 'd');
+  set('test', 'd');
   t.is(2, i);
 });
 
@@ -584,13 +618,13 @@ test('Mounted on/off', async t => {
       ))}
     </div>
   );
-  const data = init(element, div);
+  init(element, div);
 
-  data.set('test', true);
+  set('test', true);
   await html();
-  data.unset('test');
+  unset('test');
   await html();
-  data.set('test', true);
+  set('test', true);
 });
 
 test('When with initial false value', async t => {
@@ -606,8 +640,8 @@ test('When with initial false value', async t => {
       })}
     </div>
   );
-  const data = init(element, div);
-  data.set('test', false);
+  init(element, div);
+  set('test', false);
   t.is(await html(), '<div><div>Hello</div></div>');
 });
 
@@ -624,13 +658,13 @@ test('Do not remove listener on same level', async t => {
       {on('hello')}
     </div>
   );
-  const data = init(element, div);
-  data.set('test', true);
-  data.set('hello', 'world');
+  init(element, div);
+  set('test', true);
+  set('hello', 'world');
   t.is(await html(), '<div><p>test</p>world</div>');
-  data.set('test', false);
-  data.unset('test');
-  data.set('hello', 'there');
+  set('test', false);
+  unset('test');
+  set('hello', 'there');
   t.is(await html(), '<div>there</div>');
 });
 
@@ -642,9 +676,9 @@ test('Whole objects should be populated', async t => {
       ))}
     </div>
   );
-  const data = init(element, div);
+  init(element, div);
 
-  data.set('hello', {
+  set('hello', {
     world: {
       test: ':)',
     },
@@ -661,23 +695,23 @@ test('Update array', async t => {
       ))}
     </div>
   );
-  const data = init(element, div);
+  init(element, div);
 
-  data.set('path', ['hello', 'world']);
+  set('path', ['hello', 'world']);
   t.is(await html(), '<div><div>{"0":"hello","1":"world"}</div></div>');
 
-  data.set('path', ['hello']);
+  set('path', ['hello']);
   t.is(await html(), '<div><div>{"0":"hello"}</div></div>');
 });
 
 test('Update array without element', async t => {
   const view = <div>{on('x')}</div>;
-  const data = init(element, view);
+  init(element, view);
 
-  data.set('x', ['hello', 'world']);
+  set('x', ['hello', 'world']);
   t.is(await html(), '<div>{"0":"hello","1":"world"}</div>');
 
-  data.set('x', ['hello']);
+  set('x', ['hello']);
   t.is(await html(), '<div>{"0":"hello"}</div>');
 });
 
@@ -726,9 +760,9 @@ test('Rendering types', async t => {
 
 test('Remove or on on', async t => {
   const view = <div>{on('test.$id', t => t.name).or('Loading...')}</div>;
-  const data = init(element, view);
+  init(element, view);
   t.is(await html(), '<div>Loading...</div>');
-  data.set('test', { 0: { name: 'hello' } });
+  set('test', { 0: { name: 'hello' } });
   t.is(await html(), '<div>hello</div>');
 });
 
@@ -738,10 +772,10 @@ test('on attributes', async t => {
       <button disabled={on('disable', res => res)} />
     </div>
   );
-  const data = init(element, view);
+  init(element, view);
 
   t.is(await html(), '<div><button></button></div>');
-  data.set('disable', true);
+  set('disable', true);
   t.is(await html(), '<div><button disabled=""></button></div>');
 });
 
@@ -752,19 +786,19 @@ test('on on attributes', async t => {
       <button disabled={on('canNotClick').or(true)} />
     </div>
   );
-  const data = init(element, view);
+  init(element, view);
 
   t.is(
     await html(),
     '<div><button disabled=""></button><button disabled=""></button></div>'
   );
 
-  data.set('canClick', true);
-  data.set('canNotClick', false);
+  set('canClick', true);
+  set('canNotClick', false);
   t.is(await html(), '<div><button></button><button></button></div>');
 
-  data.set('canClick', false);
-  data.set('canNotClick', true);
+  set('canClick', false);
+  set('canNotClick', true);
   t.is(
     await html(),
     '<div><button disabled=""></button><button disabled=""></button></div>'
@@ -777,14 +811,14 @@ test('on on attributes or', async t => {
       <button disabled={on('canNotClick').or(true)} />
     </div>
   );
-  const data = init(element, view);
+  init(element, view);
 
   t.is(await html(), '<div><button disabled=""></button></div>');
 
-  data.set('canNotClick', false);
+  set('canNotClick', false);
   t.is(await html(), '<div><button></button></div>');
 
-  data.unset('canNotClick');
+  unset('canNotClick');
   t.is(await html(), '<div><button disabled=""></button></div>');
 });
 
@@ -794,9 +828,9 @@ test('On on object attributes', async t => {
       <p style={on('style')}>Test</p>
     </div>
   );
-  const data = init(element, view);
+  init(element, view);
 
-  data.set('style', { color: 'red' });
+  set('style', { color: 'red' });
   t.is(await html(), '<div><p style="color: red;">Test</p></div>');
 });
 
@@ -808,9 +842,9 @@ test('Filter array', async t => {
         .filter(user => user.name !== 'One!')}
     </div>
   );
-  const data = init(element, view);
+  init(element, view);
 
-  data.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
   t.is(await html(), '<div><span>Two!</span></div>');
 });
 
@@ -822,9 +856,9 @@ test('Update filter on update filter', async t => {
         .filter(user => user.name !== 'One!')}
     </div>
   );
-  const data = init(element, view);
+  init(element, view);
 
-  data.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
   t.is(await html(), '<div><span>Two!</span></div>');
 });
 
@@ -836,10 +870,10 @@ test('Update filterOn on update filter', async t => {
         .filterOn('test', (_, user) => user.name !== 'One!')}
     </div>
   );
-  const data = init(element, view);
+  init(element, view);
 
-  data.set('test', { search: 'it' });
-  data.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  set('test', { search: 'it' });
+  set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
   t.is(await html(), '<div><span>Two!</span></div>');
 });
 
@@ -851,10 +885,10 @@ test('Update filterOn on update filter refresh', async t => {
         .filterOn('test', (_, user) => user.name !== 'One!')}
     </div>
   );
-  const data = init(element, view);
+  init(element, view);
 
-  data.set('test', { search: 'it' });
-  data.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  set('test', { search: 'it' });
+  set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
   t.is(await html(), '<div><span>Two!</span></div>');
 });
 
@@ -868,12 +902,12 @@ test('Update filterOn on update after data is set', async t => {
         )}
     </div>
   );
-  const data = init(element, view);
+  init(element, view);
 
-  data.set('test', '');
-  data.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  set('test', '');
+  set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
   t.is(await html(), '<div><b>One!</b><b>Two!</b></div>');
-  data.set('test', 'two');
+  set('test', 'two');
   t.is(await html(), '<div><b>Two!</b></div>');
 });
 
@@ -885,17 +919,17 @@ test('on sortOn - custom order', async t => {
         .sortOn('test', (_, a, b) => b.name.localeCompare(a.name))}
     </div>
   );
-  const data = init(element, div);
-  data.set('test', 'yes');
-  data.set('players.1', { name: '1' });
-  data.set('players.2', { name: '2' });
-  data.set('players.3', { name: '3' });
+  init(element, div);
+  set('test', 'yes');
+  set('players.1', { name: '1' });
+  set('players.2', { name: '2' });
+  set('players.3', { name: '3' });
   t.is(await html(), '<div><p>3</p><p>2</p><p>1</p></div>');
 
-  data.unset('players.1');
+  unset('players.1');
   t.is(await html(), '<div><p>3</p><p>2</p></div>');
 
-  data.set('players.1', { name: '7' });
+  set('players.1', { name: '7' });
   t.is(await html(), '<div><p>7</p><p>3</p><p>2</p></div>');
 });
 
@@ -907,17 +941,17 @@ test('on sortOn - custom order update', async t => {
         .sortOn('test', (_, a, b) => b.name.localeCompare(a.name))}
     </div>
   );
-  const data = init(element, div);
-  data.set('players.1', { name: '1' });
-  data.set('players.2', { name: '2' });
-  data.set('players.3', { name: '3' });
-  data.set('test', 'yes');
+  init(element, div);
+  set('players.1', { name: '1' });
+  set('players.2', { name: '2' });
+  set('players.3', { name: '3' });
+  set('test', 'yes');
   t.is(await html(), '<div><p>3</p><p>2</p><p>1</p></div>');
 
-  data.unset('players.1');
+  unset('players.1');
   t.is(await html(), '<div><p>3</p><p>2</p></div>');
 
-  data.set('players.1', { name: '7' });
+  set('players.1', { name: '7' });
   t.is(await html(), '<div><p>7</p><p>3</p><p>2</p></div>');
 });
 
@@ -929,13 +963,13 @@ test('onFilter and onSort', async t => {
         .sortOn('filter.by', (val, a, b) => a[val].localeCompare(b[val]))}
     </div>
   );
-  const data = init(element, div);
-  data.set('filter.by', 'name');
-  data.set('players.1', { name: '1', age: '3' });
-  data.set('players.2', { name: '2', age: '2' });
-  data.set('players.3', { name: '3', age: '1' });
+  init(element, div);
+  set('filter.by', 'name');
+  set('players.1', { name: '1', age: '3' });
+  set('players.2', { name: '2', age: '2' });
+  set('players.3', { name: '3', age: '1' });
   t.is(await html(), '<div><p>1</p><p>2</p><p>3</p></div>');
-  data.set('filter.by', 'age');
+  set('filter.by', 'age');
   t.is(await html(), '<div><p>3</p><p>2</p><p>1</p></div>');
 });
 
@@ -964,13 +998,13 @@ test('filterOn and back', async t => {
       <p>Because</p>
     </div>
   );
-  const data = init(element, view);
-  data.set('test', '');
-  data.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  init(element, view);
+  set('test', '');
+  set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
   t.is(await html(), '<div><b>One!</b><b>Two!</b><p>Because</p></div>');
-  data.set('test', 'two');
+  set('test', 'two');
   t.is(await html(), '<div><b>Two!</b><p>Because</p></div>');
-  data.set('test', '');
+  set('test', '');
   t.is(await html(), '<div><b>One!</b><b>Two!</b><p>Because</p></div>');
 });
 
@@ -985,11 +1019,11 @@ test('When + change', async t => {
       })}
     </div>
   );
-  const data = init(element, view);
-  data.set('yes', true);
-  data.set('yes', false);
-  data.set('yes', true);
-  data.set('ok', 'OK!');
+  init(element, view);
+  set('yes', true);
+  set('yes', false);
+  set('yes', true);
+  set('ok', 'OK!');
   t.is(await html(), '<div><p>OK!</p></div>');
 });
 
@@ -1004,11 +1038,11 @@ test('When + change 2', async t => {
       })}
     </div>
   );
-  const data = init(element, view);
-  data.set('yes', true);
-  data.set('yes', false);
-  data.set('ok', 'OK!');
-  data.set('yes', true);
+  init(element, view);
+  set('yes', true);
+  set('yes', false);
+  set('ok', 'OK!');
+  set('yes', true);
   t.is(await html(), '<div><p>OK!</p></div>');
 });
 
@@ -1032,15 +1066,15 @@ test('When + filterOn', async t => {
       })}
     </div>
   );
-  const data = init(element, view);
-  data.set('test', 'two');
-  data.set('yes', true);
-  data.set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  init(element, view);
+  set('test', 'two');
+  set('yes', true);
+  set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
   t.is(await html(), '<div><div><b>Two!</b><p>Because</p></div></div>');
-  data.set('yes', false);
+  set('yes', false);
   t.is(await html(), '<div></div>');
-  data.set('yes', true);
-  data.set('test', '');
+  set('yes', true);
+  set('test', '');
   t.is(
     await html(),
     '<div><div><b>One!</b><b>Two!</b><p>Because</p></div></div>'
@@ -1057,13 +1091,13 @@ test('Re-add', async t => {
       ))}
     </div>
   );
-  const data = init(element, view);
-  data.set('yes', 'Yes!');
-  data.set('no', 'No!');
+  init(element, view);
+  set('yes', 'Yes!');
+  set('no', 'No!');
   t.is(await html(), '<div><p>Yes! No!</p></div>');
-  data.unset('yes');
-  data.set('no', 'Well!');
-  data.set('yes', 'OK!');
+  unset('yes');
+  set('no', 'Well!');
+  set('yes', 'OK!');
   t.is(await html(), '<div><p>OK! Well!</p></div>');
 });
 
@@ -1079,18 +1113,18 @@ test('Something something filter and add', async t => {
         .filterOn('filter', f => f)}
     </div>
   );
-  const data = init(element, view);
-  data.set('filter', true);
-  data.set('yes', 'y');
-  data.set('users', {
+  init(element, view);
+  set('filter', true);
+  set('yes', 'y');
+  set('users', {
     one: 'o',
     two: 't',
   });
   t.is(await html(), '<div><p>o y</p><p>t y</p></div>');
-  data.set('filter', false);
+  set('filter', false);
   t.is(await html(), '<div></div>');
-  data.set('yes', 'n');
-  data.set('filter', true);
+  set('yes', 'n');
+  set('filter', true);
   t.is(await html(), '<div><p>o n</p><p>t n</p></div>');
 });
 
@@ -1102,12 +1136,12 @@ test('Simplest', async t => {
       ))}
     </div>
   );
-  const data = init(element, view);
+  init(element, view);
 
-  data.set('yes', true);
-  data.set('no', 'n');
+  set('yes', true);
+  set('no', 'n');
   t.is(await html(), '<div><p>n</p></div>');
-  data.set('no', 'n');
+  set('no', 'n');
 });
 
 test('filterOn mounted destroy mounted', async t => {
@@ -1127,19 +1161,19 @@ test('filterOn mounted destroy mounted', async t => {
       })}
     </div>
   );
-  const data = init(element, view);
+  init(element, view);
 
-  data.set('yes', true);
-  data.set('filter', 'one');
-  data.set('users.1', { name: 'one', test: 'yes' });
-  data.set('users.2', { name: 'two' });
+  set('yes', true);
+  set('filter', 'one');
+  set('users.1', { name: 'one', test: 'yes' });
+  set('users.2', { name: 'two' });
 
   t.is(await html(), '<div><div>one</div></div>');
 
-  data.set('yes', false);
+  set('yes', false);
   t.is(await html(), '<div></div>');
 
-  data.set('yes', true);
+  set('yes', true);
   t.is(await html(), '<div><div>one</div></div>');
 });
 
@@ -1161,13 +1195,13 @@ test('When + filterOn const element', async t => {
     </div>
   );
 
-  const data = init(element, view);
+  init(element, view);
 
-  data.set('users', { 1: { name: 'a' }, 2: { name: 'b' } });
-  data.set('show', true);
-  data.set('filter', 'a');
-  data.set('show', false);
-  data.set('show', true);
+  set('users', { 1: { name: 'a' }, 2: { name: 'b' } });
+  set('show', true);
+  set('filter', 'a');
+  set('show', false);
+  set('show', true);
   t.deepEqual(await html(), '<div><div><p>a</p></div></div>');
 });
 
@@ -1188,12 +1222,12 @@ test('When + filterOn const text', async t => {
       })}
     </div>
   );
-  const data = init(element, view);
-  data.set('users', { 1: { name: 'a' }, 2: { name: 'b' } });
-  data.set('show', true);
-  data.set('filter', 'a');
-  data.set('show', false);
-  data.set('show', true);
+  init(element, view);
+  set('users', { 1: { name: 'a' }, 2: { name: 'b' } });
+  set('show', true);
+  set('filter', 'a');
+  set('show', false);
+  set('show', true);
   t.deepEqual(await html(), '<div><div>a</div></div>');
 });
 
@@ -1211,8 +1245,8 @@ test('On child attribute listener', async t => {
       ))}
     </div>
   );
-  const data = init(element, view);
-  data.set('yes', {
+  init(element, view);
+  set('yes', {
     link: 'https://nrk.no',
     text: 'Some link:',
   });
@@ -1232,8 +1266,8 @@ test('Same listener twice no problem', async t => {
       ))}
     </div>
   );
-  const data = init(element, view);
-  data.set('test', 'yes');
+  init(element, view);
+  set('test', 'yes');
   t.is(await html(), '<div><div>yes and yes</div></div>');
 });
 
@@ -1249,8 +1283,8 @@ test('Same listener twice no problem on when', async t => {
       ))}
     </div>
   );
-  const data = init(element, view);
-  data.set('test', 'OK!');
+  init(element, view);
+  set('test', 'OK!');
   t.is(await html(), '<div><div>OK!</div></div>');
 });
 
@@ -1271,8 +1305,8 @@ test('Function in on', async t => {
     );
   };
 
-  const data = init(element);
-  data.set('yes', 'ok');
+  init(element);
+  set('yes', 'ok');
   const view = (
     <div>
       {on('yes', () => (
@@ -1312,12 +1346,12 @@ test('When and on no duplicated', async t => {
       })}
     </div>
   );
-  const data = init(element, view);
-  data.set('route', 'login1');
-  data.set('myse', {
+  init(element, view);
+  set('route', 'login1');
+  set('myse', {
     type: 'proppgave',
   });
-  data.set('route', 'ready');
+  set('route', 'ready');
   t.is(await html(), '<div><div><p>A</p><p>B</p><p>C</p></div></div>');
 });
 
@@ -1334,11 +1368,11 @@ test('when + or', async t => {
       }).or('+')}
     </div>
   );
-  const data = init(element, view);
+  init(element, view);
   t.is(await html(), '<div>+</div>');
-  data.set('test', true);
+  set('test', true);
   t.is(await html(), '<div>-</div>');
-  data.set('test', false);
+  set('test', false);
   t.is(await html(), '<div>+</div>');
 });
 
@@ -1359,11 +1393,11 @@ test('When + pathifier', async t => {
       })}
     </div>
   );
-  const data = init(element, view);
-  data.set('test', true);
-  data.set('players', ['a']);
-  data.set('test', false);
-  data.set('test', true);
+  init(element, view);
+  set('test', true);
+  set('players', ['a']);
+  set('test', false);
+  set('test', true);
   t.pass();
 });
 
@@ -1383,11 +1417,11 @@ test('on + pathifier', async t => {
       )}
     </div>
   );
-  const data = init(element, view);
-  data.set('test', true);
-  data.set('players', ['a']);
-  data.set('test', false);
-  data.set('test', true);
+  init(element, view);
+  set('test', true);
+  set('players', ['a']);
+  set('test', false);
+  set('test', true);
   t.pass();
 });
 
@@ -1407,11 +1441,11 @@ test('on + on', async t => {
       )}
     </div>
   );
-  const data = init(element, view);
-  data.set('test', true);
-  data.set('players', ['a']);
-  data.set('test', false);
-  data.set('test', true);
+  init(element, view);
+  set('test', true);
+  set('players', ['a']);
+  set('test', false);
+  set('test', true);
   t.pass();
 });
 
@@ -1425,9 +1459,9 @@ test('dd-model select before options are set', async t => {
       </select>
     </div>
   );
-  const data = init(element, view);
-  data.set('yes', 'hello');
-  data.set('test', ['', 'hello', 'world']);
+  init(element, view);
+  set('yes', 'hello');
+  set('test', ['', 'hello', 'world']);
   await html();
   const select = document.querySelector('select');
   return Promise.resolve().then(() => {
@@ -1436,15 +1470,15 @@ test('dd-model select before options are set', async t => {
 });
 
 test('Convenience', async t => {
-  const data = init(element, <div>Hello {on('test')}</div>);
-  data.set('test', 'world!');
+  init(element, <div>Hello {on('test')}</div>);
+  set('test', 'world!');
   t.pass();
 });
 
 test('Convenience view before domdom', async t => {
   const view = <div>Hello {on('test')}</div>;
-  const data = init(element, view);
-  data.set('test', 'world!');
+  init(element, view);
+  set('test', 'world!');
   t.pass();
 });
 
@@ -1453,7 +1487,7 @@ test('Flags in components are work and cleared', async t => {
 
   const Hello = () => {
     const e = <div>Hello!</div>;
-    e.on('!+* tast', test => {
+    on('!+* tast', test => {
       counter++;
       e.textContent = test;
     });
@@ -1469,26 +1503,26 @@ test('Flags in components are work and cleared', async t => {
       ))}
     </div>
   );
-  const data = init(element, view);
+  init(element, view);
 
   t.is(await html(), '<div></div>');
-  data.set('test', 'world!');
+  set('test', 'world!');
   t.is(await html(), '<div><div>Test is world!. <div>Hello!</div></div></div>');
   t.is(counter, 0);
 
-  data.set('tast', 'ing');
+  set('tast', 'ing');
   t.is(await html(), '<div><div>Test is world!. <div>ing</div></div></div>');
   t.is(counter, 1);
 
-  data.unset('test');
+  unset('test');
   t.is(await html(), '<div></div>');
   t.is(counter, 1);
 
-  data.set('tast', 'uhm');
+  set('tast', 'uhm');
   t.is(await html(), '<div></div>');
   t.is(counter, 1);
 
-  data.set('test', 'yo');
+  set('test', 'yo');
   t.is(await html(), '<div><div>Test is yo. <div>uhm</div></div></div>');
   t.is(counter, 2);
 });
@@ -1504,25 +1538,25 @@ test('Hodor as a child', async t => {
     return <div>{children}</div>;
   };
 
-  const data = init(
+  init(
     element,
     <div>
       <Parent>{on('test')}</Parent>
     </div>
   );
-  data.set('test', 'OK!');
+  set('test', 'OK!');
   t.is(await html(), '<div><div>OK!</div></div>');
   t.pass();
 });
 
 test('Re-usable domdom', async t => {
-  const data = init(element);
+  init(element);
 
   const Hello = () => {
     return <div>Hello {on!('test')}</div>;
   };
 
-  data.set('test', 'World!');
+  set('test', 'World!');
   element.appendChild(
     <main>
       <Hello />
@@ -1532,7 +1566,7 @@ test('Re-usable domdom', async t => {
 });
 
 test('Element with hodor but not added via domdom', async t => {
-  const data = init(
+  init(
     element,
     (() => {
       const a = <main />;
@@ -1548,7 +1582,7 @@ test('Element with hodor but not added via domdom', async t => {
       return a;
     })()
   );
-  data.set('test', 'Hello!');
+  set('test', 'Hello!');
   await new Promise(r => {
     setTimeout(async () => {
       t.is(await html(), '<main><div><span>Hello!</span></div></main>');
@@ -1569,9 +1603,9 @@ test('on with properties', async t => {
       })}
     </div>
   );
-  const data = init(element, div);
+  init(element, div);
 
-  data.set('users', {
+  set('users', {
     a: { name: 'A!' },
     b: { name: 'B!' },
   });
@@ -1585,14 +1619,14 @@ test('properties without value should not crash', async t => {
 
 test('path should not be part of data', async t => {
   t.plan(3);
-  const data = init(element, <div>{on('test')}</div>);
-  data.on('!+* test', val => {
+  init(element, <div>{on('test')}</div>);
+  on('!+* test', val => {
     t.deepEqual(val, { hello: 'world' });
   });
-  data.set('test', {
+  set('test', {
     hello: 'world',
   });
-  data.on('!+* test', val => {
+  on('!+* test', val => {
     t.deepEqual(val, { hello: 'world' });
   });
   t.is('<div>{"hello":"world"}</div>', await html());
@@ -1600,10 +1634,10 @@ test('path should not be part of data', async t => {
 
 test('dd-model', async t => {
   const input = <input type="text" dd-model="test" />;
-  const data = init(element, <div>{input}</div>);
+  init(element, <div>{input}</div>);
   await html();
   const event = new Event('input');
   input.value = 'Yes!';
   input.dispatchEvent(event);
-  t.is(data.get('test'), 'Yes!');
+  t.is(get('test'), 'Yes!');
 });

@@ -1,5 +1,6 @@
-import { Domode } from './types';
+import { Domode, Mountable } from './types';
 import { Hodor } from './hodor';
+import { Data } from '@eirikb/data';
 
 function setVal(element: any, key: string, value: any) {
   if (typeof element[key] === 'object') {
@@ -10,6 +11,8 @@ function setVal(element: any, key: string, value: any) {
 }
 
 export default (
+  data: Data,
+  mountables: Mountable[],
   element: Domode | HTMLInputElement,
   props?: { [key: string]: any }
 ) => {
@@ -43,9 +46,15 @@ export default (
     const propsAsAny = props as any;
     const model = propsAsAny['dd-model'];
     if (model) {
-      domOde.onMounted(data => {
-        onChange((value: any) => data.set(model, value));
-        data.on(`!+* ${model}`, setValue);
+      onChange((value: any) => data.set(model, value));
+      let ref: string = '';
+      mountables.push({
+        mounted() {
+          ref = data.on(`!+* ${model}`, setValue);
+        },
+        unmounted() {
+          data.off(ref);
+        },
       });
 
       // Special handling for select elements
@@ -73,7 +82,7 @@ export default (
             setVal(element, key, or);
           },
         });
-        domOde.hodors.push(hodor);
+        mountables.push(hodor);
       } else if (key.startsWith('on')) {
         const name = key[2].toLocaleLowerCase() + key.slice(3);
         element.addEventListener(name, value);

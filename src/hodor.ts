@@ -9,10 +9,10 @@ import {
   ListenerCallback,
   LooseObject,
 } from '@eirikb/data';
-import { Domode } from './types';
+import { Domode, Mountable } from './types';
 
-export class Hodor {
-  data?: Data;
+export class Hodor implements Mountable {
+  data: Data;
   path: string;
   element?: Domode;
   isHodor = true;
@@ -29,9 +29,11 @@ export class Hodor {
   listenerSet = false;
   paths: string[] = [];
   listener?: ListenerCallback;
-  ref?: string;
+  refs: string[] = [];
+  hasFlags: boolean = false;
 
-  constructor(path: string, listener?: ListenerCallback) {
+  constructor(data: Data, path: string, listener?: ListenerCallback) {
+    this.data = data;
     this.listenerSet = !!listener;
     if (listener === undefined) {
       listener = (_: any) => _;
@@ -41,15 +43,15 @@ export class Hodor {
       throw new Error('Listener must be a function');
     }
 
-    const hasFlags = path.match(/ /);
-    if (hasFlags) {
-      throw new Error('Flags not supported here');
-    }
     this.path = path;
+    this.hasFlags = !!path.match(/ /);
+    if (this.hasFlags) {
+      this.listen(this.path);
+    }
   }
 
   on(flagsAndPath: string, cb: ListenerCallback) {
-    this.ref = this.data!.on(flagsAndPath, cb);
+    this.refs.push(this.data.on(flagsAndPath, cb));
   }
 
   or(or: any) {
@@ -87,8 +89,7 @@ export class Hodor {
     }
     return this;
   }
-  mounted(data: Data) {
-    this.data = data;
+  mounted() {
     if (typeof this.listen === 'function') {
       this.listen(this.path);
     }
@@ -98,28 +99,32 @@ export class Hodor {
   }
   off() {
     if (this.pathifier) this.pathifier.off();
-    if (this.data && this.ref) {
-      this.data.off(this.ref);
-    }
+    this.data.off(this.refs.join(' '));
+    this.refs = [];
   }
   listen(path) {
     if (this.listening) {
       return;
     }
     this.listening = true;
+
+    if (this.hasFlags) {
+      this.on(this.path, this.listener!);
+      return;
+    }
+
     if (!this._stower) {
       return;
     }
 
     if (this.element) {
       let parentNode = this.element;
-      // TODO: Remove indexing
-      while (parentNode && parentNode['parentNode']) {
-        if (parentNode['path']) {
-          path = path.replace(/^>/, parentNode['path']);
+      while (parentNode && parentNode.parentNode) {
+        if (parentNode.path) {
+          path = path.replace(/^>/, parentNode.path);
           break;
         }
-        parentNode = parentNode['parentNode'] as Domode;
+        parentNode = parentNode.parentNode as Domode;
       }
     }
 
@@ -146,7 +151,7 @@ export class Hodor {
       });
       return;
     }
-    this.pathifier = this.data!.on(path);
+    this.pathifier = this.data.on(path);
     if (this._map) this.pathifier.map(this._map);
     if (this._filter) this.pathifier.filter(this._filter);
     if (this._filterOn)

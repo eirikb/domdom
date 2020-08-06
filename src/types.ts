@@ -1,27 +1,18 @@
-import { Data, ListenerCallback } from '@eirikb/data';
-import { Hodor } from 'hodor';
+export type OptChildren = any[];
+export type OptMounted = (cb: () => void) => void;
 
-export interface DomOptions {
-  mounted?: (cb: (data: Data) => void) => void;
-  children?: any[];
-}
+export type Domponent = (options: {
+  children?: OptChildren;
+  mounted?: OptMounted;
+}) => void;
 
-export type Domponent = (options: DomOptions) => Domode;
-
-export interface Domdom extends Data {
-  React: Element;
-  data: Data;
-  append: (
-    parent: Element,
-    contextOptions: (ContextOptions) => Domode
-  ) => Domode;
-}
-
-export interface Domode extends HTMLElement {
-  mounted(data: Data);
-  onMounted(cb: (data: Data) => void);
-  unmounted();
-  hodors: Hodor[];
+export interface Domode extends HTMLElement, Mountable {
   isMounted: boolean;
-  on(path: string, listener: ListenerCallback): void;
+  path: string;
+  mountables: Mountable[];
+}
+
+export interface Mountable {
+  mounted();
+  unmounted();
 }

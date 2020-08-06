@@ -1,18 +1,15 @@
-import { Data } from '@eirikb/data';
 import { Domode } from 'types';
 
 export class DomSquint {
-  private readonly data: Data;
   private readonly parent: HTMLElement;
 
-  constructor(data: Data, parent: HTMLElement) {
-    this.data = data;
+  constructor(parent: HTMLElement) {
     this.parent = parent;
   }
   private mount(element: Node) {
     const domode = element as Domode;
     if (domode.mounted && !domode.isMounted) {
-      domode.mounted(this.data);
+      domode.mounted();
       domode.isMounted = true;
     }
   }

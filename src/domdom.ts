@@ -3,93 +3,98 @@ import { DomStower } from './dom-stower';
 import { DomSquint } from './dom-squint';
 import ddProps from './dom-props';
 import { Hodor } from './hodor';
-import { Domode, DomOptions } from './types';
+import { Domode } from './types';
 
-export const React = {
-  createElement(
-    input: string | Function,
-    props?: { [key: string]: any },
-    ...children: any[]
-  ): Domode {
-    children = [].concat(...children);
+export default (data: Data = new Data()) => {
+  const hodors: Set<Hodor> = new Set<Hodor>();
 
-    if (typeof input === 'function') {
-      let mounteds: ((data: Data) => void)[] = [];
-      const domOptions: DomOptions = {
-        mounted: cb => mounteds.push(cb),
-        children,
-      };
-      const res = input(domOptions);
-      res.onMounted(data => mounteds.forEach(m => m(data)));
-      return res;
-    }
+  return {
+    React: {
+      createElement(
+        input: string | Function,
+        props?: { [key: string]: any },
+        ...children: any[]
+      ): Domode {
+        children = [].concat(...children);
 
-    let listeners: { path: string; listener: ListenerCallback }[] = [];
-    let refs: string[] = [];
-    let mounteds: ((data: Data) => void)[] = [];
+        if (typeof input === 'function') {
+          const cbs: (() => void)[] = [];
+          const options = {
+            children,
+            mounted(cb) {
+              cbs.push(cb);
+            },
+          };
+          const res = input({ ...props, ...options }) as Domode;
+          res.mountables.push({
+            mounted() {
+              for (const cb of cbs) {
+                cb();
+              }
+            },
+            unmounted() {},
+          });
+          for (let hodor of hodors) {
+            res.mountables.push(hodor);
+            hodors.delete(hodor);
+          }
+          return res;
+        }
 
-    const el = document.createElement(input) as Domode;
-    let d: Data;
-    el.hodors = [];
-    el.onMounted = cb => {
-      mounteds.push(cb);
-    };
-    el.mounted = (data: Data) => {
-      d = data;
-      for (const hodor of el.hodors) {
-        hodor.mounted(data);
+        const el = document.createElement(input) as Domode;
+        el.mountables = [];
+
+        el.mounted = () => {
+          for (const mountable of el.mountables) {
+            mountable.mounted();
+          }
+        };
+        el.unmounted = () => {
+          for (let mountable of el.mountables) {
+            mountable.unmounted();
+          }
+        };
+
+        const stower = new DomStower(el);
+
+        for (let index = 0; index < children.length; index++) {
+          const child = children[index];
+          if (child instanceof Hodor) {
+            const hodor = child as Hodor;
+            hodors.delete(hodor);
+            hodor.stower(index, stower);
+            hodor.element = el;
+            el.mountables.push(hodor);
+          } else {
+            stower.add(child, index);
+          }
+        }
+
+        ddProps(data, el.mountables, el, props);
+
+        return el;
+      },
+    },
+
+    on: (path: string, cb?: ListenerCallback): Hodor => {
+      const hodor = new Hodor(data, path, cb);
+      hodors.add(hodor);
+      return hodor;
+    },
+
+    set: (path: string, value: any, byKey?: string) =>
+      data.set(path, value, byKey),
+
+    unset: (path: string) => data.unset(path),
+
+    get: (path: string) => data.get(path),
+
+    init: (parent: HTMLElement, child?: HTMLElement) => {
+      const domSquint = new DomSquint(parent);
+      domSquint.init();
+      if (child) {
+        parent.appendChild(child);
       }
-      for (let { path, listener } of listeners) {
-        refs.push(data.on(path, listener));
-      }
-      listeners = [];
-      for (let m of mounteds) {
-        m(data);
-      }
-      mounteds = [];
-    };
-    el.unmounted = () => {
-      for (let hodor of el.hodors) {
-        hodor.unmounted();
-      }
-      for (let ref of refs) {
-        d?.off(ref);
-      }
-      refs = [];
-    };
-    el.on = (path, listener) => {
-      listeners.push({ path, listener });
-    };
-
-    const stower = new DomStower(el);
-
-    for (let index = 0; index < children.length; index++) {
-      const child = children[index];
-      if (child instanceof Hodor) {
-        const hodor = child as Hodor;
-        hodor.stower(index, stower);
-        hodor.element = el;
-        el.hodors.push(hodor);
-      } else {
-        stower.add(child, index);
-      }
-    }
-
-    ddProps(el, props);
-
-    return el;
-  },
+    },
+  };
 };
-
-export const on = (path: string, cb?: ListenerCallback): Hodor =>
-  new Hodor(path, cb);
-
-export function init(parent: HTMLElement, child?: HTMLElement): Data {
-  const data = new Data();
-  const domSquint = new DomSquint(data, parent);
-  domSquint.init();
-  if (child) {
-    parent.appendChild(child);
-  }
-  return data;
-}
