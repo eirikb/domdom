@@ -1,7 +1,7 @@
 import { serial as test } from 'ava';
 import { Hodor } from '../src/hodor';
 import { DomStower } from '../src/dom-stower';
-import domdom from '../src/domdom';
+import { Domdom } from '../src/domdom';
 import { Data } from '@eirikb/data';
 
 // @ts-ignore
@@ -12,7 +12,7 @@ browserEnv();
 let data = new Data();
 let element = document.createElement('div');
 let stower = new DomStower(element);
-let { React, init } = domdom();
+let { React, init } = new Domdom(new Data());
 
 function html() {
   return element.outerHTML;
@@ -22,7 +22,7 @@ test.beforeEach(() => {
   data = new Data();
   element = document.createElement('div');
   stower = new DomStower(element);
-  const dd = domdom();
+  const dd = new Domdom(new Data());
   React = dd.React;
   init = dd.init;
   init(element);

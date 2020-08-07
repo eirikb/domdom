@@ -1,8 +1,9 @@
 import { serial as test } from 'ava';
 // @ts-ignore
 import browserEnv from 'browser-env';
-import domdom from '../src/domdom';
+import { Domdom } from '../src/domdom';
 import { Domponent } from '../src/types';
+import { Data } from '@eirikb/data';
 
 browserEnv();
 
@@ -22,11 +23,11 @@ async function html() {
   return element.innerHTML;
 }
 
-let { init, React, on, set, unset, get } = domdom();
+let { init, React, on, set, unset, get } = new Domdom(new Data());
 
 test.beforeEach(() => {
   createElement();
-  const d = domdom();
+  const d = new Domdom(new Data());
   init = d.init;
   React = d.React;
   on = d.on;
