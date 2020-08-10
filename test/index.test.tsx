@@ -23,7 +23,7 @@ async function html() {
   return element.innerHTML;
 }
 
-let { init, React, on, set, unset, get } = new Domdom(new Data());
+let { init, React, on, set, unset, get, trigger } = new Domdom(new Data());
 
 test.beforeEach(() => {
   createElement();
@@ -34,6 +34,7 @@ test.beforeEach(() => {
   set = d.set;
   unset = d.unset;
   get = d.get;
+  trigger = d.trigger;
 });
 
 test('Component', async t => {
@@ -1641,4 +1642,60 @@ test('dd-model', async t => {
   input.value = 'Yes!';
   input.dispatchEvent(event);
   t.is(get('test'), 'Yes!');
+});
+
+test('sub-path set', async t => {
+  init(
+    element,
+    <div>
+      {on('test', () => (
+        <button onClick={() => set('>.click', true)} />
+      ))}
+    </div>
+  );
+  set('test', { show: true });
+  await html();
+  document.querySelector('button')!.dispatchEvent(new Event('click'));
+  t.deepEqual(get('test'), {
+    show: true,
+    click: true,
+  });
+});
+
+test('sub-path get', async t => {
+  init(
+    element,
+    <div>
+      {on('test', () => (
+        <button onClick={() => set('>.click', !get('>.click'))} />
+      ))}
+    </div>
+  );
+  set('test', { show: true });
+  await html();
+  document.querySelector('button')!.dispatchEvent(new Event('click'));
+  t.deepEqual(get('test'), {
+    show: true,
+    click: true,
+  });
+  document.querySelector('button')!.dispatchEvent(new Event('click'));
+  t.deepEqual(get('test'), {
+    show: true,
+    click: false,
+  });
+});
+
+test('sub-path trigger', async t => {
+  init(
+    element,
+    <div>
+      {on('test', () => (
+        <button onClick={() => trigger('>.click')} />
+      ))}
+    </div>
+  );
+  on('= test.click', t.pass);
+  set('test', { show: true });
+  await html();
+  document.querySelector('button')!.dispatchEvent(new Event('click'));
 });

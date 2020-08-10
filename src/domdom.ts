@@ -5,13 +5,17 @@ import ddProps from './dd-props';
 import { Hodor } from './hodor';
 import { Domode } from './types';
 
+export type OnInteract = (node: Domode) => void;
+
 export class React {
   private hodors: Set<Hodor>;
   private data: Data;
+  private onInteract: OnInteract;
 
-  constructor(data: Data, hodors: Set<Hodor>) {
+  constructor(data: Data, hodors: Set<Hodor>, onInteract: OnInteract) {
     this.data = data;
     this.hodors = hodors;
+    this.onInteract = onInteract;
   }
   createElement(
     input: string | Function,
@@ -73,7 +77,7 @@ export class React {
       }
     }
 
-    ddProps(this.data, el.mountables, el, props);
+    ddProps(this.data, el.mountables, el, this.onInteract, props);
 
     return el;
   }
@@ -83,10 +87,30 @@ export class Domdom {
   private hodors: Set<Hodor> = new Set<Hodor>();
   private data: Data;
   React: React;
+  private hopefullyLastInteractedElement?: Domode;
 
   constructor(data: Data) {
     this.data = data;
-    this.React = new React(this.data, this.hodors);
+    this.React = new React(
+      this.data,
+      this.hodors,
+      el => (this.hopefullyLastInteractedElement = el)
+    );
+  }
+
+  hackThePath(path: string) {
+    if (path.startsWith('>')) {
+      if (this.hopefullyLastInteractedElement) {
+        if (this.hopefullyLastInteractedElement.path) {
+          return path.replace(/^>/, this.hopefullyLastInteractedElement.path);
+        } else {
+          throw new Error('Last interacted element does not have a path');
+        }
+      } else {
+        throw new Error('No last interacted element');
+      }
+    }
+    return path;
   }
 
   on = (path: string, cb?: ListenerCallback) => {
@@ -96,19 +120,20 @@ export class Domdom {
   };
 
   set = (path: string, value: any, byKey?: string) => {
-    this.data.set(path, value, byKey);
+    this.data.set(this.hackThePath(path), value, byKey);
   };
 
   unset = (path: string) => {
-    this.data.unset(path);
+    this.data.unset(this.hackThePath(path));
   };
 
   get = (path?: string) => {
-    return this.data.get(path);
+    if (!path) return this.data.get();
+    return this.data.get(this.hackThePath(path));
   };
 
   trigger = (path: string, value?: any) => {
-    return this.data.trigger(path, value);
+    return this.data.trigger(this.hackThePath(path), value);
   };
 
   init = (parent: HTMLElement, child?: HTMLElement) => {
