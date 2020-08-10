@@ -25,6 +25,7 @@ export class Hodor implements Mountable {
   _filterOn?: { path: string; filterOn: FilterOn };
   _sort?: Sorter;
   _sortOn?: { path: string; sorterOn: SorterOn };
+  _then?: ListenerCallback;
   _map?: ListenerCallback;
   listenerSet = false;
   paths: string[] = [];
@@ -58,22 +59,32 @@ export class Hodor implements Mountable {
     this._or = or;
     return this;
   }
+
   filter(filter: Filter) {
     this._filter = filter;
     return this;
   }
+
+  then(then: ListenerCallback) {
+    this._then = then;
+    return this;
+  }
+
   filterOn(path: string, filterOn: FilterOn) {
     this._filterOn = { path, filterOn };
     return this;
   }
+
   sort(sort: Sorter) {
     this._sort = sort;
     return this;
   }
+
   sortOn(path: string, sorterOn: SorterOn) {
     this._sortOn = { path, sorterOn };
     return this;
   }
+
   map(map: ListenerCallback) {
     if (this.listenerSet) {
       throw new Error(`Sorry, can't combine listener and map`);
@@ -81,6 +92,7 @@ export class Hodor implements Mountable {
     this._map = map;
     return this;
   }
+
   stower(i: number, s: Stower) {
     this.index = i;
     this._stower = s;
@@ -89,19 +101,23 @@ export class Hodor implements Mountable {
     }
     return this;
   }
+
   mounted() {
     if (typeof this.listen === 'function') {
       this.listen(this.path);
     }
   }
+
   unmounted() {
     this.off();
   }
+
   off() {
     if (this.pathifier) this.pathifier.off();
     this.data.off(this.refs.join(' '));
     this.refs = [];
   }
+
   listen(path) {
     if (this.listening) {
       return;
@@ -113,7 +129,7 @@ export class Hodor implements Mountable {
       return;
     }
 
-    if (!this._stower) {
+    if (!this._stower && !this._then) {
       return;
     }
 
@@ -128,7 +144,7 @@ export class Hodor implements Mountable {
       }
     }
 
-    if (!this._map) {
+    if (!this._map && !this._then) {
       this.on(`!+* ${path}`, (val, props) => {
         const path = props.path;
         const subIndex = this.paths.indexOf(path);
@@ -152,6 +168,7 @@ export class Hodor implements Mountable {
       return;
     }
     this.pathifier = this.data.on(path);
+    if (this._then) this.pathifier.then(this._then);
     if (this._map) this.pathifier.map(this._map);
     if (this._filter) this.pathifier.filter(this._filter);
     if (this._filterOn)
@@ -164,8 +181,8 @@ export class Hodor implements Mountable {
       or(_: number, __: any): void {},
 
       add(value: any, subIndex: number, _?: number, path?: string) {
-        if (typeof value === 'object') {
-          value.path = [(self.pathifier as any).from, path].join('.');
+        if (value instanceof Element) {
+          (value as any).path = path;
         }
 
         self._stower?.add(value, self.index!, subIndex, path);

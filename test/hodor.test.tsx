@@ -234,3 +234,12 @@ test('Pathifier sub-array', t => {
   data.set('players', [{ name: 'a', x: [1] }]);
   t.is(html(), '<div>a</div>');
 });
+
+test('Pathifier then', t => {
+  setup(
+    new Hodor(data, 'players').then(players =>
+      t.deepEqual(players, { a: { name: 'A' }, b: { name: 'B' } })
+    )
+  );
+  data.set('players', { a: { name: 'A' }, b: { name: 'B' } });
+});
