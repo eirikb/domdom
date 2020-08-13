@@ -9,6 +9,9 @@ export class DomSquint {
   private mount(element: Node) {
     const domode = element as Domode;
     if (domode.mounted && !domode.isMounted) {
+      if (!domode.path) {
+        domode.path = (domode.parentElement as Domode)?.path;
+      }
       domode.mounted();
       domode.isMounted = true;
     }
