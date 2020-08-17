@@ -17,6 +17,7 @@ export class React {
     this.hodors = hodors;
     this.onInteract = onInteract;
   }
+
   createElement(
     input: string | Function,
     props?: { [key: string]: any },
@@ -32,6 +33,7 @@ export class React {
           cbs.push(cb);
         },
       };
+      this.hodors.clear();
       const res = input({ ...props, ...options }) as Domode;
       res.mountables.push({
         mounted() {
@@ -43,7 +45,6 @@ export class React {
       });
       for (let hodor of this.hodors) {
         res.mountables.push(hodor);
-        this.hodors.delete(hodor);
       }
       return res;
     }
