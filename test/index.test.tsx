@@ -1699,3 +1699,29 @@ test('sub-path trigger', async t => {
   await html();
   document.querySelector('button')!.dispatchEvent(new Event('click'));
 });
+
+test('Domponent-listeners should not affect global listeners', async t => {
+  on('+!* test', t.pass);
+  function T() {
+    const e = <div></div>;
+    on('+!* test', v => (e.innerHTML = v));
+    return e;
+  }
+  init(element, <div>{on('show', show => (show ? <T /> : null))}</div>);
+  await html();
+  set('show', true);
+  await html();
+  set('show', false);
+  await html();
+  set('test', 'YES!');
+});
+
+test('global listener start by itself', async t => {
+  on('+!* test', t.pass);
+  set('test', 'YES!');
+});
+
+test('global listener with then - start by itself', async t => {
+  on('test').then(t.pass);
+  set('test', 'YES!');
+});

@@ -67,6 +67,7 @@ export class Hodor implements Mountable {
 
   then(then: ListenerCallback) {
     this._then = then;
+    this.mounted();
     return this;
   }
 
