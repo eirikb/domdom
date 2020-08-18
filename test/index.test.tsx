@@ -2,8 +2,8 @@ import { serial as test } from 'ava';
 // @ts-ignore
 import browserEnv from 'browser-env';
 import { Domdom } from '../src/domdom';
-import { Domponent } from '../src/types';
 import { Data } from '@eirikb/data';
+import { Opts } from '../src/types';
 
 browserEnv();
 
@@ -590,8 +590,8 @@ test('Listener in when 2', async t => {
 test('Mounted', async t => {
   t.plan(1);
 
-  const Hello: Domponent = ({ mounted }) => {
-    mounted!(() => t.pass());
+  const Hello = ({}, { mounted }: Opts) => {
+    mounted(() => t.pass());
     return <div />;
   };
 
@@ -608,8 +608,8 @@ test('Mounted', async t => {
 test('Mounted on/off', async t => {
   t.plan(2);
 
-  const Hello: Domponent = ({ mounted }) => {
-    mounted!(() => t.pass());
+  const Hello = ({}, { mounted }: Opts) => {
+    mounted(() => t.pass());
     return <div />;
   };
 
@@ -718,7 +718,7 @@ test('Update array without element', async t => {
 });
 
 test('Containment', async t => {
-  const Button: Domponent = ({ children }) => <button>{children}</button>;
+  const Button = ({}, { children }: Opts) => <button>{children}</button>;
 
   init(element, <Button>Test</Button>);
   t.is(await html(), '<button>Test</button>');
@@ -1536,18 +1536,22 @@ test('Element with event but not added via domdom', async t => {
 });
 
 test('Hodor as a child', async t => {
-  const Parent: Domponent = ({ children }) => {
-    return <div>{children}</div>;
+  const Parent = ({ ok }: { ok: string }, { children }: Opts) => {
+    return (
+      <div>
+        {children} - {ok}
+      </div>
+    );
   };
 
   init(
     element,
     <div>
-      <Parent>{on('test')}</Parent>
+      <Parent ok="OK!">{on('test')}</Parent>
     </div>
   );
   set('test', 'OK!');
-  t.is(await html(), '<div><div>OK!</div></div>');
+  t.is(await html(), '<div><div>OK! - OK!</div></div>');
   t.pass();
 });
 
