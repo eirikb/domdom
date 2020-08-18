@@ -114,8 +114,8 @@ export class Domdom {
     return path;
   }
 
-  on = (path: string, cb?: ListenerCallback) => {
-    const hodor = new Hodor(this.data, path, cb);
+  on = <T = any>(path: string, cb?: ListenerCallback<T>) => {
+    const hodor = new Hodor<T>(this.data, path, cb);
     this.hodors.add(hodor);
     return hodor;
   };
@@ -128,7 +128,7 @@ export class Domdom {
     this.data.unset(this.hackThePath(path));
   };
 
-  get = (path?: string) => {
+  get = <T = any>(path?: string): T => {
     if (!path) return this.data.get();
     return this.data.get(this.hackThePath(path));
   };

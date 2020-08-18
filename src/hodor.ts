@@ -11,29 +11,29 @@ import {
 } from '@eirikb/data';
 import { Domode, Mountable } from './types';
 
-export class Hodor implements Mountable {
+export class Hodor<T = any> implements Mountable {
   data: Data;
   path: string;
   element?: Domode;
   isHodor = true;
   _stower?: Stower;
-  _or?: ListenerCallback;
+  _or?: ListenerCallback<T>;
   index?: number;
-  pathifier?: Pathifier;
+  pathifier?: Pathifier<T>;
   listening?: boolean;
   _filter?: Filter;
   _filterOn?: { path: string; filterOn: FilterOn };
   _sort?: Sorter;
   _sortOn?: { path: string; sorterOn: SorterOn };
-  _then?: ListenerCallback;
-  _map?: ListenerCallback;
+  _then?: ListenerCallback<T>;
+  _map?: ListenerCallback<T>;
   listenerSet = false;
   paths: string[] = [];
-  listener?: ListenerCallback;
+  listener?: ListenerCallback<T>;
   refs: string[] = [];
   hasFlags: boolean = false;
 
-  constructor(data: Data, path: string, listener?: ListenerCallback) {
+  constructor(data: Data, path: string, listener?: ListenerCallback<T>) {
     this.data = data;
     this.listenerSet = !!listener;
     if (listener === undefined) {
@@ -51,7 +51,7 @@ export class Hodor implements Mountable {
     }
   }
 
-  on(flagsAndPath: string, cb: ListenerCallback) {
+  on(flagsAndPath: string, cb: ListenerCallback<T>) {
     this.refs.push(this.data.on(flagsAndPath, cb));
   }
 
@@ -65,7 +65,7 @@ export class Hodor implements Mountable {
     return this;
   }
 
-  then(then: ListenerCallback) {
+  then(then: ListenerCallback<T>) {
     this._then = then;
     this.mounted();
     return this;
@@ -86,7 +86,7 @@ export class Hodor implements Mountable {
     return this;
   }
 
-  map(map: ListenerCallback) {
+  map(map: ListenerCallback<T>) {
     if (this.listenerSet) {
       throw new Error(`Sorry, can't combine listener and map`);
     }
