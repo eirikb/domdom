@@ -1729,3 +1729,19 @@ test('global listener with then - start by itself', async t => {
   on('test').then(t.pass);
   set('test', 'YES!');
 });
+
+test('TS and types', async t => {
+  interface Ok {
+    name: string;
+  }
+
+  const ok: Ok = {
+    name: 'Hello',
+  };
+  console.log(ok);
+
+  on<Ok>('!+* ok', ok => {
+    t.is(ok.name, 'Hello');
+  });
+  set('ok', ok);
+});
