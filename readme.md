@@ -148,7 +148,7 @@ function MyComponent() {
 Content of a component will be passed as `children`.
 
 ```jsx
-function Button({ children }) {
+function Button({}, { children }) {
   return <button>{children}</button>;
 }
 
@@ -164,7 +164,11 @@ const view = (
 In TypeScript (TSX):
 
 ```tsx
-const Button: Domponent = ({ children }) => <button>{children}</button>;
+import { Opts } from '@eirikb/domdom';
+
+const Button = ({ something }: { someting: string }, { children }: Opts) => (
+  <button>{children}</button>
+);
 ```
 
 ### Events
