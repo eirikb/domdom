@@ -177,19 +177,18 @@ export class Hodor<T = any> implements Mountable {
     if (this._sort) this.pathifier.sort(this._sort);
     if (this._sortOn)
       this.pathifier.sortOn(this._sortOn.path, this._sortOn.sorterOn);
-    const self = this;
     this.pathifier.toArray({
       or(_: number, __: any): void {},
 
-      add(value: any, subIndex: number, _?: number, path?: string) {
+      add: (value: any, subIndex: number, _?: number, path?: string) => {
         if (value instanceof Element) {
-          (value as any).path = path;
+          (value as any).path = [this.path, path].join('.');
         }
 
-        self._stower?.add(value, self.index!, subIndex, path);
+        this._stower?.add(value, this.index!, subIndex, path);
       },
-      remove(value: any, subIndex: number, _: number, path: string) {
-        self._stower?.remove(value, self.index!, subIndex, path);
+      remove: (value: any, subIndex: number, _: number, path: string) => {
+        this._stower?.remove(value, this.index!, subIndex, path);
       },
     });
   }

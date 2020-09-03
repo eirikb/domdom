@@ -1741,7 +1741,6 @@ test('TS and types', async t => {
   const ok: Ok = {
     name: 'Hello',
   };
-  console.log(ok);
 
   on<Ok>('!+* ok', ok => {
     t.is(ok.name, 'Hello');
@@ -1752,6 +1751,42 @@ test('TS and types', async t => {
 test('attribute class is mapped to className', async t => {
   init(element, <div class="yes" />);
   t.is(await html(), '<div class="yes"></div>');
-  console.log(await html());
-  t.pass();
+});
+
+test('sub-path', async t => {
+  set('players.a', { name: 'A', level: 1 });
+  set('players.b', { name: 'B', level: 2 });
+
+  init(
+    element,
+    <div>
+      {on('players.$id', player => (
+        <div>
+          {player.name}/{on('>.level')}
+        </div>
+      ))}
+    </div>
+  );
+  t.is(await html(), '<div><div>A/1</div><div>B/2</div></div>');
+  set('players.a.level', 42);
+  t.is(await html(), '<div><div>A/42</div><div>B/2</div></div>');
+});
+
+test('sub-path pathifier', async t => {
+  set('players.a', { name: 'A', level: 1 });
+  set('players.b', { name: 'B', level: 2 });
+
+  init(
+    element,
+    <div>
+      {on('players').map(player => (
+        <div>
+          {player.name}/{on('>.level')}
+        </div>
+      ))}
+    </div>
+  );
+  t.is(await html(), '<div><div>A/1</div><div>B/2</div></div>');
+  set('players.a.level', 42);
+  t.is(await html(), '<div><div>A/42</div><div>B/2</div></div>');
 });
