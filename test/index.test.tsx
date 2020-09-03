@@ -74,6 +74,7 @@ test('Array of results from on with component', async t => {
   function Yes() {
     return <div>Yes!</div>;
   }
+
   init(element, <div>{on('test', () => ['no', <Yes />])}</div>);
   set('test', 'yes');
   t.is(await html(), '<div>no<div>Yes!</div></div>');
@@ -1706,11 +1707,13 @@ test('sub-path trigger', async t => {
 
 test('Domponent-listeners should not affect global listeners', async t => {
   on('+!* test', t.pass);
+
   function T() {
     const e = <div></div>;
     on('+!* test', v => (e.innerHTML = v));
     return e;
   }
+
   init(element, <div>{on('show', show => (show ? <T /> : null))}</div>);
   await html();
   set('show', true);
@@ -1744,4 +1747,11 @@ test('TS and types', async t => {
     t.is(ok.name, 'Hello');
   });
   set('ok', ok);
+});
+
+test('attribute class is mapped to className', async t => {
+  init(element, <div class="yes" />);
+  t.is(await html(), '<div class="yes"></div>');
+  console.log(await html());
+  t.pass();
 });

@@ -91,6 +91,8 @@ export default (
           onInteract(element as Domode);
           return value(...args);
         });
+      } else if (key === 'class') {
+        element.className = value;
       } else {
         element[key] = value;
       }
