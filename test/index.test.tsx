@@ -299,8 +299,8 @@ test('on Sort - remove $first - with sort', async t => {
 test('Child listener', async t => {
   const div = (
     <main>
-      {on('players.$id', () => (
-        <article>{on('>.name', name => name)}</article>
+      {on('players.$id', (_, { subPath }) => (
+        <article>{on(subPath('name'), name => name)}</article>
       ))}
     </main>
   );
@@ -386,11 +386,11 @@ test('on empty res', async t => {
 test('Multiple child paths', async t => {
   const div = (
     <div>
-      {on('a', () => (
+      {on('a', (_, { subPath }) => (
         <div>
-          {on('>.text')}
+          {on(subPath('text'))}
           test
-          {on('>.text')}
+          {on(subPath('text'))}
         </div>
       ))}
     </div>
@@ -1235,15 +1235,15 @@ test('When + filterOn const text', async t => {
 });
 
 test('On child attribute listener', async t => {
-  const Yes = () => {
-    return <a href={on!('>.link')}>test</a>;
+  const Yes = ({ subPath }) => {
+    return <a href={on(subPath('link'))}>test</a>;
   };
 
   const view = (
     <div>
-      {on('yes', ok => (
+      {on('yes', (ok, { subPath }) => (
         <div>
-          {ok.text} <Yes />
+          {ok.text} <Yes subPath={subPath} />
         </div>
       ))}
     </div>
@@ -1653,8 +1653,8 @@ test('sub-path set', async t => {
   init(
     element,
     <div>
-      {on('test', () => (
-        <button onClick={() => set('>.click', true)} />
+      {on('test', (_, { subPath }) => (
+        <button onClick={() => set(subPath('click'), true)} />
       ))}
     </div>
   );
@@ -1671,8 +1671,8 @@ test('sub-path get', async t => {
   init(
     element,
     <div>
-      {on('test', () => (
-        <button onClick={() => set('>.click', !get('>.click'))} />
+      {on('test', (_, { subPath }) => (
+        <button onClick={() => set(subPath('click'), !get(subPath('click')))} />
       ))}
     </div>
   );
@@ -1694,8 +1694,8 @@ test('sub-path trigger', async t => {
   init(
     element,
     <div>
-      {on('test', () => (
-        <button onClick={() => trigger('>.click')} />
+      {on('test', (_, { subPath }) => (
+        <button onClick={() => trigger(subPath('click'))} />
       ))}
     </div>
   );
@@ -1760,9 +1760,9 @@ test('sub-path', async t => {
   init(
     element,
     <div>
-      {on('players.$id', player => (
+      {on('players.$id', (player, { subPath }) => (
         <div>
-          {player.name}/{on('>.level')}
+          {player.name}/{on(subPath('level'))}
         </div>
       ))}
     </div>
@@ -1779,9 +1779,9 @@ test('sub-path pathifier', async t => {
   init(
     element,
     <div>
-      {on('players').map(player => (
+      {on('players').map((player, { subPath }) => (
         <div>
-          {player.name}/{on('>.level')}
+          {player.name}/{on(subPath('level'))}
         </div>
       ))}
     </div>

@@ -8,11 +8,18 @@ export interface Opts {
 
 export interface Domode extends HTMLElement, Mountable {
   isMounted: boolean;
-  path: string;
   mountables: Mountable[];
 }
 
 export interface Mountable {
   mounted();
+
   unmounted();
 }
+
+export type SubPath = (path: string) => string;
+
+export type HodorCallback<T> = (
+  value: T,
+  props: { [key: string]: any; path: string; subPath: SubPath }
+) => void;

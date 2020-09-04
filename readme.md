@@ -210,17 +210,17 @@ You can have multiple wildcards: `players.$id.items.$itemId.size`.
 
 #### Sub-paths
 
-By using `>.` it's possible to listen to relative paths "from parent".  
+By using `subPath` it's possible to listen to relative paths "from parent".  
 This is how it's possible to make re-usable "detached" components.  
 They have data in global state, but don't rely on the parent path.
 
 ```jsx
 const view = (
   <div>
-    {on('players.$id', player => (
+    {on('players.$id', (player, {subPath}) => (
       <div>
         Player name: (won't update on change): {player.name} <br />
-        {on('>.name', name => (
+        {on(subPath('name'), name => (
           <span>Player name: {name}</span>
         ))}
       </div>

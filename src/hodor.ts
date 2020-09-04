@@ -6,10 +6,24 @@ import {
   Filter,
   Stower,
   Pathifier,
-  ListenerCallback,
   LooseObject,
+  ListenerCallbackProps,
 } from '@eirikb/data';
-import { Domode, Mountable } from './types';
+import { Domode, HodorCallback, Mountable } from './types';
+
+function mapCallback<T>(
+  value: T,
+  props: ListenerCallbackProps,
+  output: HodorCallback<T>
+) {
+  return output(value, {
+    ...props,
+    ...{
+      path: props.fullPath,
+      subPath: (path: string) => [props.fullPath, path].join('.'),
+    },
+  });
+}
 
 export class Hodor<T = any> implements Mountable {
   data: Data;
@@ -17,7 +31,7 @@ export class Hodor<T = any> implements Mountable {
   element?: Domode;
   isHodor = true;
   _stower?: Stower;
-  _or?: ListenerCallback<T>;
+  _or?: HodorCallback<T>;
   index?: number;
   pathifier?: Pathifier<T>;
   listening?: boolean;
@@ -25,15 +39,15 @@ export class Hodor<T = any> implements Mountable {
   _filterOn?: { path: string; filterOn: FilterOn };
   _sort?: Sorter;
   _sortOn?: { path: string; sorterOn: SorterOn };
-  _then?: ListenerCallback<T>;
-  _map?: ListenerCallback<T>;
+  _then?: HodorCallback<T>;
+  _map?: HodorCallback<T>;
   listenerSet = false;
   paths: string[] = [];
-  listener?: ListenerCallback<T>;
+  listener?: HodorCallback<T>;
   refs: string[] = [];
   hasFlags: boolean = false;
 
-  constructor(data: Data, path: string, listener?: ListenerCallback<T>) {
+  constructor(data: Data, path: string, listener?: HodorCallback<T>) {
     this.data = data;
     this.listenerSet = !!listener;
     if (listener === undefined) {
@@ -51,8 +65,12 @@ export class Hodor<T = any> implements Mountable {
     }
   }
 
-  on(flagsAndPath: string, cb: ListenerCallback<T>) {
-    this.refs.push(this.data.on(flagsAndPath, cb));
+  on(flagsAndPath: string, cb: HodorCallback<T>) {
+    this.refs.push(
+      this.data.on<T>(flagsAndPath, (value, props) =>
+        mapCallback(value, props, cb)
+      )
+    );
   }
 
   or(or: any) {
@@ -65,7 +83,7 @@ export class Hodor<T = any> implements Mountable {
     return this;
   }
 
-  then(then: ListenerCallback<T>) {
+  then(then: HodorCallback<T>) {
     this._then = then;
     this.mounted();
     return this;
@@ -86,7 +104,7 @@ export class Hodor<T = any> implements Mountable {
     return this;
   }
 
-  map(map: ListenerCallback<T>) {
+  map(map: HodorCallback<T>) {
     if (this.listenerSet) {
       throw new Error(`Sorry, can't combine listener and map`);
     }
@@ -134,17 +152,6 @@ export class Hodor<T = any> implements Mountable {
       return;
     }
 
-    if (this.element) {
-      let parentNode = this.element;
-      while (parentNode && parentNode.parentNode) {
-        if (parentNode.path) {
-          path = path.replace(/^>/, parentNode.path);
-          break;
-        }
-        parentNode = parentNode.parentNode as Domode;
-      }
-    }
-
     if (!this._map && !this._then) {
       this.on(`!+* ${path}`, (val, props) => {
         const path = props.path;
@@ -154,9 +161,6 @@ export class Hodor<T = any> implements Mountable {
           this._stower?.remove(null, this.index!, subIndex);
         }
         const res = this.listener!(val, props) as any;
-        if (res instanceof Element) {
-          (res as any).path = path;
-        }
         this._stower?.add(res, this.index!, this.paths.length, path);
         this.paths.push(path);
       });
@@ -168,9 +172,15 @@ export class Hodor<T = any> implements Mountable {
       });
       return;
     }
-    this.pathifier = this.data.on(path);
-    if (this._then) this.pathifier.then(this._then);
-    if (this._map) this.pathifier.map(this._map);
+    this.pathifier = this.data.on<T>(path);
+    if (this._then)
+      this.pathifier.then((value, props) =>
+        mapCallback(value, props, this._then!)
+      );
+    if (this._map)
+      this.pathifier.map((value, props) =>
+        mapCallback(value, props, this._map!)
+      );
     if (this._filter) this.pathifier.filter(this._filter);
     if (this._filterOn)
       this.pathifier.filterOn(this._filterOn.path, this._filterOn.filterOn);
@@ -181,10 +191,6 @@ export class Hodor<T = any> implements Mountable {
       or(_: number, __: any): void {},
 
       add: (value: any, subIndex: number, _?: number, path?: string) => {
-        if (value instanceof Element) {
-          (value as any).path = [this.path, path].join('.');
-        }
-
         this._stower?.add(value, this.index!, subIndex, path);
       },
       remove: (value: any, subIndex: number, _: number, path: string) => {

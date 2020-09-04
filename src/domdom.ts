@@ -1,21 +1,28 @@
-import { Data, ListenerCallback } from '@eirikb/data';
+import { Data } from '@eirikb/data';
 import { DomStower } from './dom-stower';
 import { DomSquint } from './dom-squint';
 import ddProps from './dd-props';
 import { Hodor } from './hodor';
-import { Domode, Opts } from './types';
+import { Domode, HodorCallback, Opts } from './types';
 
-export type OnInteract = (node: Domode) => void;
+export type DomdomListenerCallback<T> = (
+  value: T,
+  props: {
+    subPath: string;
+    fullPath: string;
+    path: string;
+    p: (path: string) => string;
+    [key: string]: any;
+  }
+) => any;
 
 export class React {
   private hodors: Set<Hodor>;
   private data: Data;
-  private onInteract: OnInteract;
 
-  constructor(data: Data, hodors: Set<Hodor>, onInteract: OnInteract) {
+  constructor(data: Data, hodors: Set<Hodor>) {
     this.data = data;
     this.hodors = hodors;
-    this.onInteract = onInteract;
   }
 
   createElement(
@@ -54,6 +61,9 @@ export class React {
 
     el.mounted = () => {
       for (const mountable of el.mountables) {
+        if (mountable instanceof Hodor && !mountable.element) {
+          mountable.element = el;
+        }
         mountable.mounted();
       }
     };
@@ -78,8 +88,13 @@ export class React {
       }
     }
 
-    ddProps(this.data, el.mountables, el, this.onInteract, props);
+    ddProps(this.data, el.mountables, el, props);
 
+    // console.log(this.hodors.size);
+    // for (let hodor of this.hodors) {
+    //   el.mountables.push(hodor);
+    //   this.hodors.delete(hodor);
+    // }
     return el;
   }
 }
@@ -88,53 +103,36 @@ export class Domdom {
   private hodors: Set<Hodor> = new Set<Hodor>();
   private data: Data;
   React: React;
-  private hopefullyLastInteractedElement?: Domode;
 
   constructor(data: Data) {
     this.data = data;
-    this.React = new React(
-      this.data,
-      this.hodors,
-      el => (this.hopefullyLastInteractedElement = el)
-    );
+    this.React = new React(this.data, this.hodors);
   }
 
-  hackThePath(path: string) {
+  on = <T = any>(path: string, cb?: HodorCallback<T>) => {
     if (path.startsWith('>')) {
-      if (this.hopefullyLastInteractedElement) {
-        if (this.hopefullyLastInteractedElement.path) {
-          return path.replace(/^>/, this.hopefullyLastInteractedElement.path);
-        } else {
-          throw new Error('Last interacted element does not have a path');
-        }
-      } else {
-        throw new Error('No last interacted element');
-      }
+      throw new Error('Sub path selector no longer supported');
     }
-    return path;
-  }
-
-  on = <T = any>(path: string, cb?: ListenerCallback<T>) => {
     const hodor = new Hodor<T>(this.data, path, cb);
     this.hodors.add(hodor);
     return hodor;
   };
 
   set = (path: string, value: any, byKey?: string) => {
-    this.data.set(this.hackThePath(path), value, byKey);
+    this.data.set(path, value, byKey);
   };
 
   unset = (path: string) => {
-    this.data.unset(this.hackThePath(path));
+    this.data.unset(path);
   };
 
   get = <T = any>(path?: string): T => {
     if (!path) return this.data.get();
-    return this.data.get(this.hackThePath(path));
+    return this.data.get(path);
   };
 
   trigger = (path: string, value?: any) => {
-    return this.data.trigger(this.hackThePath(path), value);
+    return this.data.trigger(path, value);
   };
 
   init = (parent: HTMLElement, child?: HTMLElement) => {
