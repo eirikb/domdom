@@ -17,12 +17,10 @@ export type DomdomListenerCallback<T> = (
 ) => any;
 
 export class React {
-  private hodors: Set<Hodor>;
   private data: Data;
 
-  constructor(data: Data, hodors: Set<Hodor>) {
+  constructor(data: Data) {
     this.data = data;
-    this.hodors = hodors;
   }
 
   createElement(
@@ -40,7 +38,6 @@ export class React {
           cbs.push(cb);
         },
       };
-      this.hodors.clear();
       const res = input({ ...props }, options) as Domode;
       res.mountables.push({
         mounted() {
@@ -50,9 +47,6 @@ export class React {
         },
         unmounted() {},
       });
-      for (let hodor of this.hodors) {
-        res.mountables.push(hodor);
-      }
       return res;
     }
 
@@ -79,10 +73,9 @@ export class React {
       const child = children[index];
       if (child instanceof Hodor) {
         const hodor = child as Hodor;
-        this.hodors.delete(hodor);
+        el.mountables.push(hodor);
         hodor.stower(index, stower);
         hodor.element = el;
-        el.mountables.push(hodor);
       } else {
         stower.add(child, index);
       }
@@ -90,32 +83,24 @@ export class React {
 
     ddProps(this.data, el.mountables, el, props);
 
-    // console.log(this.hodors.size);
-    // for (let hodor of this.hodors) {
-    //   el.mountables.push(hodor);
-    //   this.hodors.delete(hodor);
-    // }
     return el;
   }
 }
 
 export class Domdom {
-  private hodors: Set<Hodor> = new Set<Hodor>();
   private data: Data;
   React: React;
 
   constructor(data: Data) {
     this.data = data;
-    this.React = new React(this.data, this.hodors);
+    this.React = new React(this.data);
   }
 
   on = <T = any>(path: string, cb?: HodorCallback<T>) => {
     if (path.startsWith('>')) {
       throw new Error('Sub path selector no longer supported');
     }
-    const hodor = new Hodor<T>(this.data, path, cb);
-    this.hodors.add(hodor);
-    return hodor;
+    return new Hodor<T>(this.data, path, cb);
   };
 
   set = (path: string, value: any, byKey?: string) => {

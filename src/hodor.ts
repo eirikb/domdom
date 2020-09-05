@@ -46,6 +46,7 @@ export class Hodor<T = any> implements Mountable {
   listener?: HodorCallback<T>;
   refs: string[] = [];
   hasFlags: boolean = false;
+  headless = false;
 
   constructor(data: Data, path: string, listener?: HodorCallback<T>) {
     this.data = data;
@@ -60,9 +61,9 @@ export class Hodor<T = any> implements Mountable {
 
     this.path = path;
     this.hasFlags = !!path.match(/ /);
-    if (this.hasFlags) {
-      this.listen(this.path);
-    }
+    // if (this.hasFlags) {
+    // this._listen(this.path);
+    // }
   }
 
   on(flagsAndPath: string, cb: HodorCallback<T>) {
@@ -122,9 +123,7 @@ export class Hodor<T = any> implements Mountable {
   }
 
   mounted() {
-    if (typeof this.listen === 'function') {
-      this.listen(this.path);
-    }
+    this._listen(this.path);
   }
 
   unmounted() {
@@ -137,13 +136,23 @@ export class Hodor<T = any> implements Mountable {
     this.refs = [];
   }
 
-  listen(path) {
+  attach(node: Domode) {
+    node.mountables.push(this);
+    this.listen();
+  }
+
+  listen() {
+    this.headless = true;
+    this._listen(this.path);
+  }
+
+  private _listen(path) {
     if (this.listening) {
       return;
     }
     this.listening = true;
 
-    if (this.hasFlags) {
+    if (this.hasFlags || this.headless) {
       this.on(this.path, this.listener!);
       return;
     }

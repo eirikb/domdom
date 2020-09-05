@@ -403,7 +403,7 @@ test('Multiple child paths', async t => {
 test('Have some path with flags', async t => {
   const Ok = () => {
     const e = <div></div>;
-    on('!+* b', wat => (e.innerHTML = wat));
+    on('!+* b', wat => (e.innerHTML = wat)).attach(e);
     return (
       <div>
         {on('a')}
@@ -422,7 +422,7 @@ test('Have some path with flags without component', async t => {
     element,
     (() => {
       const e = <div></div>;
-      on('!+* b', wat => (e.innerHTML = wat));
+      on('!+* b', wat => (e.innerHTML = wat)).attach(e);
       return (
         <div>
           {on('a')}
@@ -443,7 +443,7 @@ test('Listeners are cleared', async t => {
 
   function Child() {
     const e = <div />;
-    on('* test', () => i++);
+    on('* test', () => i++).attach(e);
     return e;
   }
 
@@ -473,7 +473,7 @@ test('Listeners are not overcleared', async t => {
 
   function Child() {
     const e = <div />;
-    on('* test', () => i++);
+    on('* test', () => i++).attach(e);
     return e;
   }
 
@@ -509,7 +509,7 @@ test('Listeners are support change of parent', async t => {
 
   function Child() {
     const e = <p />;
-    on('* test', () => i++);
+    on('* test', () => i++).attach(e);
     return e;
   }
 
@@ -541,7 +541,7 @@ test('Listeners in when', async t => {
 
   function Child() {
     const e = <div />;
-    on('* test', () => i++);
+    on('* test', () => i++).attach(e);
     return e;
   }
 
@@ -565,7 +565,7 @@ test('Listener in when 2', async t => {
 
   function Child() {
     const e = <div />;
-    on('* test', () => i++);
+    on('* test', () => i++).attach(e);
     return e;
   }
 
@@ -1493,7 +1493,7 @@ test('Flags in components are work and cleared', async t => {
     on('!+* tast', test => {
       counter++;
       e.textContent = test;
-    });
+    }).attach(e);
     return e;
   };
 
@@ -1629,13 +1629,13 @@ test('path should not be part of data', async t => {
   init(element, <div>{on('test')}</div>);
   on('!+* test', val => {
     t.deepEqual(val, { hello: 'world' });
-  });
+  }).listen();
   set('test', {
     hello: 'world',
   });
   on('!+* test', val => {
     t.deepEqual(val, { hello: 'world' });
-  });
+  }).listen();
   t.is('<div>{"hello":"world"}</div>', await html());
 });
 
@@ -1699,18 +1699,18 @@ test('sub-path trigger', async t => {
       ))}
     </div>
   );
-  on('= test.click', t.pass);
+  on('= test.click', t.pass).listen();
   set('test', { show: true });
   await html();
   document.querySelector('button')!.dispatchEvent(new Event('click'));
 });
 
 test('Domponent-listeners should not affect global listeners', async t => {
-  on('+!* test', t.pass);
+  on('+!* test', t.pass).listen();
 
   function T() {
     const e = <div></div>;
-    on('+!* test', v => (e.innerHTML = v));
+    on('+!* test', v => (e.innerHTML = v)).attach(e);
     return e;
   }
 
@@ -1724,12 +1724,14 @@ test('Domponent-listeners should not affect global listeners', async t => {
 });
 
 test('global listener start by itself', async t => {
-  on('+!* test', t.pass);
+  on('+!* test', t.pass).listen();
   set('test', 'YES!');
 });
 
 test('global listener with then - start by itself', async t => {
-  on('test').then(t.pass);
+  on('test')
+    .then(t.pass)
+    .listen();
   set('test', 'YES!');
 });
 
@@ -1744,7 +1746,7 @@ test('TS and types', async t => {
 
   on<Ok>('!+* ok', ok => {
     t.is(ok.name, 'Hello');
-  });
+  }).listen();
   set('ok', ok);
 });
 
@@ -1789,4 +1791,48 @@ test('sub-path pathifier', async t => {
   t.is(await html(), '<div><div>A/1</div><div>B/2</div></div>');
   set('players.a.level', 42);
   t.is(await html(), '<div><div>A/42</div><div>B/2</div></div>');
+});
+
+test('standalone on', async t => {
+  set('test', 'ing');
+
+  init(
+    element,
+    <div>
+      {(() => {
+        const e = <b />;
+        on('!+* test', res => {
+          e.textContent = res;
+        }).attach(e);
+        return e;
+      })()}
+    </div>
+  );
+
+  t.is(await html(), '<div><b>ing</b></div>');
+});
+
+test('sub-path pathifier standalone on', async t => {
+  set('players.a', { name: 'A', level: 1 });
+
+  init(
+    element,
+    <main>
+      {on('players').map((player, { subPath }) => (
+        <div>
+          {player.name}
+          {(() => {
+            const e = <b />;
+            on('!+* ' + subPath('level'), level => {
+              e.textContent = level;
+            }).attach(e);
+            return e;
+          })()}
+        </div>
+      ))}
+    </main>
+  );
+  t.is(await html(), '<main><div>A<b>1</b></div></main>');
+  set('players.a.level', 42);
+  t.is(await html(), '<main><div>A<b>42</b></div></main>');
 });

@@ -45,15 +45,17 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
 - [Deno](#deno)
 - [Getting started](#getting-started)
 - [APIsh](#apish)
   - [Initialize domdom](#initialize-domdom)
   - [Elements](#elements)
-  - ["Components"](#components)
+  - ["Domponents"](#domponents)
     - [Children / Composition](#children--composition)
   - [Events](#events)
   - [on(path, callback)](#onpath-callback)
+    - [Standalone `on`](#standalone-on)
     - [Sub-paths](#sub-paths)
   - [or](#or)
   - [dd-model](#dd-model)
@@ -207,6 +209,24 @@ on('players.$id', (player, { $id }) => console.log(`Id is ${$id}`));
 ```
 
 You can have multiple wildcards: `players.$id.items.$itemId.size`.
+
+#### Standalone `on`
+
+`on` inside JSX will be attached to the element so listeners are turned on/off based on elements present in the DOM.  
+Calling `on` outside of JSX will _not_ automatically start the listener.  
+This is a quirk. Sorry.  
+If you want a global forever running listener call `listen()`, like this:
+
+```js
+on('!+* test', console.log).listen();
+```
+
+If you have an element you should `attach` it to that, like this:
+
+```jsx
+const element = <div></div>;
+on('!*+ test', x => element.textContent = x).attach(element);
+```
 
 #### Sub-paths
 
