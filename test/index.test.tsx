@@ -1836,3 +1836,8 @@ test('sub-path pathifier standalone on', async t => {
   set('players.a.level', 42);
   t.is(await html(), '<main><div>A<b>42</b></div></main>');
 });
+
+test('data attribute', async t => {
+  const a = <li data-value="yes"></li>;
+  t.is(a.dataset.value, 'yes');
+});

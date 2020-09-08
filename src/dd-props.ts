@@ -88,6 +88,9 @@ export default (
         element.addEventListener(name, (...args) => value(...args));
       } else if (key === 'class') {
         element.className = value;
+      } else if (key.startsWith('data-')) {
+        const dataKey = key.split('-')[1];
+        element.dataset[dataKey] = value;
       } else {
         element[key] = value;
       }
