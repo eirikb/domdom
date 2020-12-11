@@ -5,17 +5,12 @@ import {
   FilterOn,
   Filter,
   Stower,
-  Pathifier,
+  Pathifier2,
   LooseObject,
-  ListenerCallbackProps,
 } from '@eirikb/data';
 import { Domode, HodorCallback, Mountable } from './types';
 
-function mapCallback<T>(
-  value: T,
-  props: ListenerCallbackProps,
-  output: HodorCallback<T>
-) {
+function mapCallback<T>(value: T, props: any, output: HodorCallback<T>) {
   return output(value, {
     ...props,
     ...{
@@ -33,7 +28,7 @@ export class Hodor<T = any> implements Mountable {
   _stower?: Stower;
   _or?: HodorCallback<T>;
   index?: number;
-  pathifier?: Pathifier<T>;
+  pathifier?: Pathifier2;
   listening?: boolean;
   _filter?: Filter;
   _filterOn?: { path: string; filterOn: FilterOn };
@@ -181,30 +176,30 @@ export class Hodor<T = any> implements Mountable {
       });
       return;
     }
-    this.pathifier = this.data.on<T>(path);
-    if (this._then)
-      this.pathifier.then((value, props) =>
-        mapCallback(value, props, this._then!)
-      );
-    if (this._map)
-      this.pathifier.map((value, props) =>
-        mapCallback(value, props, this._map!)
-      );
-    if (this._filter) this.pathifier.filter(this._filter);
-    if (this._filterOn)
-      this.pathifier.filterOn(this._filterOn.path, this._filterOn.filterOn);
-    if (this._sort) this.pathifier.sort(this._sort);
-    if (this._sortOn)
-      this.pathifier.sortOn(this._sortOn.path, this._sortOn.sorterOn);
-    this.pathifier.toArray({
-      or(_: number, __: any): void {},
-
-      add: (value: any, subIndex: number, _?: number, path?: string) => {
-        this._stower?.add(value, this.index!, subIndex, path);
-      },
-      remove: (value: any, subIndex: number, _: number, path: string) => {
-        this._stower?.remove(value, this.index!, subIndex, path);
-      },
-    });
+    // this.pathifier = this.data.on<T>(path);
+    // if (this._then)
+    //   this.pathifier.then((value, props) =>
+    //     mapCallback(value, props, this._then!)
+    //   );
+    // if (this._map)
+    //   this.pathifier.map((value, props) =>
+    //     mapCallback(value, props, this._map!)
+    //   );
+    // if (this._filter) this.pathifier.filter(this._filter);
+    // if (this._filterOn)
+    //   this.pathifier.filterOn(this._filterOn.path, this._filterOn.filterOn);
+    // if (this._sort) this.pathifier.sort(this._sort);
+    // if (this._sortOn)
+    //   this.pathifier.sortOn(this._sortOn.path, this._sortOn.sorterOn);
+    // this.pathifier.toArray({
+    //   or(_: number, __: any): void {},
+    //
+    //   add: (value: any, subIndex: number, _?: number, path?: string) => {
+    //     this._stower?.add(value, this.index!, subIndex, path);
+    //   },
+    //   remove: (value: any, subIndex: number, _: number, path: string) => {
+    //     this._stower?.remove(value, this.index!, subIndex, path);
+    //   },
+    // });
   }
 }

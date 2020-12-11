@@ -1,4 +1,9 @@
-import { Data } from '@eirikb/data';
+import {
+  Data,
+  ListenerCallback,
+  Pathifier2,
+  StowerTransformer,
+} from '@eirikb/data';
 import { DomStower } from './dom-stower';
 import { DomSquint } from './dom-squint';
 import ddProps from './dd-props';
@@ -76,6 +81,9 @@ export class React {
         el.mountables.push(hodor);
         hodor.stower(index, stower);
         hodor.element = el;
+      } else if (child instanceof Pathifier2) {
+        const transformer = child.transformer as StowerTransformer;
+        transformer.stower(index, stower);
       } else {
         stower.add(child, index);
       }
@@ -96,6 +104,17 @@ export class Domdom {
     this.React = new React(this.data);
   }
 
+  on2 = (path: string): Pathifier2 => {
+    const transformer = new StowerTransformer();
+    const pathifier = new Pathifier2(this.data, path, transformer);
+    pathifier.init();
+    return pathifier;
+  };
+
+  wat = (path: string, cb: ListenerCallback) => {
+    this.data.on(path, cb);
+  };
+
   on = <T = any>(path: string, cb?: HodorCallback<T>) => {
     if (path.startsWith('>')) {
       throw new Error('Sub path selector no longer supported');
@@ -111,7 +130,7 @@ export class Domdom {
     this.data.unset(path);
   };
 
-  get = <T = any>(path?: string): T => {
+  get = <T = any>(path?: string): T | undefined => {
     if (!path) return this.data.get();
     return this.data.get(path);
   };
