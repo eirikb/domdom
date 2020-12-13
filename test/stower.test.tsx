@@ -358,3 +358,17 @@ test('replace array with subindex', t => {
   stower.add([null, '+'], 0, 0);
   t.deepEqual(element.innerHTML, '+');
 });
+
+test('filterOn error', t => {
+  const { element, stower } = t.context;
+  stower.add('a', 0, 0);
+  stower.add('b', 0, 0);
+  stower.add('c', 0, 0);
+  stower.remove(null, 0, 0);
+  stower.add('c', 0, 3);
+  stower.remove(null, 0, 1);
+  stower.add('a', 0, 0);
+  stower.remove(null, 0, 2);
+  stower.add('c', 0, 2);
+  t.is(element.innerHTML, 'abc');
+});

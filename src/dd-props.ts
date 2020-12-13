@@ -77,10 +77,10 @@ export default (
               setVal(element, key, _or);
             }
           },
-          or(_: number, or: any) {
-            _or = or;
-            setVal(element, key, or);
-          },
+          // or(_: number, or: any) {
+          //   _or = or;
+          //   setVal(element, key, or);
+          // },
         });
         mountables.push(hodor);
       } else if (key.startsWith('on')) {

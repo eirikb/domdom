@@ -98,11 +98,7 @@ export class DomStower implements Stower {
       this._add(index, child, before!);
     }
     this.slots[index] = this.slots[index] || [];
-    if (this.slots[index][subIndex]) {
-      this.slots[index].splice(subIndex, 0, child);
-    } else {
-      this.slots[index][subIndex] = child;
-    }
+    this.slots[index].splice(subIndex, 0, child);
     if (subIndex === 0) {
       this.first[index] = isArray ? child[0] : child;
     }
@@ -123,7 +119,7 @@ export class DomStower implements Stower {
   }
 
   removeWithSubIndex(index: number, subIndex: number) {
-    const child = (this.slots[index] || {})[subIndex];
+    const child = (this.slots[index] || [])[subIndex];
     if (!child) return;
 
     if (Array.isArray(child)) {

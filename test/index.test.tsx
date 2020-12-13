@@ -729,21 +729,21 @@ test('Whole objects should be populated', async t => {
   t.is(await html(), '<div><div>:)</div></div>');
 });
 
-test.skip('Update array', async t => {
+test('Update array', async t => {
   const div = (
     <div>
-      {on2('path').map(path => (
-        <div>{JSON.stringify(path)}</div>
+      {on2('path.$').map(path => (
+        <div>{path}</div>
       ))}
     </div>
   );
   init(element, div);
 
   set('path', ['hello', 'world']);
-  t.is(await html(), '<div><div>["hello","world"]</div></div>');
+  t.is(await html(), '<div><div>hello</div><div>world</div></div>');
 
   set('path', ['hello']);
-  t.is(await html(), '<div><div>["hello"]</div></div>');
+  t.is(await html(), '<div><div>hello</div></div>');
 });
 
 // TODO: Here be a bug!
@@ -1022,6 +1022,22 @@ test('on sortOn - custom order update', async t => {
   t.is(await html(), '<div><p>7</p><p>3</p><p>2</p></div>');
 });
 
+test('onFilter and onSort 2', async t => {
+  const div = (
+    <div>
+      {on2('players.$').sortOn('desc', (a, b, { onValue }) =>
+        onValue ? a - b : b - a
+      )}
+    </div>
+  );
+  init(element, div);
+  set('players', [1, 2, 3]);
+  set('desc', true);
+  t.deepEqual(await html(), '<div>123</div>');
+  set('desc', false);
+  t.deepEqual(await html(), '<div>321</div>');
+});
+
 test.skip('onFilter and onSort', async t => {
   const div = (
     <div>
@@ -1035,10 +1051,10 @@ test.skip('onFilter and onSort', async t => {
     </div>
   );
   init(element, div);
-  set('filter.by', 'name');
   set('players.1', { name: '1', age: '3' });
   set('players.2', { name: '2', age: '2' });
   set('players.3', { name: '3', age: '1' });
+  set('filter.by', 'name');
   t.is(await html(), '<div><p>1</p><p>2</p><p>3</p></div>');
   set('filter.by', 'age');
   t.is(await html(), '<div><p>3</p><p>2</p><p>1</p></div>');
