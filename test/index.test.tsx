@@ -746,16 +746,15 @@ test('Update array', async t => {
   t.is(await html(), '<div><div>hello</div></div>');
 });
 
-// TODO: Here be a bug!
-test.skip('Update array without element', async t => {
-  const view = <div>{on2('x')}</div>;
+test('Update array without element', async t => {
+  const view = <div>{on2('x.$')}</div>;
   init(element, view);
 
   set('x', ['hello', 'world']);
-  t.is(await html(), '<div>["hello","world"]</div>');
+  t.is(await html(), '<div>helloworld</div>');
 
   set('x', ['hello']);
-  t.is(await html(), '<div>["hello"]</div>');
+  t.is(await html(), '<div>hello</div>');
 });
 
 test('Containment', async t => {
@@ -1038,7 +1037,7 @@ test('onFilter and onSort 2', async t => {
   t.deepEqual(await html(), '<div>321</div>');
 });
 
-test.skip('onFilter and onSort', async t => {
+test('onFilter and onSort', async t => {
   const div = (
     <div>
       {on2('players.$')
@@ -1051,10 +1050,10 @@ test.skip('onFilter and onSort', async t => {
     </div>
   );
   init(element, div);
+  set('filter.by', 'name');
   set('players.1', { name: '1', age: '3' });
   set('players.2', { name: '2', age: '2' });
   set('players.3', { name: '3', age: '1' });
-  set('filter.by', 'name');
   t.is(await html(), '<div><p>1</p><p>2</p><p>3</p></div>');
   set('filter.by', 'age');
   t.is(await html(), '<div><p>3</p><p>2</p><p>1</p></div>');
@@ -1074,10 +1073,10 @@ test('Function context', async t => {
   t.is(await html(), '<div><div>:)</div></div>');
 });
 
-test.skip('filterOn and back', async t => {
+test('filterOn and back', async t => {
   const view = (
     <div>
-      {on2('users')
+      {on2('users.$')
         .filterOn('test', (user, { onValue }) =>
           new RegExp(onValue, 'i').test(user.name)
         )
@@ -1192,10 +1191,10 @@ test('Re-add', async t => {
   t.is(await html(), '<div><p>OK! Well!</p></div>');
 });
 
-test.skip('Something something filter and add', async t => {
+test('Something something filter and add', async t => {
   const view = (
     <div>
-      {on2('users')
+      {on2('users.$')
         .filterOn('filter', (_, { onValue }) => onValue)
         .map(u => (
           <p>
@@ -1872,14 +1871,14 @@ test('sub-path', async t => {
   t.is(await html(), '<div><div>A/42</div><div>B/2</div></div>');
 });
 
-test.skip('sub-path pathifier', async t => {
+test('sub-path pathifier', async t => {
   set('players.a', { name: 'A', level: 1 });
   set('players.b', { name: 'B', level: 2 });
 
   init(
     element,
     <div>
-      {on2('players').map((player, { child }) => (
+      {on2('players.$').map((player, { child }) => (
         <div>
           {player.name}/{on2(child('level'))}
         </div>
