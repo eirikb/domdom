@@ -3,6 +3,7 @@ import { serial as test } from 'ava';
 import browserEnv from 'browser-env';
 import { Domdom } from '../src/domdom';
 import { Data } from '@eirikb/data';
+import { Opts } from '../src';
 // import { Opts } from '../src/types';
 
 browserEnv();
@@ -625,409 +626,438 @@ test('Multiple child paths', async t => {
 //   set('test', 'd');
 //   t.is(2, i);
 // });
-//
-// test('Mounted', async t => {
-//   t.plan(1);
-//
-//   const Hello = ({}, { mounted }: Opts) => {
-//     mounted(() => t.pass());
-//     return <div />;
-//   };
-//
-//   const div = (
-//     <div>
-//       <div>
-//         <Hello />
-//       </div>
-//     </div>
-//   );
-//   init(element, div);
-// });
-//
-// test('Mounted on/off', async t => {
-//   t.plan(2);
-//
-//   const Hello = ({}, { mounted }: Opts) => {
-//     mounted(() => t.pass());
-//     return <div />;
-//   };
-//
-//   const div = (
-//     <div>
-//       {on2('test', () => (
-//         <Hello />
-//       ))}
-//     </div>
-//   );
-//   init(element, div);
-//
-//   set('test', true);
-//   await html();
-//   unset('test');
-//   await html();
-//   set('test', true);
-// });
-//
-// test('When with initial false value', async t => {
-//   const div = (
-//     <div>
-//       {on2('test', t => {
-//         switch (t) {
-//           case false:
-//             return <div>Hello</div>;
-//           default:
-//             return <div>No!</div>;
-//         }
-//       })}
-//     </div>
-//   );
-//   init(element, div);
-//   set('test', false);
-//   t.is(await html(), '<div><div>Hello</div></div>');
-// });
-//
-// test('Do not remove listener on same level', async t => {
-//   function Test() {
-//     return <p>test</p>;
-//   }
-//
-//   const div = (
-//     <div>
-//       {on2('test', () => (
-//         <Test />
-//       ))}
-//       {on2('hello')}
-//     </div>
-//   );
-//   init(element, div);
-//   set('test', true);
-//   set('hello', 'world');
-//   t.is(await html(), '<div><p>test</p>world</div>');
-//   set('test', false);
-//   unset('test');
-//   set('hello', 'there');
-//   t.is(await html(), '<div>there</div>');
-// });
-//
-// test('Whole objects should be populated', async t => {
-//   const div = (
-//     <div>
-//       {on2('hello.world', world => (
-//         <div>{world.test}</div>
-//       ))}
-//     </div>
-//   );
-//   init(element, div);
-//
-//   set('hello', {
-//     world: {
-//       test: ':)',
-//     },
-//   });
-//
-//   t.is(await html(), '<div><div>:)</div></div>');
-// });
-//
-// test('Update array', async t => {
-//   const div = (
-//     <div>
-//       {on2('path', path => (
-//         <div>{JSON.stringify(path)}</div>
-//       ))}
-//     </div>
-//   );
-//   init(element, div);
-//
-//   set('path', ['hello', 'world']);
-//   t.is(await html(), '<div><div>{"0":"hello","1":"world"}</div></div>');
-//
-//   set('path', ['hello']);
-//   t.is(await html(), '<div><div>{"0":"hello"}</div></div>');
-// });
-//
-// test('Update array without element', async t => {
-//   const view = <div>{on2('x')}</div>;
-//   init(element, view);
-//
-//   set('x', ['hello', 'world']);
-//   t.is(await html(), '<div>{"0":"hello","1":"world"}</div>');
-//
-//   set('x', ['hello']);
-//   t.is(await html(), '<div>{"0":"hello"}</div>');
-// });
-//
-// test('Containment', async t => {
-//   const Button = ({}, { children }: Opts) => <button>{children}</button>;
-//
-//   init(element, <Button>Test</Button>);
-//   t.is(await html(), '<button>Test</button>');
-//
-//   createElement();
-//   init(
-//     element,
-//     <Button>
-//       <span>Test</span>
-//     </Button>
-//   );
-//   t.is(await html(), '<button><span>Test</span></button>');
-//
-//   createElement();
-//   init(
-//     element,
-//     <Button>
-//       <span>Test</span>
-//       <i>in</i>g
-//     </Button>
-//   );
-//   t.is(await html(), '<button><span>Test</span><i>in</i>g</button>');
-// });
-//
-// test('Rendering types', async t => {
-//   init(
-//     element,
-//     <div>
-//       {'a'}
-//       {1}
-//       {3.6}
-//       {{ hello: 'world' }}
-//       {undefined}
-//       {null}
-//       {true}
-//       {false}
-//     </div>
-//   );
-//   t.is(await html(), '<div>a13.6{"hello":"world"}truefalse</div>');
-// });
-//
-// test('Remove or on on', async t => {
-//   const view = <div>{on2('test.$id', t => t.name).or('Loading...')}</div>;
-//   init(element, view);
-//   t.is(await html(), '<div>Loading...</div>');
-//   set('test', { 0: { name: 'hello' } });
-//   t.is(await html(), '<div>hello</div>');
-// });
-//
-// test('on attributes', async t => {
-//   const view = (
-//     <div>
-//       <button disabled={on2('disable', res => res)} />
-//     </div>
-//   );
-//   init(element, view);
-//
-//   t.is(await html(), '<div><button></button></div>');
-//   set('disable', true);
-//   t.is(await html(), '<div><button disabled=""></button></div>');
-// });
-//
-// test('on on attributes', async t => {
-//   const view = (
-//     <div>
-//       <button disabled={on2('canClick', res => !res).or(true)} />
-//       <button disabled={on2('canNotClick').or(true)} />
-//     </div>
-//   );
-//   init(element, view);
-//
-//   t.is(
-//     await html(),
-//     '<div><button disabled=""></button><button disabled=""></button></div>'
-//   );
-//
-//   set('canClick', true);
-//   set('canNotClick', false);
-//   t.is(await html(), '<div><button></button><button></button></div>');
-//
-//   set('canClick', false);
-//   set('canNotClick', true);
-//   t.is(
-//     await html(),
-//     '<div><button disabled=""></button><button disabled=""></button></div>'
-//   );
-// });
-//
-// test('on on attributes or', async t => {
-//   const view = (
-//     <div>
-//       <button disabled={on2('canNotClick').or(true)} />
-//     </div>
-//   );
-//   init(element, view);
-//
-//   t.is(await html(), '<div><button disabled=""></button></div>');
-//
-//   set('canNotClick', false);
-//   t.is(await html(), '<div><button></button></div>');
-//
-//   unset('canNotClick');
-//   t.is(await html(), '<div><button disabled=""></button></div>');
-// });
-//
-// test('On on object attributes', async t => {
-//   const view = (
-//     <div>
-//       <p style={on2('style')}>Test</p>
-//     </div>
-//   );
-//   init(element, view);
-//
-//   set('style', { color: 'red' });
-//   t.is(await html(), '<div><p style="color: red;">Test</p></div>');
-// });
-//
-// test('Filter array', async t => {
-//   const view = (
-//     <div>
-//       {on2('users')
-//         .map(user => <span>{user.name}</span>)
-//         .filter(user => user.name !== 'One!')}
-//     </div>
-//   );
-//   init(element, view);
-//
-//   set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
-//   t.is(await html(), '<div><span>Two!</span></div>');
-// });
-//
-// test('Update filter on update filter', async t => {
-//   const view = (
-//     <div>
-//       {on2('users')
-//         .map(user => <span>{user.name}</span>)
-//         .filter(user => user.name !== 'One!')}
-//     </div>
-//   );
-//   init(element, view);
-//
-//   set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
-//   t.is(await html(), '<div><span>Two!</span></div>');
-// });
-//
-// test('Update filterOn on update filter', async t => {
-//   const view = (
-//     <div>
-//       {on2('users')
-//         .map(user => <span>{user.name}</span>)
-//         .filteron2('test', (_, user) => user.name !== 'One!')}
-//     </div>
-//   );
-//   init(element, view);
-//
-//   set('test', { search: 'it' });
-//   set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
-//   t.is(await html(), '<div><span>Two!</span></div>');
-// });
-//
-// test('Update filterOn on update filter refresh', async t => {
-//   const view = (
-//     <div>
-//       {on2('users')
-//         .map(user => <span>{user.name}</span>)
-//         .filteron2('test', (_, user) => user.name !== 'One!')}
-//     </div>
-//   );
-//   init(element, view);
-//
-//   set('test', { search: 'it' });
-//   set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
-//   t.is(await html(), '<div><span>Two!</span></div>');
-// });
-//
-// test('Update filterOn on update after data is set', async t => {
-//   const view = (
-//     <div>
-//       {on2('users')
-//         .map(user => <b>{user.name}</b>)
-//         .filteron2('test', (filter, user) =>
-//           new RegExp(filter, 'i').test(user.name)
-//         )}
-//     </div>
-//   );
-//   init(element, view);
-//
-//   set('test', '');
-//   set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
-//   t.is(await html(), '<div><b>One!</b><b>Two!</b></div>');
-//   set('test', 'two');
-//   t.is(await html(), '<div><b>Two!</b></div>');
-// });
-//
-// test('on sortOn - custom order', async t => {
-//   const div = (
-//     <div>
-//       {on2('players.*')
-//         .map(player => <p>{player.name}</p>)
-//         .sorton2('test', (_, a, b) => b.name.localeCompare(a.name))}
-//     </div>
-//   );
-//   init(element, div);
-//   set('test', 'yes');
-//   set('players.1', { name: '1' });
-//   set('players.2', { name: '2' });
-//   set('players.3', { name: '3' });
-//   t.is(await html(), '<div><p>3</p><p>2</p><p>1</p></div>');
-//
-//   unset('players.1');
-//   t.is(await html(), '<div><p>3</p><p>2</p></div>');
-//
-//   set('players.1', { name: '7' });
-//   t.is(await html(), '<div><p>7</p><p>3</p><p>2</p></div>');
-// });
-//
-// test('on sortOn - custom order update', async t => {
-//   const div = (
-//     <div>
-//       {on2('players.*')
-//         .map(player => <p>{player.name}</p>)
-//         .sorton2('test', (_, a, b) => b.name.localeCompare(a.name))}
-//     </div>
-//   );
-//   init(element, div);
-//   set('players.1', { name: '1' });
-//   set('players.2', { name: '2' });
-//   set('players.3', { name: '3' });
-//   set('test', 'yes');
-//   t.is(await html(), '<div><p>3</p><p>2</p><p>1</p></div>');
-//
-//   unset('players.1');
-//   t.is(await html(), '<div><p>3</p><p>2</p></div>');
-//
-//   set('players.1', { name: '7' });
-//   t.is(await html(), '<div><p>7</p><p>3</p><p>2</p></div>');
-// });
-//
-// test('onFilter and onSort', async t => {
-//   const div = (
-//     <div>
-//       {on2('players.*')
-//         .map(player => <p>{player.name}</p>)
-//         .sorton2('filter.by', (val, a, b) => a[val].localeCompare(b[val]))}
-//     </div>
-//   );
-//   init(element, div);
-//   set('filter.by', 'name');
-//   set('players.1', { name: '1', age: '3' });
-//   set('players.2', { name: '2', age: '2' });
-//   set('players.3', { name: '3', age: '1' });
-//   t.is(await html(), '<div><p>1</p><p>2</p><p>3</p></div>');
-//   set('filter.by', 'age');
-//   t.is(await html(), '<div><p>3</p><p>2</p><p>1</p></div>');
-// });
-//
-// test('Function context', async t => {
-//   function App() {
-//     return <div>:)</div>;
-//   }
-//
-//   const div = (
-//     <div>
-//       <App />
-//     </div>
-//   );
-//   init(element, div);
-//   t.is(await html(), '<div><div>:)</div></div>');
-// });
-//
+
+test('Mounted', async t => {
+  t.plan(1);
+
+  const Hello = ({}, { mounted }: Opts) => {
+    mounted(() => t.pass());
+    return <div />;
+  };
+
+  const div = (
+    <div>
+      <div>
+        <Hello />
+      </div>
+    </div>
+  );
+  init(element, div);
+});
+
+test('Mounted on/off', async t => {
+  t.plan(2);
+
+  const Hello = ({}, { mounted }: Opts) => {
+    mounted(() => t.pass());
+    return <div />;
+  };
+
+  const div = (
+    <div>
+      {on2('test').map(() => (
+        <Hello />
+      ))}
+    </div>
+  );
+  init(element, div);
+
+  set('test', true);
+  await html();
+  unset('test');
+  await html();
+  set('test', true);
+});
+
+test('When with initial false value', async t => {
+  const div = (
+    <div>
+      {on2('test').map(t => {
+        switch (t) {
+          case false:
+            return <div>Hello</div>;
+          default:
+            return <div>No!</div>;
+        }
+      })}
+    </div>
+  );
+  init(element, div);
+  set('test', false);
+  t.is(await html(), '<div><div>Hello</div></div>');
+});
+
+test('Do not remove listener on same level', async t => {
+  function Test() {
+    return <p>test</p>;
+  }
+
+  const div = (
+    <div>
+      {on2('test').map(() => (
+        <Test />
+      ))}
+      {on2('hello')}
+    </div>
+  );
+  init(element, div);
+  set('test', true);
+  set('hello', 'world');
+  t.is(await html(), '<div><p>test</p>world</div>');
+  set('test', false);
+  unset('test');
+  set('hello', 'there');
+  t.is(await html(), '<div>there</div>');
+});
+
+test('Whole objects should be populated', async t => {
+  const div = (
+    <div>
+      {on2('hello.world').map(world => (
+        <div>{world.test}</div>
+      ))}
+    </div>
+  );
+  init(element, div);
+
+  set('hello', {
+    world: {
+      test: ':)',
+    },
+  });
+
+  t.is(await html(), '<div><div>:)</div></div>');
+});
+
+test.skip('Update array', async t => {
+  const div = (
+    <div>
+      {on2('path').map(path => (
+        <div>{JSON.stringify(path)}</div>
+      ))}
+    </div>
+  );
+  init(element, div);
+
+  set('path', ['hello', 'world']);
+  t.is(await html(), '<div><div>["hello","world"]</div></div>');
+
+  set('path', ['hello']);
+  t.is(await html(), '<div><div>["hello"]</div></div>');
+});
+
+// TODO: Here be a bug!
+test.skip('Update array without element', async t => {
+  const view = <div>{on2('x')}</div>;
+  init(element, view);
+
+  set('x', ['hello', 'world']);
+  t.is(await html(), '<div>["hello","world"]</div>');
+
+  set('x', ['hello']);
+  t.is(await html(), '<div>["hello"]</div>');
+});
+
+test('Containment', async t => {
+  const Button = ({}, { children }: Opts) => <button>{children}</button>;
+
+  init(element, <Button>Test</Button>);
+  t.is(await html(), '<button>Test</button>');
+
+  createElement();
+  init(
+    element,
+    <Button>
+      <span>Test</span>
+    </Button>
+  );
+  t.is(await html(), '<button><span>Test</span></button>');
+
+  createElement();
+  init(
+    element,
+    <Button>
+      <span>Test</span>
+      <i>in</i>g
+    </Button>
+  );
+  t.is(await html(), '<button><span>Test</span><i>in</i>g</button>');
+});
+
+test('Rendering types', async t => {
+  init(
+    element,
+    <div>
+      {'a'}
+      {1}
+      {3.6}
+      {{ hello: 'world' }}
+      {undefined}
+      {null}
+      {true}
+      {false}
+    </div>
+  );
+  t.is(await html(), '<div>a13.6{"hello":"world"}truefalse</div>');
+});
+
+test('Remove or on on', async t => {
+  const view = (
+    <div>
+      {on2('test.$id')
+        .map(t => t.name)
+        .or('Loading...')}
+    </div>
+  );
+  init(element, view);
+  t.is(await html(), '<div>Loading...</div>');
+  set('test', { 0: { name: 'hello' } });
+  t.is(await html(), '<div>hello</div>');
+});
+
+test.skip('on attributes', async t => {
+  const view = (
+    <div>
+      <button disabled={on2('disable').map(res => res)} />
+    </div>
+  );
+  init(element, view);
+
+  t.is(await html(), '<div><button></button></div>');
+  set('disable', true);
+  t.is(await html(), '<div><button disabled=""></button></div>');
+});
+
+test.skip('on on attributes', async t => {
+  const view = (
+    <div>
+      <button
+        disabled={on2('canClick')
+          .map(res => !res)
+          .or(true)}
+      />
+      <button disabled={on2('canNotClick').or(true)} />
+    </div>
+  );
+  init(element, view);
+
+  t.is(
+    await html(),
+    '<div><button disabled=""></button><button disabled=""></button></div>'
+  );
+
+  set('canClick', true);
+  set('canNotClick', false);
+  t.is(await html(), '<div><button></button><button></button></div>');
+
+  set('canClick', false);
+  set('canNotClick', true);
+  t.is(
+    await html(),
+    '<div><button disabled=""></button><button disabled=""></button></div>'
+  );
+});
+
+test.skip('on on attributes or', async t => {
+  const view = (
+    <div>
+      <button disabled={on2('canNotClick').or(true)} />
+    </div>
+  );
+  init(element, view);
+
+  t.is(await html(), '<div><button disabled=""></button></div>');
+
+  set('canNotClick', false);
+  t.is(await html(), '<div><button></button></div>');
+
+  unset('canNotClick');
+  t.is(await html(), '<div><button disabled=""></button></div>');
+});
+
+test.skip('On on object attributes', async t => {
+  const view = (
+    <div>
+      <p style={on2('style')}>Test</p>
+    </div>
+  );
+  init(element, view);
+
+  set('style', { color: 'red' });
+  t.is(await html(), '<div><p style="color: red;">Test</p></div>');
+});
+
+test('Filter array', async t => {
+  const view = (
+    <div>
+      {on2('users.$')
+        .filter(user => user.name !== 'One!')
+        .map(user => (
+          <span>{user.name}</span>
+        ))}
+    </div>
+  );
+  init(element, view);
+
+  set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  t.is(await html(), '<div><span>Two!</span></div>');
+});
+
+test('Update filter on update filter', async t => {
+  const view = (
+    <div>
+      {on2('users.$')
+        .filter(user => user.name !== 'One!')
+        .map(user => (
+          <span>{user.name}</span>
+        ))}
+    </div>
+  );
+  init(element, view);
+
+  set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  t.is(await html(), '<div><span>Two!</span></div>');
+});
+
+test('Update filterOn on update filter', async t => {
+  const view = (
+    <div>
+      {on2('users.$')
+        .filterOn('test', user => user.name !== 'One!')
+        .map(user => (
+          <span>{user.name}</span>
+        ))}
+    </div>
+  );
+  init(element, view);
+
+  set('test', { search: 'it' });
+  set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  t.is(await html(), '<div><span>Two!</span></div>');
+});
+
+test('Update filterOn on update filter refresh', async t => {
+  const view = (
+    <div>
+      {on2('users.$')
+        .filterOn('test', user => user.name !== 'One!')
+        .map(user => (
+          <span>{user.name}</span>
+        ))}
+    </div>
+  );
+  init(element, view);
+
+  set('test', { search: 'it' });
+  set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  t.is(await html(), '<div><span>Two!</span></div>');
+});
+
+test('Update filterOn on update after data is set', async t => {
+  const view = (
+    <div>
+      {on2('users.$')
+        .filterOn('test', (user, { onValue }) =>
+          new RegExp(onValue, 'i').test(user.name)
+        )
+        .map(user => (
+          <b>{user.name}</b>
+        ))}
+    </div>
+  );
+  init(element, view);
+
+  set('test', '');
+  set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  t.is(await html(), '<div><b>One!</b><b>Two!</b></div>');
+  set('test', 'two');
+  t.is(await html(), '<div><b>Two!</b></div>');
+});
+
+test('on sortOn - custom order', async t => {
+  const div = (
+    <div>
+      {on2('players.$')
+        .sortOn('test', (a, b) => b.name.localeCompare(a.name))
+        .map(player => (
+          <p>{player.name}</p>
+        ))}
+    </div>
+  );
+  init(element, div);
+  set('test', 'yes');
+  set('players.1', { name: '1' });
+  set('players.2', { name: '2' });
+  set('players.3', { name: '3' });
+  t.is(await html(), '<div><p>3</p><p>2</p><p>1</p></div>');
+
+  unset('players.1');
+  t.is(await html(), '<div><p>3</p><p>2</p></div>');
+
+  set('players.1', { name: '7' });
+  t.is(await html(), '<div><p>7</p><p>3</p><p>2</p></div>');
+});
+
+test('on sortOn - custom order update', async t => {
+  const div = (
+    <div>
+      {on2('players.$')
+        .sortOn('test', (a, b) => b.name.localeCompare(a.name))
+        .map(player => (
+          <p>{player.name}</p>
+        ))}
+    </div>
+  );
+  init(element, div);
+  set('players.1', { name: '1' });
+  set('players.2', { name: '2' });
+  set('players.3', { name: '3' });
+  set('test', 'yes');
+  t.is(await html(), '<div><p>3</p><p>2</p><p>1</p></div>');
+
+  unset('players.1');
+  t.is(await html(), '<div><p>3</p><p>2</p></div>');
+
+  set('players.1', { name: '7' });
+  t.is(await html(), '<div><p>7</p><p>3</p><p>2</p></div>');
+});
+
+test.skip('onFilter and onSort', async t => {
+  const div = (
+    <div>
+      {on2('players.$')
+        .sortOn('filter.by', (a, b, { onValue }) =>
+          a[onValue].localeCompare(b[onValue])
+        )
+        .map(player => (
+          <p>{player.name}</p>
+        ))}
+    </div>
+  );
+  init(element, div);
+  set('filter.by', 'name');
+  set('players.1', { name: '1', age: '3' });
+  set('players.2', { name: '2', age: '2' });
+  set('players.3', { name: '3', age: '1' });
+  t.is(await html(), '<div><p>1</p><p>2</p><p>3</p></div>');
+  set('filter.by', 'age');
+  t.is(await html(), '<div><p>3</p><p>2</p><p>1</p></div>');
+});
+
+test('Function context', async t => {
+  function App() {
+    return <div>:)</div>;
+  }
+
+  const div = (
+    <div>
+      <App />
+    </div>
+  );
+  init(element, div);
+  t.is(await html(), '<div><div>:)</div></div>');
+});
+
 // test('filterOn and back', async t => {
 //   const view = (
 //     <div>
