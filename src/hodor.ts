@@ -112,7 +112,7 @@ export class Hodor<T = any> implements Mountable {
     this.index = i;
     this._stower = s;
     if (this._or) {
-      this._stower.or(i, this._or);
+      // this._stower.or(i, this._or);
     }
     return this;
   }

@@ -49,7 +49,7 @@ test('pathifier2', async t => {
   const transformer = new StowerTransformer();
   const pathifier = new Pathifier2(data, 'a.$', transformer);
   pathifier.init();
-  transformer.stower = new DomStower(element);
+  transformer.stower(0, new DomStower(element));
 
   pathifier.map(value => <div>{value}</div>);
 

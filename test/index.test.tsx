@@ -376,50 +376,68 @@ test('Quirk on + when', async t => {
   t.is(await html(), '<div>noNo</div>');
 });
 
-// test('Simple or', async t => {
-//   const div = (
-//     <div>
-//       {on2('test')
-//         .map(t => <div>{t}</div>)
-//         .or(<div>Nope</div>)}
-//     </div>
-//   );
-//   init(element, div);
-//   t.is(await html(), '<div><div>Nope</div></div>');
-//   set('test', 'ing');
-//   t.is(await html(), '<div><div>ing</div></div>');
-//   set('test', '');
-//   t.is(await html(), '<div><div></div></div>');
-//   unset('test');
-//   t.is(await html(), '<div><div>Nope</div></div>');
-// });
+test('unset', async t => {
+  const div = (
+    <div>
+      {on2('test').map(t => (
+        <div>{t}</div>
+      ))}
+    </div>
+  );
+  init(element, div);
+  t.is(await html(), '<div></div>');
+  set('test', 'ing');
+  t.is(await html(), '<div><div>ing</div></div>');
+  set('test', '');
+  t.is(await html(), '<div><div></div></div>');
+  unset('test');
+  t.is(await html(), '<div></div>');
+});
 
-// test('on empty res', async t => {
-//   const div = <div>{on2('test')}</div>;
-//   init(element, div);
-//   set('test', 'Hello');
-//   t.is(await html(), '<div>Hello</div>');
-//   set('test', '');
-//   t.is(await html(), '<div></div>');
-// });
-//
-// test('Multiple child paths', async t => {
-//   const div = (
-//     <div>
-//       {on2('a', (_, { subPath }) => (
-//         <div>
-//           {on2(subPath('text'))}
-//           test
-//           {on2(subPath('text'))}
-//         </div>
-//       ))}
-//     </div>
-//   );
-//   init(element, div);
-//   set('a', { text: 'ok' });
-//   t.is(await html(), '<div><div>oktestok</div></div>');
-// });
-//
+test('Simple or', async t => {
+  const div = (
+    <div>
+      {on2('test')
+        .map(t => <div>{t}</div>)
+        .or(<div>Nope</div>)}
+    </div>
+  );
+  init(element, div);
+  t.is(await html(), '<div><div>Nope</div></div>');
+  set('test', 'ing');
+  t.is(await html(), '<div><div>ing</div></div>');
+  set('test', '');
+  t.is(await html(), '<div><div></div></div>');
+  unset('test');
+  t.is(await html(), '<div><div>Nope</div></div>');
+});
+
+test('on empty res', async t => {
+  const div = <div>{on2('test')}</div>;
+  init(element, div);
+  set('test', 'Hello');
+  t.is(await html(), '<div>Hello</div>');
+  set('test', '');
+  t.is(await html(), '<div></div>');
+});
+
+test('Multiple child paths', async t => {
+  const div = (
+    <div>
+      {on2('a').map((_, { child }) => (
+        <div>
+          {on2(child('text'))}
+          test
+          {on2(child('text'))}
+        </div>
+      ))}
+    </div>
+  );
+  init(element, div);
+  set('a', { text: 'ok' });
+  t.is(await html(), '<div><div>oktestok</div></div>');
+});
+
 // test('Have some path with flags', async t => {
 //   const Ok = () => {
 //     const e = <div></div>;
