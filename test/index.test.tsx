@@ -24,7 +24,7 @@ async function html() {
   return element.innerHTML;
 }
 
-let { init, React, set, unset, on2 } = new Domdom(new Data());
+let { init, React, get, set, unset, on2 } = new Domdom(new Data());
 
 test.beforeEach(() => {
   createElement();
@@ -33,7 +33,7 @@ test.beforeEach(() => {
   React = d.React;
   set = d.set;
   unset = d.unset;
-  // get = d.get;
+  get = d.get;
   // trigger = d.trigger;
   on2 = d.on2;
 });
@@ -1058,501 +1058,515 @@ test('Function context', async t => {
   t.is(await html(), '<div><div>:)</div></div>');
 });
 
-// test('filterOn and back', async t => {
-//   const view = (
-//     <div>
-//       {on2('users')
-//         .map(user => <b>{user.name}</b>)
-//         .filteron2('test', (filter, user) =>
-//           new RegExp(filter, 'i').test(user.name)
-//         )}
-//       <p>Because</p>
-//     </div>
-//   );
-//   init(element, view);
-//   set('test', '');
-//   set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
-//   t.is(await html(), '<div><b>One!</b><b>Two!</b><p>Because</p></div>');
-//   set('test', 'two');
-//   t.is(await html(), '<div><b>Two!</b><p>Because</p></div>');
-//   set('test', '');
-//   t.is(await html(), '<div><b>One!</b><b>Two!</b><p>Because</p></div>');
-// });
-//
-// test('When + change', async t => {
-//   const view = (
-//     <div>
-//       {on2('yes', t => {
-//         switch (t) {
-//           case true:
-//             return <p>{on2('ok')}</p>;
-//         }
-//       })}
-//     </div>
-//   );
-//   init(element, view);
-//   set('yes', true);
-//   set('yes', false);
-//   set('yes', true);
-//   set('ok', 'OK!');
-//   t.is(await html(), '<div><p>OK!</p></div>');
-// });
-//
-// test('When + change 2', async t => {
-//   const view = (
-//     <div>
-//       {on2('yes', t => {
-//         switch (t) {
-//           case true:
-//             return <p>{on2('ok')}</p>;
-//         }
-//       })}
-//     </div>
-//   );
-//   init(element, view);
-//   set('yes', true);
-//   set('yes', false);
-//   set('ok', 'OK!');
-//   set('yes', true);
-//   t.is(await html(), '<div><p>OK!</p></div>');
-// });
-//
-// test('When + filterOn', async t => {
-//   const view = (
-//     <div>
-//       {on2('yes', t => {
-//         switch (t) {
-//           case true:
-//             return (
-//               <div>
-//                 {on2('users')
-//                   .map(user => <b>{user.name}</b>)
-//                   .filteron2('test', (filter, user) =>
-//                     new RegExp(filter, 'i').test(user.name)
-//                   )}
-//                 <p>Because</p>
-//               </div>
-//             );
-//         }
-//       })}
-//     </div>
-//   );
-//   init(element, view);
-//   set('test', 'two');
-//   set('yes', true);
-//   set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
-//   t.is(await html(), '<div><div><b>Two!</b><p>Because</p></div></div>');
-//   set('yes', false);
-//   t.is(await html(), '<div></div>');
-//   set('yes', true);
-//   set('test', '');
-//   t.is(
-//     await html(),
-//     '<div><div><b>One!</b><b>Two!</b><p>Because</p></div></div>'
-//   );
-// });
-//
-// test('Re-add', async t => {
-//   const view = (
-//     <div>
-//       {on2('yes', t => (
-//         <p>
-//           {t} {on2('no')}
-//         </p>
-//       ))}
-//     </div>
-//   );
-//   init(element, view);
-//   set('yes', 'Yes!');
-//   set('no', 'No!');
-//   t.is(await html(), '<div><p>Yes! No!</p></div>');
-//   unset('yes');
-//   set('no', 'Well!');
-//   set('yes', 'OK!');
-//   t.is(await html(), '<div><p>OK! Well!</p></div>');
-// });
-//
-// test('Something something filter and add', async t => {
-//   const view = (
-//     <div>
-//       {on2('users')
-//         .map(u => (
-//           <p>
-//             {u} {on2('yes')}
-//           </p>
-//         ))
-//         .filteron2('filter', f => f)}
-//     </div>
-//   );
-//   init(element, view);
-//   set('filter', true);
-//   set('yes', 'y');
-//   set('users', {
-//     one: 'o',
-//     two: 't',
-//   });
-//   t.is(await html(), '<div><p>o y</p><p>t y</p></div>');
-//   set('filter', false);
-//   t.is(await html(), '<div></div>');
-//   set('yes', 'n');
-//   set('filter', true);
-//   t.is(await html(), '<div><p>o n</p><p>t n</p></div>');
-// });
-//
-// test('Simplest', async t => {
-//   const view = (
-//     <div>
-//       {on2('yes', () => (
-//         <p>{on2('no')}</p>
-//       ))}
-//     </div>
-//   );
-//   init(element, view);
-//
-//   set('yes', true);
-//   set('no', 'n');
-//   t.is(await html(), '<div><p>n</p></div>');
-//   set('no', 'n');
-// });
-//
-// test('filterOn mounted destroy mounted', async t => {
-//   const view = (
-//     <div>
-//       {on2('yes', t => {
-//         switch (t) {
-//           case true:
-//             return (
-//               <div>
-//                 {on2('users')
-//                   .map(u => u.name)
-//                   .filteron2('filter', (f, u) => f === u.name)}
-//               </div>
-//             );
-//         }
-//       })}
-//     </div>
-//   );
-//   init(element, view);
-//
-//   set('yes', true);
-//   set('filter', 'one');
-//   set('users.1', { name: 'one', test: 'yes' });
-//   set('users.2', { name: 'two' });
-//
-//   t.is(await html(), '<div><div>one</div></div>');
-//
-//   set('yes', false);
-//   t.is(await html(), '<div></div>');
-//
-//   set('yes', true);
-//   t.is(await html(), '<div><div>one</div></div>');
-// });
-//
-// test('When + filterOn const element', async t => {
-//   const view = (
-//     <div>
-//       {on2('show', t => {
-//         switch (t) {
-//           case true:
-//             return (
-//               <div>
-//                 {on2('users')
-//                   .map(task => <p>{task.name}</p>)
-//                   .filteron2('filter', (filter, row) => row.name === filter)}
-//               </div>
-//             );
-//         }
-//       })}
-//     </div>
-//   );
-//
-//   init(element, view);
-//
-//   set('users', { 1: { name: 'a' }, 2: { name: 'b' } });
-//   set('show', true);
-//   set('filter', 'a');
-//   set('show', false);
-//   set('show', true);
-//   t.deepEqual(await html(), '<div><div><p>a</p></div></div>');
-// });
-//
-// test('When + filterOn const text', async t => {
-//   const view = (
-//     <div>
-//       {on2('show', t => {
-//         switch (t) {
-//           case true:
-//             return (
-//               <div>
-//                 {on2('users')
-//                   .map(task => task.name)
-//                   .filteron2('filter', (filter, row) => row.name === filter)}
-//               </div>
-//             );
-//         }
-//       })}
-//     </div>
-//   );
-//   init(element, view);
-//   set('users', { 1: { name: 'a' }, 2: { name: 'b' } });
-//   set('show', true);
-//   set('filter', 'a');
-//   set('show', false);
-//   set('show', true);
-//   t.deepEqual(await html(), '<div><div>a</div></div>');
-// });
-//
-// test('On child attribute listener', async t => {
-//   const Yes = ({ subPath }) => {
-//     return <a href={on2(subPath('link'))}>test</a>;
-//   };
-//
-//   const view = (
-//     <div>
-//       {on2('yes', (ok, { subPath }) => (
-//         <div>
-//           {ok.text} <Yes subPath={subPath} />
-//         </div>
-//       ))}
-//     </div>
-//   );
-//   init(element, view);
-//   set('yes', {
-//     link: 'https://nrk.no',
-//     text: 'Some link:',
-//   });
-//   t.is(
-//     await html(),
-//     '<div><div>Some link: <a href="https://nrk.no">test</a></div></div>'
-//   );
-// });
-//
-// test('Same listener twice no problem', async t => {
-//   const view = (
-//     <div>
-//       {on2('test', t1 => (
-//         <div>
-//           {t1} and {on2('test')}
-//         </div>
-//       ))}
-//     </div>
-//   );
-//   init(element, view);
-//   set('test', 'yes');
-//   t.is(await html(), '<div><div>yes and yes</div></div>');
-// });
-//
-// test('Same listener twice no problem on when', async t => {
-//   const Yes = () => {
-//     return <div>{on2('test')}</div>;
-//   };
-//
-//   const view = (
-//     <div>
-//       {on2('test', () => (
-//         <Yes />
-//       ))}
-//     </div>
-//   );
-//   init(element, view);
-//   set('test', 'OK!');
-//   t.is(await html(), '<div><div>OK!</div></div>');
-// });
-//
-// test('Function in on', async t => {
-//   const Yes = () => {
-//     return (
-//       <div>
-//         {on!('yes', () => (
-//           <p>A</p>
-//         ))}
-//         {on!('yes', () => (
-//           <p>B</p>
-//         ))}
-//         {on!('yes', () => (
-//           <p>C</p>
-//         ))}
-//       </div>
-//     );
-//   };
-//
-//   init(element);
-//   set('yes', 'ok');
-//   const view = (
-//     <div>
-//       {on2('yes', () => (
-//         <Yes />
-//       ))}
-//     </div>
-//   );
-//   element.append(view);
-//   t.is(await html(), '<div><div><p>A</p><p>B</p><p>C</p></div></div>');
-//   t.pass();
-// });
-//
-// test('When and on no duplicated', async t => {
-//   const Yes = () => {
-//     return (
-//       <div>
-//         {on!('myse.type', () => (
-//           <p>A</p>
-//         ))}
-//         {on!('myse.type', () => (
-//           <p>B</p>
-//         ))}
-//         {on!('myse.type', () => (
-//           <p>C</p>
-//         ))}
-//       </div>
-//     );
-//   };
-//
-//   const view = (
-//     <div>
-//       {on2('route', route => {
-//         switch (route) {
-//           case 'ready':
-//             return <Yes />;
-//         }
-//       })}
-//     </div>
-//   );
-//   init(element, view);
-//   set('route', 'login1');
-//   set('myse', {
-//     type: 'proppgave',
-//   });
-//   set('route', 'ready');
-//   t.is(await html(), '<div><div><p>A</p><p>B</p><p>C</p></div></div>');
-// });
-//
-// test('when + or', async t => {
-//   const view = (
-//     <div>
-//       {on2('test', t => {
-//         switch (t) {
-//           case false:
-//             return '+';
-//           default:
-//             return '-';
-//         }
-//       }).or('+')}
-//     </div>
-//   );
-//   init(element, view);
-//   t.is(await html(), '<div>+</div>');
-//   set('test', true);
-//   t.is(await html(), '<div>-</div>');
-//   set('test', false);
-//   t.is(await html(), '<div>+</div>');
-// });
-//
-// test('When + pathifier', async t => {
-//   const view = (
-//     <div>
-//       {on2('test', t => {
-//         switch (t) {
-//           case true:
-//             return (
-//               <div>
-//                 {on2('players').map(p => (
-//                   <p>{p}</p>
-//                 ))}
-//               </div>
-//             );
-//         }
-//       })}
-//     </div>
-//   );
-//   init(element, view);
-//   set('test', true);
-//   set('players', ['a']);
-//   set('test', false);
-//   set('test', true);
-//   t.pass();
-// });
-//
-// test('on + pathifier', async t => {
-//   const view = (
-//     <div>
-//       {on2('test', test =>
-//         test ? (
-//           <div>
-//             {on2('players').map(p => (
-//               <p>{p}</p>
-//             ))}
-//           </div>
-//         ) : (
-//           'no!'
-//         )
-//       )}
-//     </div>
-//   );
-//   init(element, view);
-//   set('test', true);
-//   set('players', ['a']);
-//   set('test', false);
-//   set('test', true);
-//   t.pass();
-// });
-//
-// test('on + on', async t => {
-//   const view = (
-//     <div>
-//       {on2('test', test =>
-//         test ? (
-//           <div>
-//             {on2('players.$id', p => (
-//               <p>{p}</p>
-//             ))}
-//           </div>
-//         ) : (
-//           'no!'
-//         )
-//       )}
-//     </div>
-//   );
-//   init(element, view);
-//   set('test', true);
-//   set('players', ['a']);
-//   set('test', false);
-//   set('test', true);
-//   t.pass();
-// });
-//
-// test('dd-model select before options are set', async t => {
-//   const view = (
-//     <div>
-//       <select dd-model="yes">
-//         {on2('test').map(t => (
-//           <option value={t}>{t}</option>
-//         ))}
-//       </select>
-//     </div>
-//   );
-//   init(element, view);
-//   set('yes', 'hello');
-//   set('test', ['', 'hello', 'world']);
-//   await html();
-//   const select = document.querySelector('select');
-//   return Promise.resolve().then(() => {
-//     t.is(select!.value, 'hello');
-//   });
-// });
-//
-// test('Convenience', async t => {
-//   init(element, <div>Hello {on2('test')}</div>);
-//   set('test', 'world!');
-//   t.pass();
-// });
-//
-// test('Convenience view before domdom', async t => {
-//   const view = <div>Hello {on2('test')}</div>;
-//   init(element, view);
-//   set('test', 'world!');
-//   t.pass();
-// });
-//
+test.skip('filterOn and back', async t => {
+  const view = (
+    <div>
+      {on2('users')
+        .filterOn('test', (user, { onValue }) =>
+          new RegExp(onValue, 'i').test(user.name)
+        )
+        .map(user => (
+          <b>{user.name}</b>
+        ))}
+      <p>Because</p>
+    </div>
+  );
+  init(element, view);
+  set('test', '');
+  set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  t.is(await html(), '<div><b>One!</b><b>Two!</b><p>Because</p></div>');
+  set('test', 'two');
+  t.is(await html(), '<div><b>Two!</b><p>Because</p></div>');
+  set('test', '');
+  t.is(await html(), '<div><b>One!</b><b>Two!</b><p>Because</p></div>');
+});
+
+test('When + change', async t => {
+  const view = (
+    <div>
+      {on2('yes').map(t => {
+        switch (t) {
+          case true:
+            return <p>{on2('ok')}</p>;
+        }
+      })}
+    </div>
+  );
+  init(element, view);
+  set('yes', true);
+  set('yes', false);
+  set('yes', true);
+  set('ok', 'OK!');
+  t.is(await html(), '<div><p>OK!</p></div>');
+});
+
+test('When + change 2', async t => {
+  const view = (
+    <div>
+      {on2('yes').map(t => {
+        switch (t) {
+          case true:
+            return <p>{on2('ok')}</p>;
+        }
+      })}
+    </div>
+  );
+  init(element, view);
+  set('yes', true);
+  set('yes', false);
+  set('ok', 'OK!');
+  set('yes', true);
+  t.is(await html(), '<div><p>OK!</p></div>');
+});
+
+test.skip('When + filterOn', async t => {
+  const view = (
+    <div>
+      {on2('yes').map(t => {
+        switch (t) {
+          case true:
+            return (
+              <div>
+                {on2('users')
+                  .filterOn('test', (user, { onValue }) =>
+                    new RegExp(onValue, 'i').test(user.name)
+                  )
+                  .map(user => (
+                    <b>{user.name}</b>
+                  ))}
+                <p>Because</p>
+              </div>
+            );
+        }
+      })}
+    </div>
+  );
+  init(element, view);
+  set('test', 'two');
+  set('yes', true);
+  set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  t.is(await html(), '<div><div><b>Two!</b><p>Because</p></div></div>');
+  set('yes', false);
+  t.is(await html(), '<div></div>');
+  set('yes', true);
+  set('test', '');
+  t.is(
+    await html(),
+    '<div><div><b>One!</b><b>Two!</b><p>Because</p></div></div>'
+  );
+});
+
+test('Re-add', async t => {
+  const view = (
+    <div>
+      {on2('yes').map(t => (
+        <p>
+          {t} {on2('no')}
+        </p>
+      ))}
+    </div>
+  );
+  init(element, view);
+  set('yes', 'Yes!');
+  set('no', 'No!');
+  t.is(await html(), '<div><p>Yes! No!</p></div>');
+  unset('yes');
+  set('no', 'Well!');
+  set('yes', 'OK!');
+  t.is(await html(), '<div><p>OK! Well!</p></div>');
+});
+
+test.skip('Something something filter and add', async t => {
+  const view = (
+    <div>
+      {on2('users')
+        .filterOn('filter', (_, { onValue }) => onValue)
+        .map(u => (
+          <p>
+            {u} {on2('yes')}
+          </p>
+        ))}
+    </div>
+  );
+  init(element, view);
+  set('filter', true);
+  set('yes', 'y');
+  set('users', {
+    one: 'o',
+    two: 't',
+  });
+  t.is(await html(), '<div><p>o y</p><p>t y</p></div>');
+  set('filter', false);
+  t.is(await html(), '<div></div>');
+  set('yes', 'n');
+  set('filter', true);
+  t.is(await html(), '<div><p>o n</p><p>t n</p></div>');
+});
+
+test('Simplest', async t => {
+  const view = (
+    <div>
+      {on2('yes').map(() => (
+        <p>{on2('no')}</p>
+      ))}
+    </div>
+  );
+  init(element, view);
+
+  set('yes', true);
+  set('no', 'n');
+  t.is(await html(), '<div><p>n</p></div>');
+  set('no', 'n');
+});
+
+test.skip('filterOn mounted destroy mounted', async t => {
+  const view = (
+    <div>
+      {on2('yes').map(t => {
+        switch (t) {
+          case true:
+            return (
+              <div>
+                {on2('users')
+                  .filterOn('filter', (u, { onValue }) => onValue === u.name)
+                  .map(u => u.name)}
+              </div>
+            );
+        }
+      })}
+    </div>
+  );
+  init(element, view);
+
+  set('yes', true);
+  set('filter', 'one');
+  set('users.1', { name: 'one', test: 'yes' });
+  set('users.2', { name: 'two' });
+
+  t.is(await html(), '<div><div>one</div></div>');
+
+  set('yes', false);
+  t.is(await html(), '<div></div>');
+
+  set('yes', true);
+  t.is(await html(), '<div><div>one</div></div>');
+});
+
+test.skip('When + filterOn const element', async t => {
+  const view = (
+    <div>
+      {on2('show').map(t => {
+        switch (t) {
+          case true:
+            return (
+              <div>
+                {on2('users')
+                  .filterOn(
+                    'filter',
+                    (row, { onValue }) => row.name === onValue
+                  )
+                  .map(task => (
+                    <p>{task.name}</p>
+                  ))}
+              </div>
+            );
+        }
+      })}
+    </div>
+  );
+
+  init(element, view);
+
+  set('users', { 1: { name: 'a' }, 2: { name: 'b' } });
+  set('show', true);
+  set('filter', 'a');
+  set('show', false);
+  set('show', true);
+  t.deepEqual(await html(), '<div><div><p>a</p></div></div>');
+});
+
+test.skip('When + filterOn const text', async t => {
+  const view = (
+    <div>
+      {on2('show').map(t => {
+        switch (t) {
+          case true:
+            return (
+              <div>
+                {on2('users')
+                  .filterOn(
+                    'filter',
+                    (row, { onValue }) => row.name === onValue
+                  )
+                  .map(task => task.name)}
+              </div>
+            );
+        }
+      })}
+    </div>
+  );
+  init(element, view);
+  set('users', { 1: { name: 'a' }, 2: { name: 'b' } });
+  set('show', true);
+  set('filter', 'a');
+  set('show', false);
+  set('show', true);
+  t.deepEqual(await html(), '<div><div>a</div></div>');
+});
+
+test.skip('On child attribute listener', async t => {
+  const Yes = ({ subPath }) => {
+    return <a href={on2(subPath('link'))}>test</a>;
+  };
+
+  const view = (
+    <div>
+      {on2('yes').map((ok, { subPath }) => (
+        <div>
+          {ok.text} <Yes subPath={subPath} />
+        </div>
+      ))}
+    </div>
+  );
+  init(element, view);
+  set('yes', {
+    link: 'https://nrk.no',
+    text: 'Some link:',
+  });
+  t.is(
+    await html(),
+    '<div><div>Some link: <a href="https://nrk.no">test</a></div></div>'
+  );
+});
+
+test('Same listener twice no problem', async t => {
+  const view = (
+    <div>
+      {on2('test').map(t1 => (
+        <div>
+          {t1} and {on2('test')}
+        </div>
+      ))}
+    </div>
+  );
+  init(element, view);
+  set('test', 'yes');
+  t.is(await html(), '<div><div>yes and yes</div></div>');
+});
+
+test('Same listener twice no problem on when', async t => {
+  const Yes = () => {
+    return <div>{on2('test')}</div>;
+  };
+
+  const view = (
+    <div>
+      {on2('test').map(() => (
+        <Yes />
+      ))}
+    </div>
+  );
+  init(element, view);
+  set('test', 'OK!');
+  t.is(await html(), '<div><div>OK!</div></div>');
+});
+
+test('Function in on', async t => {
+  const Yes = () => {
+    return (
+      <div>
+        {on2('yes').map(() => (
+          <p>A</p>
+        ))}
+        {on2('yes').map(() => (
+          <p>B</p>
+        ))}
+        {on2('yes').map(() => (
+          <p>C</p>
+        ))}
+      </div>
+    );
+  };
+
+  init(element);
+  set('yes', 'ok');
+  const view = (
+    <div>
+      {on2('yes').map(() => (
+        <Yes />
+      ))}
+    </div>
+  );
+  element.append(view);
+  t.is(await html(), '<div><div><p>A</p><p>B</p><p>C</p></div></div>');
+  t.pass();
+});
+
+test('When and on no duplicated', async t => {
+  const Yes = () => {
+    return (
+      <div>
+        {on2('myse.type').map(() => (
+          <p>A</p>
+        ))}
+        {on2('myse.type').map(() => (
+          <p>B</p>
+        ))}
+        {on2('myse.type').map(() => (
+          <p>C</p>
+        ))}
+      </div>
+    );
+  };
+
+  const view = (
+    <div>
+      {on2('route').map(route => {
+        switch (route) {
+          case 'ready':
+            return <Yes />;
+        }
+      })}
+    </div>
+  );
+  init(element, view);
+  set('route', 'login1');
+  set('myse', {
+    type: 'proppgave',
+  });
+  set('route', 'ready');
+  t.is(await html(), '<div><div><p>A</p><p>B</p><p>C</p></div></div>');
+});
+
+test('when + or', async t => {
+  const view = (
+    <div>
+      {on2('test')
+        .map(t => {
+          switch (t) {
+            case false:
+              return '+';
+            default:
+              return '-';
+          }
+        })
+        .or('+')}
+    </div>
+  );
+  init(element, view);
+  t.is(await html(), '<div>+</div>');
+  set('test', true);
+  t.is(await html(), '<div>-</div>');
+  set('test', false);
+  t.is(await html(), '<div>+</div>');
+});
+
+test('When + pathifier', async t => {
+  const view = (
+    <div>
+      {on2('test').map(t => {
+        switch (t) {
+          case true:
+            return (
+              <div>
+                {on2('players').map(p => (
+                  <p>{p}</p>
+                ))}
+              </div>
+            );
+        }
+      })}
+    </div>
+  );
+  init(element, view);
+  set('test', true);
+  set('players', ['a']);
+  set('test', false);
+  set('test', true);
+  t.pass();
+});
+
+test('on + pathifier', async t => {
+  const view = (
+    <div>
+      {on2('test').map(test =>
+        test ? (
+          <div>
+            {on2('players').map(p => (
+              <p>{p}</p>
+            ))}
+          </div>
+        ) : (
+          'no!'
+        )
+      )}
+    </div>
+  );
+  init(element, view);
+  set('test', true);
+  set('players', ['a']);
+  set('test', false);
+  set('test', true);
+  t.pass();
+});
+
+test('on + on', async t => {
+  const view = (
+    <div>
+      {on2('test').map(test =>
+        test ? (
+          <div>
+            {on2('players.$id').map(p => (
+              <p>{p}</p>
+            ))}
+          </div>
+        ) : (
+          'no!'
+        )
+      )}
+    </div>
+  );
+  init(element, view);
+  set('test', true);
+  set('players', ['a']);
+  set('test', false);
+  set('test', true);
+  t.pass();
+});
+
+test.skip('dd-model select before options are set', async t => {
+  const view = (
+    <div>
+      <select dd-model="yes">
+        {on2('test').map(t => (
+          <option value={t}>{t}</option>
+        ))}
+      </select>
+    </div>
+  );
+  init(element, view);
+  set('yes', 'hello');
+  set('test', ['', 'hello', 'world']);
+  await html();
+  const select = document.querySelector('select');
+  return Promise.resolve().then(() => {
+    t.is(select!.value, 'hello');
+  });
+});
+
+test('Convenience', async t => {
+  init(element, <div>Hello {on2('test')}</div>);
+  set('test', 'world!');
+  t.pass();
+});
+
+test('Convenience view before domdom', async t => {
+  const view = <div>Hello {on2('test')}</div>;
+  init(element, view);
+  set('test', 'world!');
+  t.pass();
+});
+
 // test('Flags in components are work and cleared', async t => {
 //   let counter = 0;
 //
@@ -1597,101 +1611,101 @@ test('Function context', async t => {
 //   t.is(await html(), '<div><div>Test is yo. <div>uhm</div></div></div>');
 //   t.is(counter, 2);
 // });
-//
-// test('Element with event but not added via domdom', async t => {
-//   const el = <button onClick={t.pass}>Click me!</button>;
-//   element.appendChild(el);
-//   el.click();
-// });
-//
-// test('Hodor as a child', async t => {
-//   const Parent = ({ ok }: { ok: string }, { children }: Opts) => {
-//     return (
-//       <div>
-//         {children} - {ok}
-//       </div>
-//     );
-//   };
-//
-//   init(
-//     element,
-//     <div>
-//       <Parent ok="OK!">{on2('test')}</Parent>
-//     </div>
-//   );
-//   set('test', 'OK!');
-//   t.is(await html(), '<div><div>OK! - OK!</div></div>');
-//   t.pass();
-// });
-//
-// test('Re-usable domdom', async t => {
-//   init(element);
-//
-//   const Hello = () => {
-//     return <div>Hello {on!('test')}</div>;
-//   };
-//
-//   set('test', 'World!');
-//   element.appendChild(
-//     <main>
-//       <Hello />
-//     </main>
-//   );
-//   t.is(await html(), '<main><div>Hello World!</div></main>');
-// });
-//
-// test('Element with hodor but not added via domdom', async t => {
-//   init(
-//     element,
-//     (() => {
-//       const a = <main />;
-//       const c = <span>{on2('test')}</span>;
-//       setTimeout(() => {
-//         const b = document.createElement('div');
-//         a.appendChild(b);
-//         setTimeout(() => {
-//           b.appendChild(c);
-//         }, 50);
-//       }, 50);
-//
-//       return a;
-//     })()
-//   );
-//   set('test', 'Hello!');
-//   await new Promise(r => {
-//     setTimeout(async () => {
-//       t.is(await html(), '<main><div><span>Hello!</span></div></main>');
-//       r();
-//     }, 150);
-//   });
-// });
-//
-// test('on with properties', async t => {
-//   const div = (
-//     <div>
-//       {on2('users.$id', (user, { $id }) => {
-//         return (
-//           <div>
-//             {$id}: {user.name}
-//           </div>
-//         );
-//       })}
-//     </div>
-//   );
-//   init(element, div);
-//
-//   set('users', {
-//     a: { name: 'A!' },
-//     b: { name: 'B!' },
-//   });
-//   t.is(await html(), '<div><div>a: A!</div><div>b: B!</div></div>');
-// });
-//
-// test('properties without value should not crash', async t => {
-//   init(element, <div style={undefined} />);
-//   t.is(await html(), '<div style=""></div>');
-// });
-//
+
+test('Element with event but not added via domdom', async t => {
+  const el = <button onClick={t.pass}>Click me!</button>;
+  element.appendChild(el);
+  el.click();
+});
+
+test('Hodor as a child', async t => {
+  const Parent = ({ ok }: { ok: string }, { children }: Opts) => {
+    return (
+      <div>
+        {children} - {ok}
+      </div>
+    );
+  };
+
+  init(
+    element,
+    <div>
+      <Parent ok="OK!">{on2('test')}</Parent>
+    </div>
+  );
+  set('test', 'OK!');
+  t.is(await html(), '<div><div>OK! - OK!</div></div>');
+  t.pass();
+});
+
+test('Re-usable domdom', async t => {
+  init(element);
+
+  const Hello = () => {
+    return <div>Hello {on2('test')}</div>;
+  };
+
+  set('test', 'World!');
+  element.appendChild(
+    <main>
+      <Hello />
+    </main>
+  );
+  t.is(await html(), '<main><div>Hello World!</div></main>');
+});
+
+test('Element with hodor but not added via domdom', async t => {
+  init(
+    element,
+    (() => {
+      const a = <main />;
+      const c = <span>{on2('test')}</span>;
+      setTimeout(() => {
+        const b = document.createElement('div');
+        a.appendChild(b);
+        setTimeout(() => {
+          b.appendChild(c);
+        }, 50);
+      }, 50);
+
+      return a;
+    })()
+  );
+  set('test', 'Hello!');
+  await new Promise(r => {
+    setTimeout(async () => {
+      t.is(await html(), '<main><div><span>Hello!</span></div></main>');
+      r();
+    }, 150);
+  });
+});
+
+test('on with properties', async t => {
+  const div = (
+    <div>
+      {on2('users.$id').map((user, { $id }) => {
+        return (
+          <div>
+            {$id}: {user.name}
+          </div>
+        );
+      })}
+    </div>
+  );
+  init(element, div);
+
+  set('users', {
+    a: { name: 'A!' },
+    b: { name: 'B!' },
+  });
+  t.is(await html(), '<div><div>a: A!</div><div>b: B!</div></div>');
+});
+
+test('properties without value should not crash', async t => {
+  init(element, <div style={undefined} />);
+  t.is(await html(), '<div style=""></div>');
+});
+
 // test('path should not be part of data', async t => {
 //   t.plan(3);
 //   init(element, <div>{on2('test')}</div>);
@@ -1706,7 +1720,7 @@ test('Function context', async t => {
 //   }).listen();
 //   t.is('<div>{"hello":"world"}</div>', await html());
 // });
-//
+
 // test('dd-model', async t => {
 //   const input = <input type="text" dd-model="test" />;
 //   init(element, <div>{input}</div>);
@@ -1716,54 +1730,54 @@ test('Function context', async t => {
 //   input.dispatchEvent(event);
 //   t.is(get('test'), 'Yes!');
 // });
-//
-// test('sub-path set', async t => {
-//   init(
-//     element,
-//     <div>
-//       {on2('test', (_, { subPath }) => (
-//         <button onClick={() => set(subPath('click'), true)} />
-//       ))}
-//     </div>
-//   );
-//   set('test', { show: true });
-//   await html();
-//   document.querySelector('button')!.dispatchEvent(new Event('click'));
-//   t.deepEqual(get('test'), {
-//     show: true,
-//     click: true,
-//   });
-// });
-//
-// test('sub-path get', async t => {
-//   init(
-//     element,
-//     <div>
-//       {on2('test', (_, { subPath }) => (
-//         <button onClick={() => set(subPath('click'), !get(subPath('click')))} />
-//       ))}
-//     </div>
-//   );
-//   set('test', { show: true });
-//   await html();
-//   document.querySelector('button')!.dispatchEvent(new Event('click'));
-//   t.deepEqual(get('test'), {
-//     show: true,
-//     click: true,
-//   });
-//   document.querySelector('button')!.dispatchEvent(new Event('click'));
-//   t.deepEqual(get('test'), {
-//     show: true,
-//     click: false,
-//   });
-// });
-//
+
+test('sub-path set', async t => {
+  init(
+    element,
+    <div>
+      {on2('test').map((_, { child }) => (
+        <button onClick={() => set(child('click'), true)} />
+      ))}
+    </div>
+  );
+  set('test', { show: true });
+  await html();
+  document.querySelector('button')!.dispatchEvent(new Event('click'));
+  t.deepEqual(get('test'), {
+    show: true,
+    click: true,
+  });
+});
+
+test('sub-path get', async t => {
+  init(
+    element,
+    <div>
+      {on2('test').map((_, { child }) => (
+        <button onClick={() => set(child('click'), !get(child('click')))} />
+      ))}
+    </div>
+  );
+  set('test', { show: true });
+  await html();
+  document.querySelector('button')!.dispatchEvent(new Event('click'));
+  t.deepEqual(get('test'), {
+    show: true,
+    click: true,
+  });
+  document.querySelector('button')!.dispatchEvent(new Event('click'));
+  t.deepEqual(get('test'), {
+    show: true,
+    click: false,
+  });
+});
+
 // test('sub-path trigger', async t => {
 //   init(
 //     element,
 //     <div>
-//       {on2('test', (_, { subPath }) => (
-//         <button onClick={() => trigger(subPath('click'))} />
+//       {on2('test').map( (_, { subPath }) => (
+//         <button onClick={() => trigger(child('click'))} />
 //       ))}
 //     </div>
 //   );
@@ -1772,17 +1786,17 @@ test('Function context', async t => {
 //   await html();
 //   document.querySelector('button')!.dispatchEvent(new Event('click'));
 // });
-//
+
 // test('Domponent-listeners should not affect global listeners', async t => {
-//   on2('+!* test', t.pass).listen();
+//   on2('+!* test').map( t.pass).listen();
 //
 //   function T() {
 //     const e = <div></div>;
-//     on2('+!* test', v => (e.innerHTML = v)).attach(e);
+//     on2('+!* test').map( v => (e.innerHTML = v)).attach(e);
 //     return e;
 //   }
 //
-//   init(element, <div>{on2('show', show => (show ? <T /> : null))}</div>);
+//   init(element, <div>{on2('show').map( show => (show ? <T /> : null))}</div>);
 //   await html();
 //   set('show', true);
 //   await html();
@@ -1790,19 +1804,19 @@ test('Function context', async t => {
 //   await html();
 //   set('test', 'YES!');
 // });
-//
+
 // test('global listener start by itself', async t => {
 //   on2('+!* test', t.pass).listen();
 //   set('test', 'YES!');
 // });
-//
+
 // test('global listener with then - start by itself', async t => {
 //   on2('test')
 //     .then(t.pass)
 //     .listen();
 //   set('test', 'YES!');
 // });
-//
+
 // test('TS and types', async t => {
 //   interface Ok {
 //     name: string;
@@ -1812,55 +1826,55 @@ test('Function context', async t => {
 //     name: 'Hello',
 //   };
 //
-//   on<Ok>('!+* ok', ok => {
+//   on2<Ok>('!+* ok', ok => {
 //     t.is(ok.name, 'Hello');
 //   }).listen();
 //   set('ok', ok);
 // });
-//
-// test('attribute class is mapped to className', async t => {
-//   init(element, <div class="yes" />);
-//   t.is(await html(), '<div class="yes"></div>');
-// });
-//
-// test('sub-path', async t => {
-//   set('players.a', { name: 'A', level: 1 });
-//   set('players.b', { name: 'B', level: 2 });
-//
-//   init(
-//     element,
-//     <div>
-//       {on2('players.$id', (player, { subPath }) => (
-//         <div>
-//           {player.name}/{on2(subPath('level'))}
-//         </div>
-//       ))}
-//     </div>
-//   );
-//   t.is(await html(), '<div><div>A/1</div><div>B/2</div></div>');
-//   set('players.a.level', 42);
-//   t.is(await html(), '<div><div>A/42</div><div>B/2</div></div>');
-// });
-//
-// test('sub-path pathifier', async t => {
-//   set('players.a', { name: 'A', level: 1 });
-//   set('players.b', { name: 'B', level: 2 });
-//
-//   init(
-//     element,
-//     <div>
-//       {on2('players').map((player, { subPath }) => (
-//         <div>
-//           {player.name}/{on2(subPath('level'))}
-//         </div>
-//       ))}
-//     </div>
-//   );
-//   t.is(await html(), '<div><div>A/1</div><div>B/2</div></div>');
-//   set('players.a.level', 42);
-//   t.is(await html(), '<div><div>A/42</div><div>B/2</div></div>');
-// });
-//
+
+test('attribute class is mapped to className', async t => {
+  init(element, <div class="yes" />);
+  t.is(await html(), '<div class="yes"></div>');
+});
+
+test('sub-path', async t => {
+  set('players.a', { name: 'A', level: 1 });
+  set('players.b', { name: 'B', level: 2 });
+
+  init(
+    element,
+    <div>
+      {on2('players.$id').map((player, { child }) => (
+        <div>
+          {player.name}/{on2(child('level'))}
+        </div>
+      ))}
+    </div>
+  );
+  t.is(await html(), '<div><div>A/1</div><div>B/2</div></div>');
+  set('players.a.level', 42);
+  t.is(await html(), '<div><div>A/42</div><div>B/2</div></div>');
+});
+
+test.skip('sub-path pathifier', async t => {
+  set('players.a', { name: 'A', level: 1 });
+  set('players.b', { name: 'B', level: 2 });
+
+  init(
+    element,
+    <div>
+      {on2('players').map((player, { child }) => (
+        <div>
+          {player.name}/{on2(child('level'))}
+        </div>
+      ))}
+    </div>
+  );
+  t.is(await html(), '<div><div>A/1</div><div>B/2</div></div>');
+  set('players.a.level', 42);
+  t.is(await html(), '<div><div>A/42</div><div>B/2</div></div>');
+});
+
 // test('standalone on', async t => {
 //   set('test', 'ing');
 //
@@ -1879,7 +1893,7 @@ test('Function context', async t => {
 //
 //   t.is(await html(), '<div><b>ing</b></div>');
 // });
-//
+
 // test('sub-path pathifier standalone on', async t => {
 //   set('players.a', { name: 'A', level: 1 });
 //
@@ -1904,14 +1918,14 @@ test('Function context', async t => {
 //   set('players.a.level', 42);
 //   t.is(await html(), '<main><div>A<b>42</b></div></main>');
 // });
-//
-// test('data attribute', async t => {
-//   const a = <li data-value="yes"></li>;
-//   t.is(a.dataset.value, 'yes');
-// });
-//
+
+test('data attribute', async t => {
+  const a = <li data-value="yes"></li>;
+  t.is(a.dataset.value, 'yes');
+});
+
 // test.skip('eh', async t => {
-//   on2('!+* filter.filter.inLibrary', value => {
+//   on2('!+* filter.filter.inLibrary').map( value => {
 //     console.log('value is now', value);
 //   }).listen();
 //   set('filter.filter.inLibrary', false);
