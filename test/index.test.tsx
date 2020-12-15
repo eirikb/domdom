@@ -1134,7 +1134,7 @@ test('When + change 2', async t => {
   t.is(await html(), '<div><p>OK!</p></div>');
 });
 
-test.skip('When + filterOn', async t => {
+test('When + filterOn 2', async t => {
   const view = (
     <div>
       {on2('yes').map(t => {
@@ -1142,7 +1142,40 @@ test.skip('When + filterOn', async t => {
           case true:
             return (
               <div>
-                {on2('users')
+                {on2('users.$')
+                  .filterOn('test', (user, { onValue }) =>
+                    new RegExp(onValue, 'i').test(user.name)
+                  )
+                  .map(user => (
+                    <b>{user.name}</b>
+                  ))}
+              </div>
+            );
+        }
+      })}
+    </div>
+  );
+  init(element, view);
+  set('yes', true);
+  set('test', 'two');
+  set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  t.is(await html(), '<div><div><b>Two!</b></div></div>');
+  set('yes', false);
+  t.is(await html(), '<div></div>');
+  set('yes', true);
+  set('test', '');
+  t.is(await html(), '<div><div><b>One!</b><b>Two!</b></div></div>');
+});
+
+test('When + filterOn', async t => {
+  const view = (
+    <div>
+      {on2('yes').map(t => {
+        switch (t) {
+          case true:
+            return (
+              <div>
+                {on2('users.$')
                   .filterOn('test', (user, { onValue }) =>
                     new RegExp(onValue, 'i').test(user.name)
                   )
