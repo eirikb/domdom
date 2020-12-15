@@ -1267,7 +1267,7 @@ test('Simplest', async t => {
   set('no', 'n');
 });
 
-test.skip('filterOn mounted destroy mounted', async t => {
+test('filterOn mounted destroy mounted', async t => {
   const view = (
     <div>
       {on2('yes').map(t => {
@@ -1275,7 +1275,7 @@ test.skip('filterOn mounted destroy mounted', async t => {
           case true:
             return (
               <div>
-                {on2('users')
+                {on2('users.$')
                   .filterOn('filter', (u, { onValue }) => onValue === u.name)
                   .map(u => u.name)}
               </div>
@@ -1300,7 +1300,7 @@ test.skip('filterOn mounted destroy mounted', async t => {
   t.is(await html(), '<div><div>one</div></div>');
 });
 
-test.skip('When + filterOn const element', async t => {
+test('When + filterOn const element', async t => {
   const view = (
     <div>
       {on2('show').map(t => {
@@ -1308,7 +1308,7 @@ test.skip('When + filterOn const element', async t => {
           case true:
             return (
               <div>
-                {on2('users')
+                {on2('users.$')
                   .filterOn(
                     'filter',
                     (row, { onValue }) => row.name === onValue
@@ -1333,7 +1333,7 @@ test.skip('When + filterOn const element', async t => {
   t.deepEqual(await html(), '<div><div><p>a</p></div></div>');
 });
 
-test.skip('When + filterOn const text', async t => {
+test('When + filterOn const text', async t => {
   const view = (
     <div>
       {on2('show').map(t => {
@@ -1341,7 +1341,7 @@ test.skip('When + filterOn const text', async t => {
           case true:
             return (
               <div>
-                {on2('users')
+                {on2('users.$')
                   .filterOn(
                     'filter',
                     (row, { onValue }) => row.name === onValue
