@@ -1,5 +1,5 @@
 import { Pathifier2 } from '@eirikb/data';
-import { Mountable } from 'types';
+import { Domode, Mountable } from 'types';
 
 export class Pathifier extends Pathifier2 implements Mountable {
   mounted() {
@@ -8,5 +8,10 @@ export class Pathifier extends Pathifier2 implements Mountable {
 
   unmounted() {
     this.off();
+  }
+
+  attach(node: Domode) {
+    node.mountables.push(this);
+    this.init();
   }
 }

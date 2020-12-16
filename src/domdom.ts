@@ -72,7 +72,7 @@ export class React {
 }
 
 export class Domdom {
-  private data: Data;
+  public readonly data: Data;
   React: React;
 
   constructor(data: Data) {
