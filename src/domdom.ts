@@ -1,24 +1,12 @@
-import { Data, ListenerCallback, Pathifier2 } from '@eirikb/data';
+import { Data, Pathifier2 } from '@eirikb/data';
 import { DomStower, StowerTransformer } from './dom-stower';
 import { DomSquint } from './dom-squint';
 import ddProps from './dd-props';
-import { Hodor } from './hodor';
-import { Domode, HodorCallback, Opts } from './types';
+import { Domode, Opts } from './types';
 import { Pathifier } from './pathifier';
 
-export type DomdomListenerCallback<T> = (
-  value: T,
-  props: {
-    subPath: string;
-    fullPath: string;
-    path: string;
-    p: (path: string) => string;
-    [key: string]: any;
-  }
-) => any;
-
 export class React {
-  private data: Data;
+  private readonly data: Data;
 
   constructor(data: Data) {
     this.data = data;
@@ -56,9 +44,6 @@ export class React {
 
     el.mounted = () => {
       for (const mountable of el.mountables) {
-        if (mountable instanceof Hodor && !mountable.element) {
-          mountable.element = el;
-        }
         mountable.mounted();
       }
     };
@@ -72,12 +57,7 @@ export class React {
 
     for (let index = 0; index < children.length; index++) {
       const child = children[index];
-      if (child instanceof Hodor) {
-        const hodor = child as Hodor;
-        el.mountables.push(hodor);
-        hodor.stower(index, stower);
-        hodor.element = el;
-      } else if (child instanceof Pathifier) {
+      if (child instanceof Pathifier) {
         el.mountables.push(child);
         child.transformer = new StowerTransformer(stower, index);
       } else {
@@ -100,19 +80,8 @@ export class Domdom {
     this.React = new React(this.data);
   }
 
-  on2 = (path: string): Pathifier2 => {
+  on = (path: string): Pathifier2 => {
     return new Pathifier(this.data, path);
-  };
-
-  wat = (path: string, cb: ListenerCallback) => {
-    this.data.on(path, cb);
-  };
-
-  on = <T = any>(path: string, cb?: HodorCallback<T>) => {
-    if (path.startsWith('>')) {
-      throw new Error('Sub path selector no longer supported');
-    }
-    return new Hodor<T>(this.data, path, cb);
   };
 
   set = (path: string, value: any, byKey?: string) => {

@@ -19,11 +19,6 @@ export interface Mountable {
 
 export type SubPath = (path: string) => string;
 
-export type HodorCallback<T> = (
-  value: T,
-  props: { [key: string]: any; path: string; subPath: SubPath }
-) => void;
-
 export interface Stower {
   add(value: any, index: number, subIndex?: number, path?: string): void;
 
