@@ -1,14 +1,10 @@
-import {
-  Data,
-  ListenerCallback,
-  Pathifier2,
-  StowerTransformer,
-} from '@eirikb/data';
-import { DomStower } from './dom-stower';
+import { Data, ListenerCallback, Pathifier2 } from '@eirikb/data';
+import { DomStower, StowerTransformer } from './dom-stower';
 import { DomSquint } from './dom-squint';
 import ddProps from './dd-props';
 import { Hodor } from './hodor';
 import { Domode, HodorCallback, Opts } from './types';
+import { Pathifier } from './pathifier';
 
 export type DomdomListenerCallback<T> = (
   value: T,
@@ -81,9 +77,9 @@ export class React {
         el.mountables.push(hodor);
         hodor.stower(index, stower);
         hodor.element = el;
-      } else if (child instanceof Pathifier2) {
-        const transformer = child.transformer as StowerTransformer;
-        transformer.stower(index, stower);
+      } else if (child instanceof Pathifier) {
+        el.mountables.push(child);
+        child.transformer = new StowerTransformer(stower, index);
       } else {
         stower.add(child, index);
       }
@@ -105,10 +101,7 @@ export class Domdom {
   }
 
   on2 = (path: string): Pathifier2 => {
-    const transformer = new StowerTransformer();
-    const pathifier = new Pathifier2(this.data, path, transformer);
-    pathifier.init();
-    return pathifier;
+    return new Pathifier(this.data, path);
   };
 
   wat = (path: string, cb: ListenerCallback) => {

@@ -4,7 +4,6 @@ import browserEnv from 'browser-env';
 import { Domdom } from '../src/domdom';
 import { Data } from '@eirikb/data';
 import { Opts } from '../src';
-// import { Opts } from '../src/types';
 
 browserEnv();
 
@@ -814,7 +813,7 @@ test('Remove or on on', async t => {
   t.is(await html(), '<div>hello</div>');
 });
 
-test.skip('on attributes', async t => {
+test('on attributes', async t => {
   const view = (
     <div>
       <button disabled={on2('disable').map(res => res)} />
@@ -827,7 +826,7 @@ test.skip('on attributes', async t => {
   t.is(await html(), '<div><button disabled=""></button></div>');
 });
 
-test.skip('on on attributes', async t => {
+test('on on attributes', async t => {
   const view = (
     <div>
       <button
@@ -857,7 +856,7 @@ test.skip('on on attributes', async t => {
   );
 });
 
-test.skip('on on attributes or', async t => {
+test('on on attributes or', async t => {
   const view = (
     <div>
       <button disabled={on2('canNotClick').or(true)} />
@@ -874,7 +873,7 @@ test.skip('on on attributes or', async t => {
   t.is(await html(), '<div><button disabled=""></button></div>');
 });
 
-test.skip('On on object attributes', async t => {
+test('On on object attributes', async t => {
   const view = (
     <div>
       <p style={on2('style')}>Test</p>
@@ -1362,16 +1361,16 @@ test('When + filterOn const text', async t => {
   t.deepEqual(await html(), '<div><div>a</div></div>');
 });
 
-test.skip('On child attribute listener', async t => {
+test('On child attribute listener', async t => {
   const Yes = ({ subPath }) => {
     return <a href={on2(subPath('link'))}>test</a>;
   };
 
   const view = (
     <div>
-      {on2('yes').map((ok, { subPath }) => (
+      {on2('yes').map((ok, { child }) => (
         <div>
-          {ok.text} <Yes subPath={subPath} />
+          {ok.text} <Yes subPath={child} />
         </div>
       ))}
     </div>
@@ -1582,11 +1581,11 @@ test('on + on', async t => {
   t.pass();
 });
 
-test.skip('dd-model select before options are set', async t => {
+test('dd-model select before options are set', async t => {
   const view = (
     <div>
       <select dd-model="yes">
-        {on2('test').map(t => (
+        {on2('test.$').map(t => (
           <option value={t}>{t}</option>
         ))}
       </select>

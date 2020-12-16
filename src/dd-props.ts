@@ -1,12 +1,35 @@
 import { Domode, Mountable } from './types';
-import { Hodor } from './hodor';
-import { Data } from '@eirikb/data';
+import { BaseTransformer, Data } from '@eirikb/data';
+import { Pathifier } from './pathifier';
 
-function setVal(element: any, key: string, value: any) {
-  if (typeof element[key] === 'object') {
-    Object.assign(element[key], value);
-  } else {
-    element[key] = value;
+class AttributeTransformer extends BaseTransformer {
+  private readonly element: Domode | HTMLInputElement;
+  private readonly key: string;
+
+  constructor(element: Domode | HTMLInputElement, key: string) {
+    super();
+    this.element = element;
+    this.key = key;
+  }
+
+  setVal(value: any) {
+    if (typeof value === 'object') {
+      Object.assign(this.element[this.key], value);
+    } else {
+      this.element[this.key] = value;
+    }
+  }
+
+  add(_: number, entry): void {
+    this.setVal(entry.value);
+  }
+
+  remove(_: number, __): void {
+    this.setVal(undefined);
+  }
+
+  update(_: number, __: number, entry): void {
+    this.setVal(entry.value);
   }
 }
 
@@ -18,7 +41,6 @@ export default (
 ) => {
   let _value: any;
   const inputElement = element as HTMLInputElement;
-  const domOde = element as Domode;
 
   function onChange(cb: Function) {
     element.addEventListener('keyup', () => cb(inputElement.value));
@@ -66,23 +88,9 @@ export default (
     }
 
     for (let [key, value] of Object.entries(props)) {
-      if (value && value.isHodor) {
-        const hodor = value as Hodor;
-        hodor.element = domOde;
-        let _or: any;
-        hodor.stower(0, {
-          add: (s: any) => setVal(element, key, s),
-          remove: () => {
-            if (_or) {
-              setVal(element, key, _or);
-            }
-          },
-          // or(_: number, or: any) {
-          //   _or = or;
-          //   setVal(element, key, or);
-          // },
-        });
-        mountables.push(hodor);
+      if (value && value instanceof Pathifier) {
+        value.transformer = new AttributeTransformer(element, key);
+        mountables.push(value);
       } else if (key.startsWith('on')) {
         const name = key[2].toLocaleLowerCase() + key.slice(3);
         element.addEventListener(name, (...args) => value(...args));

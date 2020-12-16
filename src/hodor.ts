@@ -4,11 +4,10 @@ import {
   Sorter,
   FilterOn,
   Filter,
-  Stower,
   Pathifier2,
   LooseObject,
 } from '@eirikb/data';
-import { Domode, HodorCallback, Mountable } from './types';
+import { Domode, HodorCallback, Mountable, Stower } from './types';
 
 function mapCallback<T>(value: T, props: any, output: HodorCallback<T>) {
   return output(value, {
