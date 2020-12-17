@@ -1,4 +1,4 @@
-import { Data, Pathifier2 } from '@eirikb/data';
+import { Data, Pathifier } from '@eirikb/data';
 import {
   DomStower,
   isProbablyPlainObject,
@@ -7,7 +7,7 @@ import {
 import { DomSquint } from './dom-squint';
 import ddProps from './dd-props';
 import { Domode, Opts } from './types';
-import { Pathifier } from './pathifier';
+import { DomPathifier } from './pathifier';
 
 export class React {
   private readonly data: Data;
@@ -61,7 +61,7 @@ export class React {
 
     for (let index = 0; index < children.length; index++) {
       const child = children[index];
-      if (child instanceof Pathifier) {
+      if (child instanceof DomPathifier) {
         el.mountables.push(child);
         child.transformer = new StowerTransformer(stower, index);
       } else {
@@ -84,8 +84,8 @@ export class Domdom {
     this.React = new React(this.data);
   }
 
-  on = (path: string): Pathifier2 => {
-    return new Pathifier(this.data, path);
+  on = (path: string): Pathifier => {
+    return new DomPathifier(this.data, path);
   };
 
   set = (path: string, value: any, byKey?: string) => {

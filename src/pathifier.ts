@@ -1,7 +1,7 @@
-import { Pathifier2 } from '@eirikb/data';
+import { Pathifier } from '@eirikb/data';
 import { Domode, Mountable } from 'types';
 
-export class Pathifier extends Pathifier2 implements Mountable {
+export class DomPathifier extends Pathifier implements Mountable {
   mounted() {
     this.init();
   }

@@ -1,6 +1,6 @@
 import { Domode, Mountable } from './types';
 import { BaseTransformer, Data } from '@eirikb/data';
-import { Pathifier } from './pathifier';
+import { DomPathifier } from './pathifier';
 
 class AttributeTransformer extends BaseTransformer {
   private readonly element: Domode | HTMLInputElement;
@@ -88,7 +88,7 @@ export default (
     }
 
     for (let [key, value] of Object.entries(props)) {
-      if (value && value instanceof Pathifier) {
+      if (value && value instanceof DomPathifier) {
         value.transformer = new AttributeTransformer(element, key);
         mountables.push(value);
       } else if (key.startsWith('on')) {
