@@ -23,7 +23,7 @@ async function html() {
   return element.innerHTML;
 }
 
-let { init, React, get, set, unset, on } = new Domdom(new Data());
+let { init, React, get, set, unset, on, behold } = new Domdom(new Data());
 
 test.beforeEach(() => {
   createElement();
@@ -35,6 +35,7 @@ test.beforeEach(() => {
   get = d.get;
   // trigger = d.trigger;
   on = d.on;
+  behold = d.behold;
 });
 
 test('Component', async t => {
@@ -1971,6 +1972,28 @@ test('data attribute', async t => {
   t.is(a.dataset.value, 'yes');
 });
 
+test('lists', async t => {
+  init(
+    element,
+    <div>
+      users:
+      <ul>
+        {on('users.$.*').map(_ => (
+          <li>{_.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
+
+  set('users', [{ name: 'eirik' }, { name: 'steffen' }]);
+  t.is(
+    await html(),
+    '<div>users:<ul><li>eirik</li><li>steffen</li></ul></div>'
+  );
+  set('users.0.name', 'wut');
+  t.is(await html(), '<div>users:<ul><li>wut</li><li>steffen</li></ul></div>');
+});
+
 // test.skip('eh', async t => {
 //   on('!+* filter.filter.inLibrary').map( value => {
 //     console.log('value is now', value);
@@ -1981,3 +2004,73 @@ test('data attribute', async t => {
 //   set('filter.filter.inLibrary', true);
 //   t.pass();
 // });
+
+test('behold', async t => {
+  init(element, <div>{on('katt')}</div>);
+
+  const data = behold();
+  data.katt = ':)';
+  t.is(await html(), '<div>:)</div>');
+  data.katt = ':O';
+  t.is(await html(), '<div>:O</div>');
+});
+
+test('behold 2', async t => {
+  init(
+    element,
+    <div>
+      {on('users.$.*').map(user => (
+        <b>{user.name}</b>
+      ))}
+    </div>
+  );
+
+  const data = behold();
+  data.users = { a: { name: 'hello' }, b: { name: 'world' } };
+  t.is(await html(), '<div><b>hello</b><b>world</b></div>');
+  data.users.a.name = 'wut';
+  t.is(await html(), '<div><b>wut</b><b>world</b></div>');
+  data.users.b = { name: 'wat' };
+  t.is(await html(), '<div><b>wut</b><b>wat</b></div>');
+  data.users.c = { name: ':)' };
+  t.is(await html(), '<div><b>wut</b><b>wat</b><b>:)</b></div>');
+});
+
+test('behold 3', async t => {
+  init(
+    element,
+    <div>
+      {on('users.$.*').map(user => (
+        <b>{user.name}</b>
+      ))}
+    </div>
+  );
+
+  const data = behold();
+  data.users = [{ name: 'hello' }, { name: 'world' }];
+  t.is(await html(), '<div><b>hello</b><b>world</b></div>');
+  data.users[0].name = 'wut';
+  t.is(await html(), '<div><b>wut</b><b>world</b></div>');
+  data.users[1] = { name: 'wat' };
+  t.is(await html(), '<div><b>wut</b><b>wat</b></div>');
+  data.users.push({ name: ':)' });
+  t.is(await html(), '<div><b>wut</b><b>wat</b><b>:)</b></div>');
+});
+
+test('behold 4', async t => {
+  init(
+    element,
+    <div>
+      {on('users.$.*').map(user => (
+        <b>{user.name}</b>
+      ))}
+    </div>
+  );
+
+  const data = behold();
+  data.users = [{ name: 'hello' }, { name: 'world' }];
+  data.users.push({ name: ':)' });
+  t.is(await html(), '<div><b>hello</b><b>world</b><b>:)</b></div>');
+  data.users.push({ name: ':)' });
+  t.is(await html(), '<div><b>hello</b><b>world</b><b>:)</b><b>:)</b></div>');
+});
