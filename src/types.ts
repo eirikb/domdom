@@ -17,8 +17,6 @@ export interface Mountable {
   unmounted();
 }
 
-export type SubPath = (path: string) => string;
-
 export interface Stower {
   add(value: any, index: number, subIndex?: number, path?: string): void;
 
