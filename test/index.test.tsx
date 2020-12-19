@@ -23,7 +23,9 @@ async function html() {
   return element.innerHTML;
 }
 
-let { init, React, get, set, unset, on } = new Domdom(new Data());
+let { init, React, get, set, unset, on, trigger, data } = new Domdom(
+  new Data()
+);
 
 test.beforeEach(() => {
   createElement();
@@ -34,6 +36,8 @@ test.beforeEach(() => {
   unset = d.unset;
   get = d.get;
   on = d.on;
+  trigger = d.trigger;
+  data = d.data;
 });
 
 test('Component', async t => {
@@ -437,193 +441,193 @@ test('Multiple child paths', async t => {
   t.is(await html(), '<div><div>oktestok</div></div>');
 });
 
-// test('Have some path with flags', async t => {
-//   const Ok = () => {
-//     const e = <div></div>;
-//     on('!+* b', wat => (e.innerHTML = wat)).attach(e);
-//     return (
-//       <div>
-//         {on('a')}
-//         {e}
-//       </div>
-//     );
-//   };
-//   init(element, <Ok />);
-//   set('a', 'A');
-//   set('b', 'B');
-//   t.is(await html(), '<div>A<div>B</div></div>');
-// });
-//
-// test('Have some path with flags without component', async t => {
-//   init(
-//     element,
-//     (() => {
-//       const e = <div></div>;
-//       on('!+* b', wat => (e.innerHTML = wat)).attach(e);
-//       return (
-//         <div>
-//           {on('a')}
-//           {e}
-//         </div>
-//       );
-//     })()
-//   );
-//   set('a', 'A');
-//   set('b', 'B');
-//   t.is(await html(), '<div>A<div>B</div></div>');
-// });
-//
-// test('Listeners are cleared', async t => {
-//   init(element);
-//
-//   let i = 0;
-//
-//   function Child() {
-//     const e = <div />;
-//     on('* test', () => i++).attach(e);
-//     return e;
-//   }
-//
-//   set('test', 'a');
-//   set('show', true);
-//   const div = (
-//     <div>
-//       {on('show', () => (
-//         <Child />
-//       ))}
-//     </div>
-//   );
-//   element.appendChild(div);
-//   await html();
-//   set('test', 'b');
-//   t.is(i, 1);
-//
-//   unset('show');
-//   await html();
-//   set('test', 'c');
-//   t.is(i, 1);
-// });
-//
-// test('Listeners are not overcleared', async t => {
-//   init(element);
-//   let i = 0;
-//
-//   function Child() {
-//     const e = <div />;
-//     on('* test', () => i++).attach(e);
-//     return e;
-//   }
-//
-//   set('test', 'a');
-//   set('show', 'yes');
-//   const div = (
-//     <div>
-//       {on('show', () => (
-//         <Child />
-//       ))}
-//     </div>
-//   );
-//   element.appendChild(div);
-//   await html();
-//   set('test', 'b');
-//   t.is(1, i);
-//
-//   set('show', 'yesyes');
-//   await html();
-//   set('test', 'c');
-//   t.is(2, i);
-//
-//   set('show', 'yesyesyes');
-//   await html();
-//   set('test', 'd');
-//   t.is(3, i);
-// });
-//
-// test('Listeners are support change of parent', async t => {
-//   init(element);
-//
-//   let i = 0;
-//
-//   function Child() {
-//     const e = <p />;
-//     on('* test', () => i++).attach(e);
-//     return e;
-//   }
-//
-//   set('test', 'a');
-//   set('show', 'yes');
-//   const div = (
-//     <div>
-//       {on('show', () => (
-//         <Child />
-//       ))}
-//     </div>
-//   );
-//   element.appendChild(div);
-//
-//   set('show', 'yesyes');
-//   await html();
-//   set('test', 'c');
-//   t.is(1, i);
-//
-//   unset('show');
-//   await html();
-//   set('test', 'd');
-//   t.is(1, i);
-// });
-//
-// test('Listeners in when', async t => {
-//   init(element);
-//   let i = 0;
-//
-//   function Child() {
-//     const e = <div />;
-//     on('* test', () => i++).attach(e);
-//     return e;
-//   }
-//
-//   set('test', 'a');
-//   set('show', true);
-//   const div = <div>{on('show', show => (show ? <Child /> : null))}</div>;
-//   element.appendChild(div);
-//   await html();
-//   set('test', 'b');
-//   t.is(1, i);
-//
-//   set('show', false);
-//   await html();
-//   set('test', 'c');
-//   t.is(1, i);
-// });
-//
-// test('Listener in when 2', async t => {
-//   init(element);
-//   let i = 0;
-//
-//   function Child() {
-//     const e = <div />;
-//     on('* test', () => i++).attach(e);
-//     return e;
-//   }
-//
-//   set('test', 'a');
-//   set('show', true);
-//   const div = <div>{on('show', show => (show ? <Child /> : null))}</div>;
-//   element.appendChild(div);
-//   await html();
-//   set('test', 'b');
-//   t.is(1, i);
-//
-//   set('show', false);
-//   await html();
-//   set('test', 'c');
-//   t.is(1, i);
-//
-//   set('show', true);
-//   await html();
-//   set('test', 'd');
-//   t.is(2, i);
-// });
+test('Have some path with flags', async t => {
+  const Ok = () => {
+    const e = <div></div>;
+    e.attach(on('b').map(wat => (e.innerHTML = wat)));
+    return (
+      <div>
+        {on('a')}
+        {e}
+      </div>
+    );
+  };
+  init(element, <Ok />);
+  set('a', 'A');
+  set('b', 'B');
+  t.is(await html(), '<div>A<div>B</div></div>');
+});
+
+test('Have some path with flags without component', async t => {
+  init(
+    element,
+    (() => {
+      const e = <div></div>;
+      e.attach(on('b').map(wat => (e.innerHTML = wat)));
+      return (
+        <div>
+          {on('a')}
+          {e}
+        </div>
+      );
+    })()
+  );
+  set('a', 'A');
+  set('b', 'B');
+  t.is(await html(), '<div>A<div>B</div></div>');
+});
+
+test.skip('Listeners are cleared', async t => {
+  init(element);
+
+  let i = 0;
+
+  function Child() {
+    const e = <div />;
+    e.attach(on('* test').map(() => i++));
+    return e;
+  }
+
+  set('test', 'a');
+  set('show', true);
+  const div = (
+    <div>
+      {on('show').map(() => (
+        <Child />
+      ))}
+    </div>
+  );
+  element.appendChild(div);
+  await html();
+  set('test', 'b');
+  t.is(i, 1);
+
+  unset('show');
+  await html();
+  set('test', 'c');
+  t.is(i, 1);
+});
+
+test.skip('Listeners are not overcleared', async t => {
+  init(element);
+  let i = 0;
+
+  function Child() {
+    const e = <div />;
+    e.attach(on('* test').map(() => i++));
+    return e;
+  }
+
+  set('test', 'a');
+  set('show', 'yes');
+  const div = (
+    <div>
+      {on('show').map(() => (
+        <Child />
+      ))}
+    </div>
+  );
+  element.appendChild(div);
+  await html();
+  set('test', 'b');
+  t.is(1, i);
+
+  set('show', 'yesyes');
+  await html();
+  set('test', 'c');
+  t.is(2, i);
+
+  set('show', 'yesyesyes');
+  await html();
+  set('test', 'd');
+  t.is(3, i);
+});
+
+test.skip('Listeners are support change of parent', async t => {
+  init(element);
+
+  let i = 0;
+
+  function Child() {
+    const e = <p />;
+    e.attach(on('* test').map(() => i++));
+    return e;
+  }
+
+  set('test', 'a');
+  set('show', 'yes');
+  const div = (
+    <div>
+      {on('show').map(() => (
+        <Child />
+      ))}
+    </div>
+  );
+  element.appendChild(div);
+
+  set('show', 'yesyes');
+  await html();
+  set('test', 'c');
+  t.is(1, i);
+
+  unset('show');
+  await html();
+  set('test', 'd');
+  t.is(1, i);
+});
+
+test.skip('Listeners in when', async t => {
+  init(element);
+  let i = 0;
+
+  function Child() {
+    const e = <div />;
+    e.attach(on('test').map(() => i++));
+    return e;
+  }
+
+  set('test', 'a');
+  set('show', true);
+  const div = <div>{on('show').map(show => (show ? <Child /> : null))}</div>;
+  element.appendChild(div);
+  await html();
+  set('test', 'b');
+  t.is(1, i);
+
+  set('show', false);
+  await html();
+  set('test', 'c');
+  t.is(1, i);
+});
+
+test.skip('Listener in when 2', async t => {
+  init(element);
+  let i = 0;
+
+  function Child() {
+    const e = <div />;
+    e.attach(on('test').map(() => i++));
+    return e;
+  }
+
+  set('test', 'a');
+  set('show', true);
+  const div = <div>{on('show').map(show => (show ? <Child /> : null))}</div>;
+  element.appendChild(div);
+  await html();
+  set('test', 'b');
+  t.is(1, i);
+
+  set('show', false);
+  await html();
+  set('test', 'c');
+  t.is(1, i);
+
+  set('show', true);
+  await html();
+  set('test', 'd');
+  t.is(2, i);
+});
 
 test('Mounted', async t => {
   t.plan(1);
@@ -1613,50 +1617,52 @@ test('Convenience view before domdom', async t => {
   t.pass();
 });
 
-// test('Flags in components are work and cleared', async t => {
-//   let counter = 0;
-//
-//   const Hello = () => {
-//     const e = <div>Hello!</div>;
-//     on('!+* tast', test => {
-//       counter++;
-//       e.textContent = test;
-//     }).attach(e);
-//     return e;
-//   };
-//
-//   const view = (
-//     <div>
-//       {on('test', test => (
-//         <div>
-//           Test is {test}. <Hello />
-//         </div>
-//       ))}
-//     </div>
-//   );
-//   init(element, view);
-//
-//   t.is(await html(), '<div></div>');
-//   set('test', 'world!');
-//   t.is(await html(), '<div><div>Test is world!. <div>Hello!</div></div></div>');
-//   t.is(counter, 0);
-//
-//   set('tast', 'ing');
-//   t.is(await html(), '<div><div>Test is world!. <div>ing</div></div></div>');
-//   t.is(counter, 1);
-//
-//   unset('test');
-//   t.is(await html(), '<div></div>');
-//   t.is(counter, 1);
-//
-//   set('tast', 'uhm');
-//   t.is(await html(), '<div></div>');
-//   t.is(counter, 1);
-//
-//   set('test', 'yo');
-//   t.is(await html(), '<div><div>Test is yo. <div>uhm</div></div></div>');
-//   t.is(counter, 2);
-// });
+test.skip('Flags in components are work and cleared', async t => {
+  let counter = 0;
+
+  const Hello = () => {
+    const e = <div>Hello!</div>;
+    e.attach(
+      on('tast').map(test => {
+        counter++;
+        e.textContent = test;
+      })
+    );
+    return e;
+  };
+
+  const view = (
+    <div>
+      {on('test').map(test => (
+        <div>
+          Test is {test}. <Hello />
+        </div>
+      ))}
+    </div>
+  );
+  init(element, view);
+
+  t.is(await html(), '<div></div>');
+  set('test', 'world!');
+  t.is(await html(), '<div><div>Test is world!. <div>Hello!</div></div></div>');
+  t.is(counter, 0);
+
+  set('tast', 'ing');
+  t.is(await html(), '<div><div>Test is world!. <div>ing</div></div></div>');
+  t.is(counter, 1);
+
+  unset('test');
+  t.is(await html(), '<div></div>');
+  t.is(counter, 1);
+
+  set('tast', 'uhm');
+  t.is(await html(), '<div></div>');
+  t.is(counter, 1);
+
+  set('test', 'yo');
+  t.is(await html(), '<div><div>Test is yo. <div>uhm</div></div></div>');
+  t.is(counter, 2);
+});
 
 test('Element with event but not added via domdom', async t => {
   const el = <button onClick={t.pass}>Click me!</button>;
@@ -1752,30 +1758,30 @@ test('properties without value should not crash', async t => {
   t.is(await html(), '<div style=""></div>');
 });
 
-// test('path should not be part of data', async t => {
-//   t.plan(3);
-//   init(element, <div>{on('test')}</div>);
-//   on('!+* test', val => {
-//     t.deepEqual(val, { hello: 'world' });
-//   }).listen();
-//   set('test', {
-//     hello: 'world',
-//   });
-//   on('!+* test', val => {
-//     t.deepEqual(val, { hello: 'world' });
-//   }).listen();
-//   t.is('<div>{"hello":"world"}</div>', await html());
-// });
+test('path should not be part of data', async t => {
+  t.plan(3);
+  init(element, <div>{on('test')}</div>);
+  data.on('!+* test', val => {
+    t.deepEqual(val, { hello: 'world' });
+  });
+  set('test', {
+    hello: 'world',
+  });
+  data.on('!+* test', val => {
+    t.deepEqual(val, { hello: 'world' });
+  });
+  t.is('<div>{"hello":"world"}</div>', await html());
+});
 
-// test('dd-model', async t => {
-//   const input = <input type="text" dd-model="test" />;
-//   init(element, <div>{input}</div>);
-//   await html();
-//   const event = new Event('input');
-//   input.value = 'Yes!';
-//   input.dispatchEvent(event);
-//   t.is(get('test'), 'Yes!');
-// });
+test('dd-model', async t => {
+  const input = <input type="text" dd-model="test" />;
+  init(element, <div>{input}</div>);
+  await html();
+  const event = new Event('input');
+  input.value = 'Yes!';
+  input.dispatchEvent(event);
+  t.is(get('test'), 'Yes!');
+});
 
 test('sub-path set', async t => {
   init(
@@ -1818,65 +1824,63 @@ test('sub-path get', async t => {
   });
 });
 
-// test('sub-path trigger', async t => {
-//   init(
-//     element,
-//     <div>
-//       {on('test').map( (_, { subPath }) => (
-//         <button onClick={() => trigger(child('click'))} />
-//       ))}
-//     </div>
-//   );
-//   on('= test.click', t.pass).listen();
-//   set('test', { show: true });
-//   await html();
-//   document.querySelector('button')!.dispatchEvent(new Event('click'));
-// });
+test('sub-path trigger', async t => {
+  init(
+    element,
+    <div>
+      {on('test').map((_, { child }) => (
+        <button onClick={() => trigger(child('click'))} />
+      ))}
+    </div>
+  );
+  data.on('= test.click', t.pass);
+  set('test', { show: true });
+  await html();
+  document.querySelector('button')!.dispatchEvent(new Event('click'));
+});
 
-// test('Domponent-listeners should not affect global listeners', async t => {
-//   on('+!* test').map( t.pass).listen();
-//
-//   function T() {
-//     const e = <div></div>;
-//     on('+!* test').map( v => (e.innerHTML = v)).attach(e);
-//     return e;
-//   }
-//
-//   init(element, <div>{on('show').map( show => (show ? <T /> : null))}</div>);
-//   await html();
-//   set('show', true);
-//   await html();
-//   set('show', false);
-//   await html();
-//   set('test', 'YES!');
-// });
+test('Domponent-listeners should not affect global listeners', async t => {
+  data.on('+!* test', t.pass);
 
-// test('global listener start by itself', async t => {
-//   on('+!* test', t.pass).listen();
-//   set('test', 'YES!');
-// });
+  function T() {
+    const e = <div></div>;
+    e.attach(on('test').map(v => (e.innerHTML = v)));
+    return e;
+  }
 
-// test('global listener with then - start by itself', async t => {
-//   on('test')
-//     .then(t.pass)
-//     .listen();
-//   set('test', 'YES!');
-// });
+  init(element, <div>{on('show').map(show => (show ? <T /> : null))}</div>);
+  await html();
+  set('show', true);
+  await html();
+  set('show', false);
+  await html();
+  set('test', 'YES!');
+});
 
-// test('TS and types', async t => {
-//   interface Ok {
-//     name: string;
-//   }
-//
-//   const ok: Ok = {
-//     name: 'Hello',
-//   };
-//
-//   on<Ok>('!+* ok', ok => {
-//     t.is(ok.name, 'Hello');
-//   }).listen();
-//   set('ok', ok);
-// });
+test('global listener start by itself', async t => {
+  data.on('+!* test', t.pass);
+  set('test', 'YES!');
+});
+
+test('TS and types', async t => {
+  interface Ok {
+    name: string;
+  }
+
+  const ok: Ok = {
+    name: 'Hello',
+  };
+
+  init(
+    element,
+    <div>
+      {on('ok').map<Ok>(ok => {
+        t.is(ok.name, 'Hello');
+      })}
+    </div>
+  );
+  set('ok', ok);
+});
 
 test('attribute class is mapped to className', async t => {
   init(element, <div class="yes" />);
@@ -1921,49 +1925,53 @@ test('sub-path pathifier', async t => {
   t.is(await html(), '<div><div>A/42</div><div>B/2</div></div>');
 });
 
-// test('standalone on', async t => {
-//   set('test', 'ing');
-//
-//   init(
-//     element,
-//     <div>
-//       {(() => {
-//         const e = <b />;
-//         on('!+* test', res => {
-//           e.textContent = res;
-//         }).attach(e);
-//         return e;
-//       })()}
-//     </div>
-//   );
-//
-//   t.is(await html(), '<div><b>ing</b></div>');
-// });
+test('standalone on', async t => {
+  set('test', 'ing');
 
-// test('sub-path pathifier standalone on', async t => {
-//   set('players.a', { name: 'A', level: 1 });
-//
-//   init(
-//     element,
-//     <main>
-//       {on('players').map((player, { subPath }) => (
-//         <div>
-//           {player.name}
-//           {(() => {
-//             const e = <b />;
-//             on('!+* ' + subPath('level'), level => {
-//               e.textContent = level;
-//             }).attach(e);
-//             return e;
-//           })()}
-//         </div>
-//       ))}
-//     </main>
-//   );
-//   t.is(await html(), '<main><div>A<b>1</b></div></main>');
-//   set('players.a.level', 42);
-//   t.is(await html(), '<main><div>A<b>42</b></div></main>');
-// });
+  init(
+    element,
+    <div>
+      {(() => {
+        const e = <b />;
+        e.attach(
+          on('test').map(res => {
+            e.textContent = res;
+          })
+        );
+        return e;
+      })()}
+    </div>
+  );
+
+  t.is(await html(), '<div><b>ing</b></div>');
+});
+
+test('sub-path pathifier standalone on', async t => {
+  set('players.a', { name: 'A', level: 1 });
+
+  init(
+    element,
+    <main>
+      {on('players.$').map((player, { child }) => (
+        <div>
+          {player.name}
+          {(() => {
+            const e = <b />;
+            e.attach(
+              on(child('level')).map(level => {
+                e.textContent = level;
+              })
+            );
+            return e;
+          })()}
+        </div>
+      ))}
+    </main>
+  );
+  t.is(await html(), '<main><div>A<b>1</b></div></main>');
+  set('players.a.level', 42);
+  t.is(await html(), '<main><div>A<b>42</b></div></main>');
+});
 
 test('data attribute', async t => {
   const a = <li data-value="yes"></li>;

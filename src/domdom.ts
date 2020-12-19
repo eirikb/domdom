@@ -67,6 +67,11 @@ export class React {
 
     ddProps(this.data, el.mountables, el, props);
 
+    el.attach = (pathifier: DomPathifier) => {
+      el.mountables.push(pathifier);
+      pathifier.init();
+    };
+
     return el;
   }
 }
