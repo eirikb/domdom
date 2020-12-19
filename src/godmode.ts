@@ -2,7 +2,7 @@ import { isProbablyPlainObject } from './dom-stower';
 import { Domdom } from './domdom';
 
 export const godMode = <T = any>(domdom: Domdom) => {
-  const pathSymbol = Symbol();
+  const pathSymbol = Symbol('Path');
 
   const set = (path: string[], value: any) => {
     if (isProbablyPlainObject(value)) {
@@ -19,15 +19,21 @@ export const godMode = <T = any>(domdom: Domdom) => {
 
   function proxify(o: any, path: string[] = []) {
     if (o === undefined) {
-      o = {};
+      return proxify({}, path);
     }
 
     if (!(isProbablyPlainObject(o) || Array.isArray(o))) {
       return o;
     }
 
+    const proxied = Symbol('Proxied');
+    o[proxied] = true;
+
     return new Proxy(o, {
       set: function(target, key, value) {
+        if (!target[proxied]) {
+          value = proxify(value, path.concat(String(key)));
+        }
         const p = path.concat(String(key));
         set(p, value);
         target[key] = value;

@@ -2160,3 +2160,32 @@ test('godMode on 2', async t => {
   ];
   t.is(await html(), '<div><b>A!</b><b>B!</b></div>');
 });
+
+test('godMode on 3', async t => {
+  interface User {
+    name: string;
+  }
+
+  interface Yes {
+    a: {
+      users: User[];
+    };
+  }
+
+  const { data, on, onChild, pathOf } = godMode<Yes>();
+  init(
+    element,
+    <div>
+      {onChild(data.a.users).map(user => {
+        console.log('on user', user);
+        console.log('with name', user.name);
+        console.log('test', pathOf(user));
+        console.log('test', pathOf(user.name));
+        return <span>{on(user.name)}</span>;
+      })}
+    </div>
+  );
+  data.a.users = [{ name: 'yes' }];
+  console.log(await html());
+  t.pass();
+});
