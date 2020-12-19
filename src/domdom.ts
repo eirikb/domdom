@@ -1,13 +1,10 @@
 import { Data, Pathifier } from '@eirikb/data';
-import {
-  DomStower,
-  isProbablyPlainObject,
-  StowerTransformer,
-} from './dom-stower';
+import { DomStower, StowerTransformer } from './dom-stower';
 import { DomSquint } from './dom-squint';
 import ddProps from './dd-props';
 import { Domode, Opts } from './types';
 import { DomPathifier } from './pathifier';
+import { godMode } from './godmode';
 
 export class React {
   private readonly data: Data;
@@ -113,46 +110,5 @@ export class Domdom {
     }
   };
 
-  behold = <T = any>(): T => {
-    const set = (path: string[], value: any) => {
-      this.set(path.join('.'), value);
-    };
-
-    const unset = (path: string[]) => {
-      this.unset(path.join('.'));
-    };
-
-    function proxify(o: any, path: string[] = []) {
-      return new Proxy(o, {
-        set: function(target, key, value) {
-          const p = path.concat(String(key));
-          set(p, value);
-          target[key] = value;
-          return true;
-        },
-        deleteProperty: function(target, key) {
-          unset(path.concat(String(key)));
-          return delete target[key];
-        },
-        get: function(target, key) {
-          if (typeof target[key] === 'function') {
-            return (...args) => {
-              target[key](...args);
-              set(path, target);
-            };
-          }
-          let value = target[key];
-          if (isProbablyPlainObject(value)) {
-            value = Object.assign({}, value);
-          } else if (Array.isArray(value)) {
-            value = value.slice();
-          }
-          target[key] = value;
-          return proxify(value, path.concat(String(key)));
-        },
-      });
-    }
-
-    return proxify({});
-  };
+  godMode = <T = any>() => godMode<T>(this);
 }

@@ -23,7 +23,7 @@ async function html() {
   return element.innerHTML;
 }
 
-let { init, React, get, set, unset, on, behold } = new Domdom(new Data());
+let { init, React, get, set, unset, on, godMode } = new Domdom(new Data());
 
 test.beforeEach(() => {
   createElement();
@@ -33,9 +33,8 @@ test.beforeEach(() => {
   set = d.set;
   unset = d.unset;
   get = d.get;
-  // trigger = d.trigger;
   on = d.on;
-  behold = d.behold;
+  godMode = d.godMode;
 });
 
 test('Component', async t => {
@@ -2005,17 +2004,19 @@ test('lists', async t => {
 //   t.pass();
 // });
 
-test('behold', async t => {
+test('godMode', async t => {
   init(element, <div>{on('katt')}</div>);
 
-  const data = behold();
+  const { data } = godMode();
   data.katt = ':)';
   t.is(await html(), '<div>:)</div>');
   data.katt = ':O';
   t.is(await html(), '<div>:O</div>');
+  data.katt = '=D';
+  t.is(await html(), '<div>=D</div>');
 });
 
-test('behold 2', async t => {
+test('ungodMode 2', async t => {
   init(
     element,
     <div>
@@ -2025,7 +2026,23 @@ test('behold 2', async t => {
     </div>
   );
 
-  const data = behold();
+  set('users', { a: { name: 'hello' }, b: { name: 'world' } });
+  t.is(await html(), '<div><b>hello</b><b>world</b></div>');
+  set('users.a.name', 'wut');
+  t.is(await html(), '<div><b>wut</b><b>world</b></div>');
+});
+
+test('godMode 2', async t => {
+  init(
+    element,
+    <div>
+      {on('users.$.*').map(user => (
+        <b>{user.name}</b>
+      ))}
+    </div>
+  );
+
+  const { data } = godMode();
   data.users = { a: { name: 'hello' }, b: { name: 'world' } };
   t.is(await html(), '<div><b>hello</b><b>world</b></div>');
   data.users.a.name = 'wut';
@@ -2036,7 +2053,7 @@ test('behold 2', async t => {
   t.is(await html(), '<div><b>wut</b><b>wat</b><b>:)</b></div>');
 });
 
-test('behold 3', async t => {
+test('godMode 3', async t => {
   init(
     element,
     <div>
@@ -2046,7 +2063,7 @@ test('behold 3', async t => {
     </div>
   );
 
-  const data = behold();
+  const { data } = godMode();
   data.users = [{ name: 'hello' }, { name: 'world' }];
   t.is(await html(), '<div><b>hello</b><b>world</b></div>');
   data.users[0].name = 'wut';
@@ -2057,7 +2074,7 @@ test('behold 3', async t => {
   t.is(await html(), '<div><b>wut</b><b>wat</b><b>:)</b></div>');
 });
 
-test('behold 4', async t => {
+test('godMode 4', async t => {
   init(
     element,
     <div>
@@ -2067,10 +2084,79 @@ test('behold 4', async t => {
     </div>
   );
 
-  const data = behold();
+  const { data } = godMode();
   data.users = [{ name: 'hello' }, { name: 'world' }];
   data.users.push({ name: ':)' });
   t.is(await html(), '<div><b>hello</b><b>world</b><b>:)</b></div>');
   data.users.push({ name: ':)' });
   t.is(await html(), '<div><b>hello</b><b>world</b><b>:)</b><b>:)</b></div>');
+});
+
+test('godMode 5', t => {
+  const { data } = godMode();
+  data.users = [{ name: 'hello' }, { name: 'world' }];
+  data.users.push({ name: ':)' });
+  t.deepEqual(
+    JSON.stringify(data),
+    JSON.stringify({
+      users: [{ name: 'hello' }, { name: 'world' }, { name: ':)' }],
+    })
+  );
+});
+
+test('pathProxy', t => {
+  interface Yes {
+    a: {
+      users: [
+        {
+          name: string;
+        }
+      ];
+    };
+  }
+
+  const { data, pathOf } = godMode<Yes>();
+  t.deepEqual(pathOf(data.a), ['a']);
+  t.deepEqual(pathOf(data.a.users), ['a', 'users']);
+  t.deepEqual(pathOf(data.a.users[0]), ['a', 'users', '0']);
+});
+
+test('godMode on', async t => {
+  const { data, on } = godMode();
+  init(element, <div>{on(data.ok).map(ok => `res ${ok}`)}</div>);
+  t.is(await html(), '<div></div>');
+  data.ok = ':)';
+  t.is(await html(), '<div>res :)</div>');
+});
+
+test('godMode on 2', async t => {
+  interface User {
+    name: string;
+  }
+
+  interface Yes {
+    a: {
+      users: User[];
+    };
+  }
+
+  const { data, onChild } = godMode<Yes>();
+  init(
+    element,
+    <div>
+      {onChild(data.a.users).map<User>(user => (
+        <b>{user.name}</b>
+      ))}
+    </div>
+  );
+  t.is(await html(), '<div></div>');
+  data.a.users = [
+    {
+      name: 'A!',
+    },
+    {
+      name: 'B!',
+    },
+  ];
+  t.is(await html(), '<div><b>A!</b><b>B!</b></div>');
 });
