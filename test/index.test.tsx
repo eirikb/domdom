@@ -1999,3 +1999,55 @@ test('lists', async t => {
   set('users.0.name', 'wut');
   t.is(await html(), '<div>users:<ul><li>wut</li><li>steffen</li></ul></div>');
 });
+
+test('Pathifier instead of Domponent', async t => {
+  function Ok() {
+    return on('test');
+  }
+
+  init(
+    element,
+    <div>
+      <Ok></Ok>
+    </div>
+  );
+  t.is(await html(), '<div></div>');
+  set('test', 'ing');
+  t.is(await html(), '<div>ing</div>');
+});
+
+test('Pathifier instead of Domponent with mounted', async t => {
+  function Ok({}, { mounted }) {
+    mounted(() => {
+      t.pass();
+    });
+    return on('test');
+  }
+
+  init(
+    element,
+    <div>
+      <Ok></Ok>
+    </div>
+  );
+});
+
+test('Pathifier instead of Domponent with element', async t => {
+  function Ok() {
+    return on('test')
+      .map(test => (test ? <h1>h1</h1> : <h2>h2</h2>))
+      .or('nope');
+  }
+
+  init(
+    element,
+    <div>
+      <Ok></Ok>
+    </div>
+  );
+  t.is(await html(), '<div>nope</div>');
+  set('test', false);
+  t.is(await html(), '<div><h2>h2</h2></div>');
+  set('test', true);
+  t.is(await html(), '<div><h1>h1</h1></div>');
+});

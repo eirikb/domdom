@@ -16,7 +16,7 @@ export class React {
     input: string | Function,
     props?: { [key: string]: any },
     ...children: any[]
-  ): Domode {
+  ): Domode | Pathifier {
     children = [].concat(...children);
 
     if (typeof input === 'function') {
@@ -27,7 +27,7 @@ export class React {
           cbs.push(cb);
         },
       };
-      const res = input({ ...props }, options) as Domode;
+      const res = input({ ...props }, options) as Domode | DomPathifier;
       res.mountables.push({
         mounted() {
           for (const cb of cbs) {
