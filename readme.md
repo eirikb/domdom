@@ -45,27 +45,26 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
 - [Deno](#deno)
 - [Getting started](#getting-started)
 - [APIsh](#apish)
-  - [Initialize domdom](#initialize-domdom)
-  - [Elements](#elements)
-  - ["Domponents"](#domponents)
-    - [Children / Composition](#children--composition)
-  - [Events](#events)
-  - [on(path)](#onpath)
-    - [Standalone `on`](#standalone-on)
-    - [Child path lookup](#child-path-lookup)
-  - [or](#or)
-  - [dd-model](#dd-model)
-  - [Attributes](#attributes)
-    - [Pathifier](#pathifier)
+    - [Initialize domdom](#initialize-domdom)
+    - [Elements](#elements)
+    - ["Domponents"](#domponents)
+        - [Children / Composition](#children--composition)
+    - [Events](#events)
+    - [on(path)](#onpath)
+        - [Standalone `on`](#standalone-on)
+        - [Child path lookup](#child-path-lookup)
+    - [or](#or)
+    - [dd-model](#dd-model)
+    - [Attributes](#attributes)
+        - [Pathifier](#pathifier)
 - [Recipes](#recipes)
-  - [Routing](#routing)
-  - [Login form](#login-form)
-  - [Split view and data](#split-view-and-data)
-  - [Animation (garbage collection)](#animation-garbage-collection)
+    - [Routing](#routing)
+    - [Login form](#login-form)
+    - [Split view and data](#split-view-and-data)
+    - [Animation (garbage collection)](#animation-garbage-collection)
 - [TypeScript](#typescript)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -494,20 +493,13 @@ This might seem silly, and it might not be obvious how to use say `setInterval`,
 from ever being cleaned up by garbage collector.
 
 ```jsx
-const view = (() => {
-  const img = <img src="https://i.imgur.com/rsD0RUq.jpg"/>;
-
-  img.attach(
-    on('tick').map(time => (img.style.transform = `rotate(${time % 180}deg)`))
-  );
-
-  return (
-    <div>
-      <button onClick={() => set('run', !get('run'))}>Start/Stop</button>
-      {img}
-    </div>
-  );
-})();
+const view = <div>
+  <img src="https://i.imgur.com/rsD0RUq.jpg" style={
+    on('tick').map(time => ({ rotate: `${time % 180}deg` }
+    ))
+  }/>
+  <button onClick={() => set('run', !get('run'))}>Start/Stop</button>
+</div>;
 
 (function loop(time) {
   if (get('run')) {
