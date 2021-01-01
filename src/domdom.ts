@@ -4,6 +4,7 @@ import { DomSquint } from './dom-squint';
 import ddProps from './dd-props';
 import { Domode, Opts } from './types';
 import { DomPathifier } from './pathifier';
+import { godMode } from './godmode';
 
 export class React {
   private readonly data: Data;
@@ -120,4 +121,6 @@ export class Domdom {
       parent.appendChild(child);
     }
   };
+
+  godMode = <T>() => godMode<T>(this);
 }
