@@ -3,7 +3,7 @@ import { serial as test } from 'ava';
 import browserEnv from 'browser-env';
 import { Domdom } from '../src/domdom';
 import { Data } from '@eirikb/data';
-import { Opts } from '../src/types';
+import { Opts } from '../src';
 
 browserEnv();
 
@@ -23,18 +23,21 @@ async function html() {
   return element.innerHTML;
 }
 
-let { init, React, on, set, unset, get, trigger } = new Domdom(new Data());
+let { init, React, get, set, unset, on, trigger, data } = new Domdom(
+  new Data()
+);
 
 test.beforeEach(() => {
   createElement();
   const d = new Domdom(new Data());
   init = d.init;
   React = d.React;
-  on = d.on;
   set = d.set;
   unset = d.unset;
   get = d.get;
+  on = d.on;
   trigger = d.trigger;
+  data = d.data;
 });
 
 test('Component', async t => {
@@ -47,6 +50,12 @@ test('Component', async t => {
   t.is(await html(), '<div>Hello, world!</div>');
 });
 
+test('Component on', async t => {
+  init(element, <div>{on('test')}</div>);
+  set('test', 'Hello, world!');
+  t.is(await html(), '<div>Hello, world!</div>');
+});
+
 test('Component on on', async t => {
   const Test = () => {
     return <div>{on('test')}</div>;
@@ -55,7 +64,7 @@ test('Component on on', async t => {
   init(
     element,
     <div>
-      {on('test', () => (
+      {on('test').map(() => (
         <Test />
       ))}
     </div>
@@ -65,7 +74,7 @@ test('Component on on', async t => {
 });
 
 test('Array of results from on', async t => {
-  init(element, <div>{on('test', () => ['yes', 'no'])}</div>);
+  init(element, <div>{on('test').map(() => ['yes', 'no'])}</div>);
   set('test', 'yes');
   t.is(await html(), '<div>yesno</div>');
 });
@@ -75,7 +84,7 @@ test('Array of results from on with component', async t => {
     return <div>Yes!</div>;
   }
 
-  init(element, <div>{on('test', () => ['no', <Yes />])}</div>);
+  init(element, <div>{on('test').map(() => ['no', <Yes />])}</div>);
   set('test', 'yes');
   t.is(await html(), '<div>no<div>Yes!</div></div>');
   t.pass();
@@ -84,10 +93,10 @@ test('Array of results from on with component', async t => {
 test('Double on', async t => {
   const div = (
     <div>
-      {on('test', test => (
+      {on('test').map(test => (
         <div>
           {test}
-          {on('testing', test => (
+          {on('testing').map(test => (
             <span>eh {test}</span>
           ))}
         </div>
@@ -126,7 +135,7 @@ test('on without callback', async t => {
 test('Multiple paths', async t => {
   const div = (
     <div>
-      {on('players.$id', player => (
+      {on('players.$id.*').map(player => (
         <p>{player.name}</p>
       ))}
     </div>
@@ -141,7 +150,7 @@ test('Multiple paths', async t => {
   t.is(await html(), '<div><p>Mr. one</p><p>Mr. two</p></div>');
 
   set('players.aone', { name: 'Hello' });
-  t.is(await html(), '<div><p>Mr. two</p><p>Hello</p></div>');
+  t.is(await html(), '<div><p>Hello</p><p>Mr. two</p></div>');
 
   unset('players.aone');
   t.is(await html(), '<div><p>Mr. two</p></div>');
@@ -150,7 +159,7 @@ test('Multiple paths', async t => {
 test('Multiple paths map', async t => {
   const div = (
     <div>
-      {on('players.*').map(player => (
+      {on('players.$.*').map(player => (
         <p>{player.name}</p>
       ))}
     </div>
@@ -174,7 +183,7 @@ test('Multiple paths map', async t => {
 test('on Sort - default sort by key', async t => {
   const div = (
     <div>
-      {on('players.*').map(player => (
+      {on('players.$').map(player => (
         <p>{player.name}</p>
       ))}
     </div>
@@ -189,9 +198,11 @@ test('on Sort - default sort by key', async t => {
 test('on Sort - sort method', async t => {
   const div = (
     <div>
-      {on('players.*')
-        .map(player => <p>{player.name}</p>)
-        .sort((a, b) => b.name.localeCompare(a.name))}
+      {on('players.$')
+        .sort((a, b) => b.name.localeCompare(a.name))
+        .map(player => (
+          <p>{player.name}</p>
+        ))}
     </div>
   );
   init(element, div);
@@ -204,9 +215,11 @@ test('on Sort - sort method', async t => {
 test('on Sort - sort method2', async t => {
   const div = (
     <div>
-      {on('players.*')
-        .map(player => <p>{player.name}</p>)
-        .sort((a, b) => a.name.localeCompare(b.name))}
+      {on('players.$')
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(player => (
+          <p>{player.name}</p>
+        ))}
     </div>
   );
   init(element, div);
@@ -219,10 +232,10 @@ test('on Sort - sort method2', async t => {
 test('Multiple on-siblings', async t => {
   const div = (
     <div>
-      {on('b', test => (
+      {on('b').map(test => (
         <div>{test}</div>
       ))}
-      {on('a', ing => (
+      {on('a').map(ing => (
         <div>{ing}</div>
       ))}
     </div>
@@ -236,9 +249,11 @@ test('Multiple on-siblings', async t => {
 test('on Sort - keep order', async t => {
   const div = (
     <div>
-      {on('players.*').map(player => (
-        <p>{player.name}</p>
-      ))}
+      {on('players.$')
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(player => (
+          <p>{player.name}</p>
+        ))}
     </div>
   );
   init(element, div);
@@ -257,9 +272,11 @@ test('on Sort - keep order', async t => {
 test('on Sort - custom order', async t => {
   const div = (
     <div>
-      {on('players.*')
-        .map(player => <p>{player.name}</p>)
-        .sort((a, b) => b.name.localeCompare(a.name))}
+      {on('players.$.*')
+        .sort((a, b) => b.name.localeCompare(a.name))
+        .map(player => (
+          <p>{player.name}</p>
+        ))}
     </div>
   );
   init(element, div);
@@ -278,9 +295,9 @@ test('on Sort - custom order', async t => {
 test('on Sort - remove $first - with sort', async t => {
   const div = (
     <div>
-      {on('players.*')
+      {on('players.$.*')
         .map(player => <p>{player.name}</p>)
-        .sort((_, __, aPath, bPath) => aPath.localeCompare(bPath))}
+        .sort((_, __, opts) => opts.aOpts.path.localeCompare(opts.bOpts.path))}
     </div>
   );
   init(element, div);
@@ -299,8 +316,8 @@ test('on Sort - remove $first - with sort', async t => {
 test('Child listener', async t => {
   const div = (
     <main>
-      {on('players.$id', (_, { subPath }) => (
-        <article>{on(subPath('name'), name => name)}</article>
+      {on('players.$id').map((_, { child }) => (
+        <article>{on(child('name'))}</article>
       ))}
     </main>
   );
@@ -315,11 +332,11 @@ test('Child listener', async t => {
 });
 
 test('Simple when', async t => {
-  const Test = () => <div>It is {on('test', t => t)}</div>;
+  const Test = () => <div>It is {on('test')}</div>;
 
   const div = (
     <div>
-      {on('test', t => {
+      {on('test').map(t => {
         switch (t) {
           case 'yes':
             return <Test />;
@@ -339,9 +356,9 @@ test('Simple when', async t => {
 test('Quirk on + when', async t => {
   const div = (
     <div>
-      {on('test', t => t)}
+      {on('test')}
 
-      {on('test', t => {
+      {on('test').map(t => {
         switch (t) {
           case 'yes':
             return 'Yes';
@@ -362,8 +379,32 @@ test('Quirk on + when', async t => {
   t.is(await html(), '<div>noNo</div>');
 });
 
+test('unset', async t => {
+  const div = (
+    <div>
+      {on('test').map(t => (
+        <div>{t}</div>
+      ))}
+    </div>
+  );
+  init(element, div);
+  t.is(await html(), '<div></div>');
+  set('test', 'ing');
+  t.is(await html(), '<div><div>ing</div></div>');
+  set('test', '');
+  t.is(await html(), '<div><div></div></div>');
+  unset('test');
+  t.is(await html(), '<div></div>');
+});
+
 test('Simple or', async t => {
-  const div = <div>{on('test', t => <div>{t}</div>).or(<div>Nope</div>)}</div>;
+  const div = (
+    <div>
+      {on('test')
+        .map(t => <div>{t}</div>)
+        .or(<div>Nope</div>)}
+    </div>
+  );
   init(element, div);
   t.is(await html(), '<div><div>Nope</div></div>');
   set('test', 'ing');
@@ -386,11 +427,11 @@ test('on empty res', async t => {
 test('Multiple child paths', async t => {
   const div = (
     <div>
-      {on('a', (_, { subPath }) => (
+      {on('a').map((_, { child }) => (
         <div>
-          {on(subPath('text'))}
+          {on(child('text'))}
           test
-          {on(subPath('text'))}
+          {on(child('text'))}
         </div>
       ))}
     </div>
@@ -403,7 +444,7 @@ test('Multiple child paths', async t => {
 test('Have some path with flags', async t => {
   const Ok = () => {
     const e = <div></div>;
-    on('!+* b', wat => (e.innerHTML = wat)).attach(e);
+    e.attach(on('b').map(wat => (e.innerHTML = wat)));
     return (
       <div>
         {on('a')}
@@ -422,7 +463,7 @@ test('Have some path with flags without component', async t => {
     element,
     (() => {
       const e = <div></div>;
-      on('!+* b', wat => (e.innerHTML = wat)).attach(e);
+      e.attach(on('b').map(wat => (e.innerHTML = wat)));
       return (
         <div>
           {on('a')}
@@ -436,14 +477,14 @@ test('Have some path with flags without component', async t => {
   t.is(await html(), '<div>A<div>B</div></div>');
 });
 
-test('Listeners are cleared', async t => {
+test.skip('Listeners are cleared', async t => {
   init(element);
 
   let i = 0;
 
   function Child() {
     const e = <div />;
-    on('* test', () => i++).attach(e);
+    e.attach(on('* test').map(() => i++));
     return e;
   }
 
@@ -451,7 +492,7 @@ test('Listeners are cleared', async t => {
   set('show', true);
   const div = (
     <div>
-      {on('show', () => (
+      {on('show').map(() => (
         <Child />
       ))}
     </div>
@@ -467,13 +508,13 @@ test('Listeners are cleared', async t => {
   t.is(i, 1);
 });
 
-test('Listeners are not overcleared', async t => {
+test.skip('Listeners are not overcleared', async t => {
   init(element);
   let i = 0;
 
   function Child() {
     const e = <div />;
-    on('* test', () => i++).attach(e);
+    e.attach(on('* test').map(() => i++));
     return e;
   }
 
@@ -481,7 +522,7 @@ test('Listeners are not overcleared', async t => {
   set('show', 'yes');
   const div = (
     <div>
-      {on('show', () => (
+      {on('show').map(() => (
         <Child />
       ))}
     </div>
@@ -502,14 +543,14 @@ test('Listeners are not overcleared', async t => {
   t.is(3, i);
 });
 
-test('Listeners are support change of parent', async t => {
+test.skip('Listeners are support change of parent', async t => {
   init(element);
 
   let i = 0;
 
   function Child() {
     const e = <p />;
-    on('* test', () => i++).attach(e);
+    e.attach(on('* test').map(() => i++));
     return e;
   }
 
@@ -517,7 +558,7 @@ test('Listeners are support change of parent', async t => {
   set('show', 'yes');
   const div = (
     <div>
-      {on('show', () => (
+      {on('show').map(() => (
         <Child />
       ))}
     </div>
@@ -535,19 +576,19 @@ test('Listeners are support change of parent', async t => {
   t.is(1, i);
 });
 
-test('Listeners in when', async t => {
+test.skip('Listeners in when', async t => {
   init(element);
   let i = 0;
 
   function Child() {
     const e = <div />;
-    on('* test', () => i++).attach(e);
+    e.attach(on('test').map(() => i++));
     return e;
   }
 
   set('test', 'a');
   set('show', true);
-  const div = <div>{on('show', show => (show ? <Child /> : null))}</div>;
+  const div = <div>{on('show').map(show => (show ? <Child /> : null))}</div>;
   element.appendChild(div);
   await html();
   set('test', 'b');
@@ -559,19 +600,19 @@ test('Listeners in when', async t => {
   t.is(1, i);
 });
 
-test('Listener in when 2', async t => {
+test.skip('Listener in when 2', async t => {
   init(element);
   let i = 0;
 
   function Child() {
     const e = <div />;
-    on('* test', () => i++).attach(e);
+    e.attach(on('test').map(() => i++));
     return e;
   }
 
   set('test', 'a');
   set('show', true);
-  const div = <div>{on('show', show => (show ? <Child /> : null))}</div>;
+  const div = <div>{on('show').map(show => (show ? <Child /> : null))}</div>;
   element.appendChild(div);
   await html();
   set('test', 'b');
@@ -616,7 +657,7 @@ test('Mounted on/off', async t => {
 
   const div = (
     <div>
-      {on('test', () => (
+      {on('test').map(() => (
         <Hello />
       ))}
     </div>
@@ -633,7 +674,7 @@ test('Mounted on/off', async t => {
 test('When with initial false value', async t => {
   const div = (
     <div>
-      {on('test', t => {
+      {on('test').map(t => {
         switch (t) {
           case false:
             return <div>Hello</div>;
@@ -655,7 +696,7 @@ test('Do not remove listener on same level', async t => {
 
   const div = (
     <div>
-      {on('test', () => (
+      {on('test').map(() => (
         <Test />
       ))}
       {on('hello')}
@@ -674,7 +715,7 @@ test('Do not remove listener on same level', async t => {
 test('Whole objects should be populated', async t => {
   const div = (
     <div>
-      {on('hello.world', world => (
+      {on('hello.world').map(world => (
         <div>{world.test}</div>
       ))}
     </div>
@@ -693,29 +734,29 @@ test('Whole objects should be populated', async t => {
 test('Update array', async t => {
   const div = (
     <div>
-      {on('path', path => (
-        <div>{JSON.stringify(path)}</div>
+      {on('path.$').map(path => (
+        <div>{path}</div>
       ))}
     </div>
   );
   init(element, div);
 
   set('path', ['hello', 'world']);
-  t.is(await html(), '<div><div>{"0":"hello","1":"world"}</div></div>');
+  t.is(await html(), '<div><div>hello</div><div>world</div></div>');
 
   set('path', ['hello']);
-  t.is(await html(), '<div><div>{"0":"hello"}</div></div>');
+  t.is(await html(), '<div><div>hello</div></div>');
 });
 
 test('Update array without element', async t => {
-  const view = <div>{on('x')}</div>;
+  const view = <div>{on('x.$')}</div>;
   init(element, view);
 
   set('x', ['hello', 'world']);
-  t.is(await html(), '<div>{"0":"hello","1":"world"}</div>');
+  t.is(await html(), '<div>helloworld</div>');
 
   set('x', ['hello']);
-  t.is(await html(), '<div>{"0":"hello"}</div>');
+  t.is(await html(), '<div>hello</div>');
 });
 
 test('Containment', async t => {
@@ -762,7 +803,13 @@ test('Rendering types', async t => {
 });
 
 test('Remove or on on', async t => {
-  const view = <div>{on('test.$id', t => t.name).or('Loading...')}</div>;
+  const view = (
+    <div>
+      {on('test.$id')
+        .map(t => t.name)
+        .or('Loading...')}
+    </div>
+  );
   init(element, view);
   t.is(await html(), '<div>Loading...</div>');
   set('test', { 0: { name: 'hello' } });
@@ -772,7 +819,7 @@ test('Remove or on on', async t => {
 test('on attributes', async t => {
   const view = (
     <div>
-      <button disabled={on('disable', res => res)} />
+      <button disabled={on('disable').map(res => res)} />
     </div>
   );
   init(element, view);
@@ -785,7 +832,11 @@ test('on attributes', async t => {
 test('on on attributes', async t => {
   const view = (
     <div>
-      <button disabled={on('canClick', res => !res).or(true)} />
+      <button
+        disabled={on('canClick')
+          .map(res => !res)
+          .or(true)}
+      />
       <button disabled={on('canNotClick').or(true)} />
     </div>
   );
@@ -840,9 +891,11 @@ test('On on object attributes', async t => {
 test('Filter array', async t => {
   const view = (
     <div>
-      {on('users')
-        .map(user => <span>{user.name}</span>)
-        .filter(user => user.name !== 'One!')}
+      {on('users.$')
+        .filter(user => user.name !== 'One!')
+        .map(user => (
+          <span>{user.name}</span>
+        ))}
     </div>
   );
   init(element, view);
@@ -854,9 +907,11 @@ test('Filter array', async t => {
 test('Update filter on update filter', async t => {
   const view = (
     <div>
-      {on('users')
-        .map(user => <span>{user.name}</span>)
-        .filter(user => user.name !== 'One!')}
+      {on('users.$')
+        .filter(user => user.name !== 'One!')
+        .map(user => (
+          <span>{user.name}</span>
+        ))}
     </div>
   );
   init(element, view);
@@ -868,9 +923,11 @@ test('Update filter on update filter', async t => {
 test('Update filterOn on update filter', async t => {
   const view = (
     <div>
-      {on('users')
-        .map(user => <span>{user.name}</span>)
-        .filterOn('test', (_, user) => user.name !== 'One!')}
+      {on('users.$')
+        .filterOn('test', user => user.name !== 'One!')
+        .map(user => (
+          <span>{user.name}</span>
+        ))}
     </div>
   );
   init(element, view);
@@ -883,9 +940,11 @@ test('Update filterOn on update filter', async t => {
 test('Update filterOn on update filter refresh', async t => {
   const view = (
     <div>
-      {on('users')
-        .map(user => <span>{user.name}</span>)
-        .filterOn('test', (_, user) => user.name !== 'One!')}
+      {on('users.$')
+        .filterOn('test', user => user.name !== 'One!')
+        .map(user => (
+          <span>{user.name}</span>
+        ))}
     </div>
   );
   init(element, view);
@@ -898,11 +957,13 @@ test('Update filterOn on update filter refresh', async t => {
 test('Update filterOn on update after data is set', async t => {
   const view = (
     <div>
-      {on('users')
-        .map(user => <b>{user.name}</b>)
-        .filterOn('test', (filter, user) =>
-          new RegExp(filter, 'i').test(user.name)
-        )}
+      {on('users.$')
+        .filterOn('test', (user, { onValue }) =>
+          new RegExp(onValue, 'i').test(user.name)
+        )
+        .map(user => (
+          <b>{user.name}</b>
+        ))}
     </div>
   );
   init(element, view);
@@ -917,9 +978,11 @@ test('Update filterOn on update after data is set', async t => {
 test('on sortOn - custom order', async t => {
   const div = (
     <div>
-      {on('players.*')
-        .map(player => <p>{player.name}</p>)
-        .sortOn('test', (_, a, b) => b.name.localeCompare(a.name))}
+      {on('players.$')
+        .sortOn('test', (a, b) => b.name.localeCompare(a.name))
+        .map(player => (
+          <p>{player.name}</p>
+        ))}
     </div>
   );
   init(element, div);
@@ -939,9 +1002,11 @@ test('on sortOn - custom order', async t => {
 test('on sortOn - custom order update', async t => {
   const div = (
     <div>
-      {on('players.*')
-        .map(player => <p>{player.name}</p>)
-        .sortOn('test', (_, a, b) => b.name.localeCompare(a.name))}
+      {on('players.$')
+        .sortOn('test', (a, b) => b.name.localeCompare(a.name))
+        .map(player => (
+          <p>{player.name}</p>
+        ))}
     </div>
   );
   init(element, div);
@@ -958,12 +1023,32 @@ test('on sortOn - custom order update', async t => {
   t.is(await html(), '<div><p>7</p><p>3</p><p>2</p></div>');
 });
 
+test('onFilter and onSort 2', async t => {
+  const div = (
+    <div>
+      {on('players.$').sortOn('desc', (a, b, { onValue }) =>
+        onValue ? a - b : b - a
+      )}
+    </div>
+  );
+  init(element, div);
+  set('players', [1, 2, 3]);
+  set('desc', true);
+  t.deepEqual(await html(), '<div>123</div>');
+  set('desc', false);
+  t.deepEqual(await html(), '<div>321</div>');
+});
+
 test('onFilter and onSort', async t => {
   const div = (
     <div>
-      {on('players.*')
-        .map(player => <p>{player.name}</p>)
-        .sortOn('filter.by', (val, a, b) => a[val].localeCompare(b[val]))}
+      {on('players.$')
+        .sortOn('filter.by', (a, b, { onValue }) =>
+          a[onValue].localeCompare(b[onValue])
+        )
+        .map(player => (
+          <p>{player.name}</p>
+        ))}
     </div>
   );
   init(element, div);
@@ -993,11 +1078,13 @@ test('Function context', async t => {
 test('filterOn and back', async t => {
   const view = (
     <div>
-      {on('users')
-        .map(user => <b>{user.name}</b>)
-        .filterOn('test', (filter, user) =>
-          new RegExp(filter, 'i').test(user.name)
-        )}
+      {on('users.$')
+        .filterOn('test', (user, { onValue }) =>
+          new RegExp(onValue, 'i').test(user.name)
+        )
+        .map(user => (
+          <b>{user.name}</b>
+        ))}
       <p>Because</p>
     </div>
   );
@@ -1014,7 +1101,7 @@ test('filterOn and back', async t => {
 test('When + change', async t => {
   const view = (
     <div>
-      {on('yes', t => {
+      {on('yes').map(t => {
         switch (t) {
           case true:
             return <p>{on('ok')}</p>;
@@ -1033,7 +1120,7 @@ test('When + change', async t => {
 test('When + change 2', async t => {
   const view = (
     <div>
-      {on('yes', t => {
+      {on('yes').map(t => {
         switch (t) {
           case true:
             return <p>{on('ok')}</p>;
@@ -1049,19 +1136,54 @@ test('When + change 2', async t => {
   t.is(await html(), '<div><p>OK!</p></div>');
 });
 
-test('When + filterOn', async t => {
+test('When + filterOn 2', async t => {
   const view = (
     <div>
-      {on('yes', t => {
+      {on('yes').map(t => {
         switch (t) {
           case true:
             return (
               <div>
-                {on('users')
-                  .map(user => <b>{user.name}</b>)
-                  .filterOn('test', (filter, user) =>
-                    new RegExp(filter, 'i').test(user.name)
-                  )}
+                {on('users.$')
+                  .filterOn('test', (user, { onValue }) =>
+                    new RegExp(onValue, 'i').test(user.name)
+                  )
+                  .map(user => (
+                    <b>{user.name}</b>
+                  ))}
+              </div>
+            );
+        }
+      })}
+    </div>
+  );
+  init(element, view);
+  set('yes', true);
+  set('test', 'two');
+  set('users', { one: { name: 'One!' }, two: { name: 'Two!' } });
+  t.is(await html(), '<div><div><b>Two!</b></div></div>');
+  set('yes', false);
+  t.is(await html(), '<div></div>');
+  set('yes', true);
+  set('test', '');
+  t.is(await html(), '<div><div><b>One!</b><b>Two!</b></div></div>');
+});
+
+test('When + filterOn', async t => {
+  const view = (
+    <div>
+      {on('yes').map(t => {
+        switch (t) {
+          case true:
+            return (
+              <div>
+                {on('users.$')
+                  .filterOn('test', (user, { onValue }) =>
+                    new RegExp(onValue, 'i').test(user.name)
+                  )
+                  .map(user => (
+                    <b>{user.name}</b>
+                  ))}
                 <p>Because</p>
               </div>
             );
@@ -1087,7 +1209,7 @@ test('When + filterOn', async t => {
 test('Re-add', async t => {
   const view = (
     <div>
-      {on('yes', t => (
+      {on('yes').map(t => (
         <p>
           {t} {on('no')}
         </p>
@@ -1107,13 +1229,13 @@ test('Re-add', async t => {
 test('Something something filter and add', async t => {
   const view = (
     <div>
-      {on('users')
+      {on('users.$')
+        .filterOn('filter', (_, { onValue }) => onValue)
         .map(u => (
           <p>
             {u} {on('yes')}
           </p>
-        ))
-        .filterOn('filter', f => f)}
+        ))}
     </div>
   );
   init(element, view);
@@ -1134,7 +1256,7 @@ test('Something something filter and add', async t => {
 test('Simplest', async t => {
   const view = (
     <div>
-      {on('yes', () => (
+      {on('yes').map(() => (
         <p>{on('no')}</p>
       ))}
     </div>
@@ -1150,14 +1272,14 @@ test('Simplest', async t => {
 test('filterOn mounted destroy mounted', async t => {
   const view = (
     <div>
-      {on('yes', t => {
+      {on('yes').map(t => {
         switch (t) {
           case true:
             return (
               <div>
-                {on('users')
-                  .map(u => u.name)
-                  .filterOn('filter', (f, u) => f === u.name)}
+                {on('users.$')
+                  .filterOn('filter', (u, { onValue }) => onValue === u.name)
+                  .map(u => u.name)}
               </div>
             );
         }
@@ -1183,14 +1305,19 @@ test('filterOn mounted destroy mounted', async t => {
 test('When + filterOn const element', async t => {
   const view = (
     <div>
-      {on('show', t => {
+      {on('show').map(t => {
         switch (t) {
           case true:
             return (
               <div>
-                {on('users')
-                  .map(task => <p>{task.name}</p>)
-                  .filterOn('filter', (filter, row) => row.name === filter)}
+                {on('users.$')
+                  .filterOn(
+                    'filter',
+                    (row, { onValue }) => row.name === onValue
+                  )
+                  .map(task => (
+                    <p>{task.name}</p>
+                  ))}
               </div>
             );
         }
@@ -1211,14 +1338,17 @@ test('When + filterOn const element', async t => {
 test('When + filterOn const text', async t => {
   const view = (
     <div>
-      {on('show', t => {
+      {on('show').map(t => {
         switch (t) {
           case true:
             return (
               <div>
-                {on('users')
-                  .map(task => task.name)
-                  .filterOn('filter', (filter, row) => row.name === filter)}
+                {on('users.$')
+                  .filterOn(
+                    'filter',
+                    (row, { onValue }) => row.name === onValue
+                  )
+                  .map(task => task.name)}
               </div>
             );
         }
@@ -1241,9 +1371,9 @@ test('On child attribute listener', async t => {
 
   const view = (
     <div>
-      {on('yes', (ok, { subPath }) => (
+      {on('yes').map((ok, { child }) => (
         <div>
-          {ok.text} <Yes subPath={subPath} />
+          {ok.text} <Yes subPath={child} />
         </div>
       ))}
     </div>
@@ -1262,7 +1392,7 @@ test('On child attribute listener', async t => {
 test('Same listener twice no problem', async t => {
   const view = (
     <div>
-      {on('test', t1 => (
+      {on('test').map(t1 => (
         <div>
           {t1} and {on('test')}
         </div>
@@ -1281,7 +1411,7 @@ test('Same listener twice no problem on when', async t => {
 
   const view = (
     <div>
-      {on('test', () => (
+      {on('test').map(() => (
         <Yes />
       ))}
     </div>
@@ -1295,13 +1425,13 @@ test('Function in on', async t => {
   const Yes = () => {
     return (
       <div>
-        {on!('yes', () => (
+        {on('yes').map(() => (
           <p>A</p>
         ))}
-        {on!('yes', () => (
+        {on('yes').map(() => (
           <p>B</p>
         ))}
-        {on!('yes', () => (
+        {on('yes').map(() => (
           <p>C</p>
         ))}
       </div>
@@ -1312,7 +1442,7 @@ test('Function in on', async t => {
   set('yes', 'ok');
   const view = (
     <div>
-      {on('yes', () => (
+      {on('yes').map(() => (
         <Yes />
       ))}
     </div>
@@ -1326,13 +1456,13 @@ test('When and on no duplicated', async t => {
   const Yes = () => {
     return (
       <div>
-        {on!('myse.type', () => (
+        {on('myse.type').map(() => (
           <p>A</p>
         ))}
-        {on!('myse.type', () => (
+        {on('myse.type').map(() => (
           <p>B</p>
         ))}
-        {on!('myse.type', () => (
+        {on('myse.type').map(() => (
           <p>C</p>
         ))}
       </div>
@@ -1341,7 +1471,7 @@ test('When and on no duplicated', async t => {
 
   const view = (
     <div>
-      {on('route', route => {
+      {on('route').map(route => {
         switch (route) {
           case 'ready':
             return <Yes />;
@@ -1361,14 +1491,16 @@ test('When and on no duplicated', async t => {
 test('when + or', async t => {
   const view = (
     <div>
-      {on('test', t => {
-        switch (t) {
-          case false:
-            return '+';
-          default:
-            return '-';
-        }
-      }).or('+')}
+      {on('test')
+        .map(t => {
+          switch (t) {
+            case false:
+              return '+';
+            default:
+              return '-';
+          }
+        })
+        .or('+')}
     </div>
   );
   init(element, view);
@@ -1382,7 +1514,7 @@ test('when + or', async t => {
 test('When + pathifier', async t => {
   const view = (
     <div>
-      {on('test', t => {
+      {on('test').map(t => {
         switch (t) {
           case true:
             return (
@@ -1407,7 +1539,7 @@ test('When + pathifier', async t => {
 test('on + pathifier', async t => {
   const view = (
     <div>
-      {on('test', test =>
+      {on('test').map(test =>
         test ? (
           <div>
             {on('players').map(p => (
@@ -1431,10 +1563,10 @@ test('on + pathifier', async t => {
 test('on + on', async t => {
   const view = (
     <div>
-      {on('test', test =>
+      {on('test').map(test =>
         test ? (
           <div>
-            {on('players.$id', p => (
+            {on('players.$id').map(p => (
               <p>{p}</p>
             ))}
           </div>
@@ -1456,7 +1588,7 @@ test('dd-model select before options are set', async t => {
   const view = (
     <div>
       <select dd-model="yes">
-        {on('test').map(t => (
+        {on('test.$').map(t => (
           <option value={t}>{t}</option>
         ))}
       </select>
@@ -1485,21 +1617,23 @@ test('Convenience view before domdom', async t => {
   t.pass();
 });
 
-test('Flags in components are work and cleared', async t => {
+test.skip('Flags in components are work and cleared', async t => {
   let counter = 0;
 
   const Hello = () => {
     const e = <div>Hello!</div>;
-    on('!+* tast', test => {
-      counter++;
-      e.textContent = test;
-    }).attach(e);
+    e.attach(
+      on('tast').map(test => {
+        counter++;
+        e.textContent = test;
+      })
+    );
     return e;
   };
 
   const view = (
     <div>
-      {on('test', test => (
+      {on('test').map(test => (
         <div>
           Test is {test}. <Hello />
         </div>
@@ -1536,7 +1670,7 @@ test('Element with event but not added via domdom', async t => {
   el.click();
 });
 
-test('Hodor as a child', async t => {
+test('Pathifier as a child', async t => {
   const Parent = ({ ok }: { ok: string }, { children }: Opts) => {
     return (
       <div>
@@ -1560,7 +1694,7 @@ test('Re-usable domdom', async t => {
   init(element);
 
   const Hello = () => {
-    return <div>Hello {on!('test')}</div>;
+    return <div>Hello {on('test')}</div>;
   };
 
   set('test', 'World!');
@@ -1572,7 +1706,7 @@ test('Re-usable domdom', async t => {
   t.is(await html(), '<main><div>Hello World!</div></main>');
 });
 
-test('Element with hodor but not added via domdom', async t => {
+test('Element with Pathifier but not added via domdom', async t => {
   init(
     element,
     (() => {
@@ -1601,7 +1735,7 @@ test('Element with hodor but not added via domdom', async t => {
 test('on with properties', async t => {
   const div = (
     <div>
-      {on('users.$id', (user, { $id }) => {
+      {on('users.$id').map((user, { $id }) => {
         return (
           <div>
             {$id}: {user.name}
@@ -1627,15 +1761,15 @@ test('properties without value should not crash', async t => {
 test('path should not be part of data', async t => {
   t.plan(3);
   init(element, <div>{on('test')}</div>);
-  on('!+* test', val => {
+  data.on('!+* test', val => {
     t.deepEqual(val, { hello: 'world' });
-  }).listen();
+  });
   set('test', {
     hello: 'world',
   });
-  on('!+* test', val => {
+  data.on('!+* test', val => {
     t.deepEqual(val, { hello: 'world' });
-  }).listen();
+  });
   t.is('<div>{"hello":"world"}</div>', await html());
 });
 
@@ -1653,8 +1787,8 @@ test('sub-path set', async t => {
   init(
     element,
     <div>
-      {on('test', (_, { subPath }) => (
-        <button onClick={() => set(subPath('click'), true)} />
+      {on('test').map((_, { child }) => (
+        <button onClick={() => set(child('click'), true)} />
       ))}
     </div>
   );
@@ -1671,8 +1805,8 @@ test('sub-path get', async t => {
   init(
     element,
     <div>
-      {on('test', (_, { subPath }) => (
-        <button onClick={() => set(subPath('click'), !get(subPath('click')))} />
+      {on('test').map((_, { child }) => (
+        <button onClick={() => set(child('click'), !get(child('click')))} />
       ))}
     </div>
   );
@@ -1694,27 +1828,27 @@ test('sub-path trigger', async t => {
   init(
     element,
     <div>
-      {on('test', (_, { subPath }) => (
-        <button onClick={() => trigger(subPath('click'))} />
+      {on('test').map((_, { child }) => (
+        <button onClick={() => trigger(child('click'))} />
       ))}
     </div>
   );
-  on('= test.click', t.pass).listen();
+  data.on('= test.click', t.pass);
   set('test', { show: true });
   await html();
   document.querySelector('button')!.dispatchEvent(new Event('click'));
 });
 
 test('Domponent-listeners should not affect global listeners', async t => {
-  on('+!* test', t.pass).listen();
+  data.on('+!* test', t.pass);
 
   function T() {
     const e = <div></div>;
-    on('+!* test', v => (e.innerHTML = v)).attach(e);
+    e.attach(on('test').map(v => (e.innerHTML = v)));
     return e;
   }
 
-  init(element, <div>{on('show', show => (show ? <T /> : null))}</div>);
+  init(element, <div>{on('show').map(show => (show ? <T /> : null))}</div>);
   await html();
   set('show', true);
   await html();
@@ -1724,14 +1858,7 @@ test('Domponent-listeners should not affect global listeners', async t => {
 });
 
 test('global listener start by itself', async t => {
-  on('+!* test', t.pass).listen();
-  set('test', 'YES!');
-});
-
-test('global listener with then - start by itself', async t => {
-  on('test')
-    .then(t.pass)
-    .listen();
+  data.on('+!* test', t.pass);
   set('test', 'YES!');
 });
 
@@ -1744,9 +1871,14 @@ test('TS and types', async t => {
     name: 'Hello',
   };
 
-  on<Ok>('!+* ok', ok => {
-    t.is(ok.name, 'Hello');
-  }).listen();
+  init(
+    element,
+    <div>
+      {on('ok').map<Ok>(ok => {
+        t.is(ok.name, 'Hello');
+      })}
+    </div>
+  );
   set('ok', ok);
 });
 
@@ -1762,9 +1894,9 @@ test('sub-path', async t => {
   init(
     element,
     <div>
-      {on('players.$id', (player, { subPath }) => (
+      {on('players.$id').map((player, { child }) => (
         <div>
-          {player.name}/{on(subPath('level'))}
+          {player.name}/{on(child('level'))}
         </div>
       ))}
     </div>
@@ -1781,9 +1913,9 @@ test('sub-path pathifier', async t => {
   init(
     element,
     <div>
-      {on('players').map((player, { subPath }) => (
+      {on('players.$').map((player, { child }) => (
         <div>
-          {player.name}/{on(subPath('level'))}
+          {player.name}/{on(child('level'))}
         </div>
       ))}
     </div>
@@ -1801,9 +1933,11 @@ test('standalone on', async t => {
     <div>
       {(() => {
         const e = <b />;
-        on('!+* test', res => {
-          e.textContent = res;
-        }).attach(e);
+        e.attach(
+          on('test').map(res => {
+            e.textContent = res;
+          })
+        );
         return e;
       })()}
     </div>
@@ -1818,14 +1952,16 @@ test('sub-path pathifier standalone on', async t => {
   init(
     element,
     <main>
-      {on('players').map((player, { subPath }) => (
+      {on('players.$').map((player, { child }) => (
         <div>
           {player.name}
           {(() => {
             const e = <b />;
-            on('!+* ' + subPath('level'), level => {
-              e.textContent = level;
-            }).attach(e);
+            e.attach(
+              on(child('level')).map(level => {
+                e.textContent = level;
+              })
+            );
             return e;
           })()}
         </div>
@@ -1840,4 +1976,78 @@ test('sub-path pathifier standalone on', async t => {
 test('data attribute', async t => {
   const a = <li data-value="yes"></li>;
   t.is(a.dataset.value, 'yes');
+});
+
+test('lists', async t => {
+  init(
+    element,
+    <div>
+      users:
+      <ul>
+        {on('users.$.*').map(_ => (
+          <li>{_.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
+
+  set('users', [{ name: 'eirik' }, { name: 'steffen' }]);
+  t.is(
+    await html(),
+    '<div>users:<ul><li>eirik</li><li>steffen</li></ul></div>'
+  );
+  set('users.0.name', 'wut');
+  t.is(await html(), '<div>users:<ul><li>wut</li><li>steffen</li></ul></div>');
+});
+
+test('Pathifier instead of Domponent', async t => {
+  function Ok() {
+    return on('test');
+  }
+
+  init(
+    element,
+    <div>
+      <Ok></Ok>
+    </div>
+  );
+  t.is(await html(), '<div></div>');
+  set('test', 'ing');
+  t.is(await html(), '<div>ing</div>');
+});
+
+test('Pathifier instead of Domponent with mounted', async t => {
+  function Ok({}, { mounted }) {
+    mounted(() => {
+      t.pass();
+    });
+    return on('test');
+  }
+
+  init(
+    element,
+    <div>
+      <Ok></Ok>
+    </div>
+  );
+});
+
+test('Pathifier instead of Domponent with element', async t => {
+  function Ok() {
+    return on('test')
+      .map(test => (test ? <h1>h1</h1> : <h2>h2</h2>))
+      .or('nope');
+  }
+
+  init(
+    element,
+    <div>
+      <Ok></Ok>
+    </div>
+  );
+  t.is(await html(), '<div>nope</div>');
+  set('test', false);
+  t.is(await html(), '<div><h2>h2</h2></div>');
+  set('test', true);
+  t.is(await html(), '<div><h1>h1</h1></div>');
 });

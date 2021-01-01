@@ -1,3 +1,5 @@
+import { Pathifier } from '@eirikb/data';
+
 export type OptChildren = any[];
 export type OptMounted = (cb: () => void) => void;
 
@@ -9,6 +11,7 @@ export interface Opts {
 export interface Domode extends HTMLElement, Mountable {
   isMounted: boolean;
   mountables: Mountable[];
+  attach(pathifier: Pathifier);
 }
 
 export interface Mountable {
@@ -17,9 +20,8 @@ export interface Mountable {
   unmounted();
 }
 
-export type SubPath = (path: string) => string;
+export interface Stower {
+  add(value: any, index: number, subIndex?: number, path?: string): void;
 
-export type HodorCallback<T> = (
-  value: T,
-  props: { [key: string]: any; path: string; subPath: SubPath }
-) => void;
+  remove(value: any, index: number, subIndex?: number, path?: string): void;
+}

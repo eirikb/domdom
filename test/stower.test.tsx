@@ -213,6 +213,24 @@ test('replace single', t => {
   t.deepEqual(element.innerHTML, '<b></b>');
 });
 
+test('replace single 2', t => {
+  const { element, stower, a, b, c } = t.context;
+  stower.add(a, 0);
+  stower.add(b, 1);
+  t.deepEqual(element.innerHTML, '<a></a><b></b>');
+  stower.add(c, 0);
+  t.deepEqual(element.innerHTML, '<c></c><b></b>');
+});
+
+test('replace single subindex 2', t => {
+  const { element, stower, a, b, c } = t.context;
+  stower.add(a, 0, 0);
+  stower.add(b, 0, 1);
+  t.deepEqual(element.innerHTML, '<a></a><b></b>');
+  stower.add(c, 0, 0);
+  t.deepEqual(element.innerHTML, '<c></c><a></a><b></b>');
+});
+
 test('replace array', t => {
   const { element, stower, a, b, div, span } = t.context;
   stower.add([a, b], 0);
@@ -339,4 +357,18 @@ test('replace array with subindex', t => {
   t.deepEqual(element.innerHTML, '+');
   stower.add([null, '+'], 0, 0);
   t.deepEqual(element.innerHTML, '+');
+});
+
+test('filterOn error', t => {
+  const { element, stower } = t.context;
+  stower.add('a', 0, 0);
+  stower.add('b', 0, 0);
+  stower.add('c', 0, 0);
+  stower.remove(null, 0, 0);
+  stower.add('c', 0, 3);
+  stower.remove(null, 0, 1);
+  stower.add('a', 0, 0);
+  stower.remove(null, 0, 2);
+  stower.add('c', 0, 2);
+  t.is(element.innerHTML, 'abc');
 });

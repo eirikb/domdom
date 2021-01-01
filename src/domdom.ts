@@ -1,23 +1,12 @@
-import { Data } from '@eirikb/data';
-import { DomStower } from './dom-stower';
+import { Data, Pathifier } from '@eirikb/data';
+import { DomStower, StowerTransformer } from './dom-stower';
 import { DomSquint } from './dom-squint';
 import ddProps from './dd-props';
-import { Hodor } from './hodor';
-import { Domode, HodorCallback, Opts } from './types';
-
-export type DomdomListenerCallback<T> = (
-  value: T,
-  props: {
-    subPath: string;
-    fullPath: string;
-    path: string;
-    p: (path: string) => string;
-    [key: string]: any;
-  }
-) => any;
+import { Domode, Opts } from './types';
+import { DomPathifier } from './pathifier';
 
 export class React {
-  private data: Data;
+  private readonly data: Data;
 
   constructor(data: Data) {
     this.data = data;
@@ -27,7 +16,7 @@ export class React {
     input: string | Function,
     props?: { [key: string]: any },
     ...children: any[]
-  ): Domode {
+  ): Domode | Pathifier {
     children = [].concat(...children);
 
     if (typeof input === 'function') {
@@ -38,7 +27,7 @@ export class React {
           cbs.push(cb);
         },
       };
-      const res = input({ ...props }, options) as Domode;
+      const res = input({ ...props }, options) as Domode | DomPathifier;
       res.mountables.push({
         mounted() {
           for (const cb of cbs) {
@@ -55,9 +44,6 @@ export class React {
 
     el.mounted = () => {
       for (const mountable of el.mountables) {
-        if (mountable instanceof Hodor && !mountable.element) {
-          mountable.element = el;
-        }
         mountable.mounted();
       }
     };
@@ -71,11 +57,9 @@ export class React {
 
     for (let index = 0; index < children.length; index++) {
       const child = children[index];
-      if (child instanceof Hodor) {
-        const hodor = child as Hodor;
-        el.mountables.push(hodor);
-        hodor.stower(index, stower);
-        hodor.element = el;
+      if (child instanceof DomPathifier) {
+        el.mountables.push(child);
+        child.transformer = new StowerTransformer(stower, index);
       } else {
         stower.add(child, index);
       }
@@ -83,12 +67,17 @@ export class React {
 
     ddProps(this.data, el.mountables, el, props);
 
+    el.attach = (pathifier: DomPathifier) => {
+      el.mountables.push(pathifier);
+      pathifier.init();
+    };
+
     return el;
   }
 }
 
 export class Domdom {
-  private data: Data;
+  public readonly data: Data;
   React: React;
 
   constructor(data: Data) {
@@ -96,11 +85,8 @@ export class Domdom {
     this.React = new React(this.data);
   }
 
-  on = <T = any>(path: string, cb?: HodorCallback<T>) => {
-    if (path.startsWith('>')) {
-      throw new Error('Sub path selector no longer supported');
-    }
-    return new Hodor<T>(this.data, path, cb);
+  on = (path: string): Pathifier => {
+    return new DomPathifier(this.data, path);
   };
 
   set = (path: string, value: any, byKey?: string) => {
@@ -111,7 +97,7 @@ export class Domdom {
     this.data.unset(path);
   };
 
-  get = <T = any>(path?: string): T => {
+  get = <T = any>(path?: string): T | undefined => {
     if (!path) return this.data.get();
     return this.data.get(path);
   };

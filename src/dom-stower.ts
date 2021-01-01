@@ -1,7 +1,32 @@
-import { Stower } from '@eirikb/data';
+import { BaseTransformer, Entry } from '@eirikb/data';
+import { Stower } from './types';
 
 export function isProbablyPlainObject(obj: any) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
+}
+
+export class StowerTransformer extends BaseTransformer {
+  private readonly _stower: Stower;
+  private readonly _index: number;
+
+  constructor(stower: Stower, index: number) {
+    super();
+    this._stower = stower;
+    this._index = index;
+  }
+
+  add(index: number, entry: Entry): void {
+    this._stower.add(entry.value, this._index, index);
+  }
+
+  remove(index: number, entry: Entry): void {
+    this._stower.remove(entry.value, this._index, index);
+  }
+
+  update(oldIndex: number, index: number, entry: Entry): void {
+    this._stower.remove(entry.value, this._index, oldIndex);
+    this._stower.add(entry.value, this._index, index);
+  }
 }
 
 export class DomStower implements Stower {
@@ -98,11 +123,7 @@ export class DomStower implements Stower {
       this._add(index, child, before!);
     }
     this.slots[index] = this.slots[index] || [];
-    if (this.slots[index][subIndex]) {
-      this.slots[index].splice(subIndex, 0, child);
-    } else {
-      this.slots[index][subIndex] = child;
-    }
+    this.slots[index].splice(subIndex, 0, child);
     if (subIndex === 0) {
       this.first[index] = isArray ? child[0] : child;
     }
@@ -123,7 +144,7 @@ export class DomStower implements Stower {
   }
 
   removeWithSubIndex(index: number, subIndex: number) {
-    const child = (this.slots[index] || {})[subIndex];
+    const child = (this.slots[index] || [])[subIndex];
     if (!child) return;
 
     if (Array.isArray(child)) {

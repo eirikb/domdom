@@ -48,7 +48,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Set env
-        run: echo ::set-env name=PKG_VERSION::$(npm show . version)
+        run: echo "PKG_VERSION=$(npm show . version)" >> $GITHUB_ENV
       - name: Create Release
         id: create_release
         uses: actions/create-release@latest

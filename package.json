@@ -1,6 +1,6 @@
 {
   "name": "@eirikb/domdom",
-  "version": "5.8.0",
+  "version": "6.0.0",
   "description": "The proactive web front-end framework for the unprofessional",
   "scripts": {
     "build": "tsdx build",
@@ -40,13 +40,13 @@
   },
   "module": "dist/domdom.esm.js",
   "dependencies": {
-    "@eirikb/data": "^3.5.1"
+    "@eirikb/data": "^4.0.1"
   },
   "devDependencies": {
     "ava": "3.8.2",
     "browser-env": "^3.3.0",
     "ts-node": "^8.10.2",
-    "tsdx": "^0.13.2",
+    "tsdx": "^0.14.1",
     "tslib": "^2.0.0",
     "typescript": "^3.9.5"
   }
