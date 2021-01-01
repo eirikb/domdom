@@ -97,6 +97,8 @@ export class Domdom {
     this.data.unset(path);
   };
 
+  off = (refs: string) => this.data.off(refs);
+
   get = <T = any>(path?: string): T | undefined => {
     if (!path) return this.data.get();
     return this.data.get(path);
