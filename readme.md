@@ -33,12 +33,12 @@
 - Support for TypeScript
 - Nothing reactive - totally unreactive - fundamentally different from React
 - One global observable state
-  - Support for re-usable components (with partition of global state)
-  - No local state
+    - Support for re-usable components (with partition of global state)
+    - No local state
 - JSX return pure elements
 - Doesn't support arrays
 
-  - It's not as bad as you might think - Not great, not terrible
+    - It's not as bad as you might think - Not great, not terrible
 
 ## Menu
 
@@ -54,14 +54,12 @@
   - ["Domponents"](#domponents)
     - [Children / Composition](#children--composition)
   - [Events](#events)
-  - [on(path, callback)](#onpath-callback)
+  - [on(path)](#onpath)
     - [Standalone `on`](#standalone-on)
-    - [Sub-paths](#sub-paths)
+    - [Child path lookup](#child-path-lookup)
   - [or](#or)
   - [dd-model](#dd-model)
   - [Attributes](#attributes)
-  - [Arrays / lists](#arrays--lists)
-    - [Arrays in JSX](#arrays-in-jsx)
     - [Pathifier](#pathifier)
 - [Recipes](#recipes)
   - [Routing](#routing)
@@ -86,8 +84,9 @@ npm i @eirikb/domdom
 index.html:
 
 ```html
+
 <body>
-  <script src="app.jsx"></script>
+<script src="app.jsx"></script>
 </body>
 ```
 
@@ -96,7 +95,7 @@ app.jsx:
 ```jsx
 import domdom from '@eirikb/domdom';
 
-const { React, init, on, get, set, trigger } = domdom();
+const { React, init, on, set } = domdom();
 
 const view = <div>Hello, {on('name')}</div>;
 
@@ -117,6 +116,7 @@ npx parcel index.html
 
 ```jsx
 import domdom from '@eirikb/domdom';
+
 const dd = domdom(parentElement, view);
 ```
 
@@ -137,7 +137,7 @@ By creating a function you create a Domponent (component).
 function MyComponent() {
   return (
     <ul>
-      {on('players.$id.name', name => (
+      {on('players.$id.name').map(name => (
         <li>Player {name}</li>
       ))}
     </ul>
@@ -166,10 +166,18 @@ const view = (
 In TypeScript (TSX):
 
 ```tsx
-import { Opts } from '@eirikb/domdom';
+import {Opts} from '@eirikb/domdom';
 
-const Button = ({ something }: { someting: string }, { children }: Opts) => (
-  <button>{children}</button>
+const Button = ({something}: { something: string }, {children}: Opts) => (
+    <button>{children}</button>
+);
+
+const view = (
+    <div>
+        <Button something=":)">
+            <b>Hello</b>
+        </Button>
+    </div>
 );
 ```
 
@@ -183,15 +191,12 @@ function MyButton() {
 }
 ```
 
-### on(path, callback)
-
-`callback` is optional, if omitted the result will be returned as-is,  
-either as string or JSON of object.
+### on(path)
 
 ```jsx
 const view = (
   <ul>
-    {on('players.$id.name', name => (
+    {on('players.$id.name').map(name => (
       <li>Player {name}</li>
     ))}
     {on('info')}
@@ -199,13 +204,19 @@ const view = (
 );
 ```
 
-This will match on `players.1.name` and `players.2.name` etc.
+This will match on `players.p1.name` and `players.p2.name` etc. The `$id` is a **path modifier**. domdom supports these
+modifiers:
 
-`path` can contain wildcards, either names with `$` or any with `*`.
-Named wildcards can be resolved in the callback:
+```
+     $x   Named wildcard
+     *    Wildcard
+     **   Recursive wildcard (can only be put at the end)
+```
+
+`path` can contain wildcards, either names with `$` or any with `*`. Named wildcards can be resolved in the callback:
 
 ```jsx
-on('players.$id', (player, { $id }) => console.log(`Id is ${$id}`));
+on('players.$id').map((player, { $id }) => console.log(`Id is ${$id}`));
 ```
 
 You can have multiple wildcards: `players.$id.items.$itemId.size`.
@@ -214,33 +225,50 @@ You can have multiple wildcards: `players.$id.items.$itemId.size`.
 
 `on` inside JSX will be attached to the element so listeners are turned on/off based on elements present in the DOM.  
 Calling `on` outside of JSX will _not_ automatically start the listener.  
-This is a quirk. Sorry.  
-If you want a global forever running listener call `listen()`, like this:
+If you want a global forever call `globalOn()`. This returns a string reference you can use to remove the listener,
+using `off`:
 
 ```js
-on('!+* test', console.log).listen();
+const ref = globalOn('!+* test', console.log);
+// ... later
+off(ref);
+```
+
+The `!+*` above are flags. These only apply to `globalOn`. They state when the listener should trigger. You can have one
+or several of these. The space separate flags and path. Supported flags are:
+
+```
+     *   Value changed
+     !   Immediate callback if value exists
+     +   Value added
+     -   Value removed
+     =   Trigger only (no value set)
 ```
 
 If you have an element you should `attach` it to that, like this:
 
 ```jsx
 const element = <div></div>;
-on('!*+ test', x => element.textContent = x).attach(element);
+element.attach(
+  on('!*+ test', x => element.textContent = x)
+);
 ```
 
-#### Sub-paths
+`attach` is added to elements created by domdom (`Domode` in TSX).
 
-By using `subPath` it's possible to listen to relative paths "from parent".  
+#### Child path lookup
+
+By using `child` it's possible to listen to relative paths "from parent".  
 This is how it's possible to make re-usable "detached" components.  
 They have data in global state, but don't rely on the parent path.
 
 ```jsx
 const view = (
   <div>
-    {on('players.$id', (player, {subPath}) => (
+    {on('players.$id').map((player, { child }) => (
       <div>
-        Player name: (won't update on change): {player.name} <br />
-        {on(subPath('name'), name => (
+        Player name: (won't update on change): {player.name} <br/>
+        {on(child('name')).map(name => (
           <span>Player name: {name}</span>
         ))}
       </div>
@@ -251,13 +279,13 @@ const view = (
 
 ### or
 
-Neither `on` will trigger unless there is a value on the path, in order to show something at all
-until some value is set `or` must be used.
+Neither `on` will trigger unless there is a value on the path, in order to show something at all until some value is
+set `or` must be used.
 
 ```jsx
 const view = (
   <div>
-    {on('ready', () => 'Ready!').or(
+    {on('ready').map(() => 'Ready!').or(
       <div>Loading app in the fastest possible way...</div>
     )}
   </div>
@@ -271,19 +299,19 @@ Similar to v-model and ng-model.
 Suggest not using this if possible, using forms directly like in recipes is much better.
 
 ```jsx
-on('= search', event => {
+globalOn('= search', event => {
   event.preventDefault();
   set('result', `Data for ${get('text')} here...`);
 });
 
 const view = (
   <form onSubmit={e => trigger('search', e)}>
-    <input type="search" dd-model="text" />
-    <input type="checkbox" dd-model="more" />
-    {on('more', () => 'This is more')}
+    <input type="search" dd-model="text"/>
+    <input type="checkbox" dd-model="more"/>
+    {on('more').map(() => 'This is more')}
     Current text: {on('text')}
     <button type="submit">Search</button>
-    {on('result', _ => _)}
+    {on('result')}
   </form>
 );
 ```
@@ -298,92 +326,15 @@ const view = (
   <div>
     <button onClick={() => set('toggle', !get('toggle'))}>Toggle</button>
     <button disabled={on('toggle').or(true)}>A</button>
-    <button disabled={on('toggle', res => !res)}>B</button>
+    <button disabled={on('toggle').map(res => !res)}>B</button>
   </div>
 );
 ```
 
-### Arrays / lists
-
-domdom doesn't support arrays.  
-Meaning it's not possible to put arrays into state, if you try they will be converted into properties based on index.  
-E.g.,
-
-```js
-set('users', ['Mr. A', 'Mr. B']);
-
-// Becomes
-const result = {
-  users: {
-    0: 'Mr. A',
-    1: 'Mr. B',
-  },
-};
-```
-
-You can provide a key as third argument to `set` in order to use a property as key instead of index.
-E.g.,
-
-```js
-set(
-  'users',
-  [
-    { id: 'a', name: 'Mr. A' },
-    { id: 'b', name: 'Mr. B' },
-  ],
-  'id'
-);
-
-// Becomes
-const result = {
-  users: {
-    a: { id: 'a', name: 'Mr. A' },
-    b: { id: 'b', name: 'Mr. B' },
-  },
-};
-```
-
-#### Arrays in JSX
-
-If you provide a path with a wildcard such as `$id` to `on` elements will render as a list/array,
-but you can't control things like order. It's just a way to get "data out there".
-
-E.g.,
-
-```jsx
-const view = (
-  <ul>
-    {on('users.$id', user => (
-      <li>{user.name}</li>
-    ))}
-  </ul>
-);
-
-set(
-  'users',
-  [
-    { id: 'a', name: 'Mr. A' },
-    { id: 'b', name: 'Mr. B' },
-    { id: 'b', name: 'Mr. C' },
-  ],
-  'id'
-);
-```
-
-Will render as:
-
-```html
-<ul>
-  <li>Mr. A</li>
-  <li>Mr. B</li>
-  <li>Mr. C</li>
-</ul>
-```
-
 #### Pathifier
 
-If you want custom sorting and/or filtering you can use a **Pathifier**.  
-Creating one is a bit quirky, you call `on` without a listener, and then chain with `map`. Weird.
+Every time you call `on` you always get a `pathifier`. With support for `map`, `filter`, `sort`, `slice` and `aggregate`
+.
 
 E.g.,
 
@@ -401,14 +352,15 @@ const view = (
 Will render as:
 
 ```html
+
 <ul>
   <li>Mr. C</li>
   <li>Mr. A</li>
 </ul>
 ```
 
-There's also a `filterOn` and `sortOn`.
-Use these if you want to listen for another path for changes, and then filter/sort when these changes.  
+There's also `mapOn`, `filterOn`, `sortOn` and `sliceOn`. Use these if you want to listen for another path for changes,
+and then map/filter/sort/slice when these changes.  
 This will listen both for changes on the given path, and the path provided to the method.
 
 E.g.,
@@ -418,7 +370,7 @@ const view = (
   <ul>
     {on('users')
       .map(user => <li>{user.name}</li>)
-      .filterOn('test', (filter, user) => user.name !== filter)}
+      .filterOn('test', (user, { onValue }) => user.name !== onValue)}
   </ul>
 );
 set('test', 'Mr. C');
@@ -428,6 +380,7 @@ set('test', 'Mr. C');
 Will render as:
 
 ```html
+
 <ul>
   <li>Mr. A</li>
   <li>Mr. B</li>
@@ -443,13 +396,13 @@ How to handle common tasks with domdom
 ```jsx
 const view = (
   <div>
-    {on('route', route => {
+    {on('route').map(route => {
       switch (route) {
         case 'login':
-          return <Login />;
+          return <Login/>;
 
         case 'welcome':
-          return <Welcome />;
+          return <Welcome/>;
 
         default:
           return 'Loading app...';
@@ -480,8 +433,8 @@ function login(event) {
 
 const view = (
   <form onSubmit={login}>
-    <input name="username" />
-    <input name="password" type="password" />
+    <input name="username"/>
+    <input name="password" type="password"/>
     <button type="submit">Login</button>
   </form>
 );
@@ -498,6 +451,7 @@ const dd = domdom();
 export const React = dd.React;
 export const init = dd.init;
 export const on = dd.on;
+export const globalOn = dd.globalOn;
 export const get = dd.get;
 export const set = dd.set;
 export const trigger = dd.trigger;
@@ -506,8 +460,9 @@ export const trigger = dd.trigger;
 _data.js_
 
 ```js
-import { on, set } from './domdom';
-on('= search', event => {
+import { on, globalOn, set } from './domdom';
+
+globalOn('= search', event => {
   event.preventDefault();
   const searchText = event.target.search.value;
   set('result', `Data for ${searchText} here...`);
@@ -522,9 +477,9 @@ import { on, init, trigger } from './domdom';
 
 const view = (
   <form onSubmit={e => trigger('search', e)}>
-    <input type="search" name="search" />
+    <input type="search" name="search"/>
     <button type="submit">Search</button>
-    {on('result', _ => _)}
+    {on('result')}
   </form>
 );
 
@@ -535,15 +490,16 @@ init(document.body, view);
 
 At writing moment domdom doesn't have any unmount callback.  
 I'm not a big fan of destructors, unmounted, dispose or similar.  
-This might seem silly, and it might not be obvious how to use say `setInterval`,
-without this preventing the element from ever being cleaned up by garbage collector.  
-The idea is to use `dd` for such things, as these listeners are automatically cleaned up.
+This might seem silly, and it might not be obvious how to use say `setInterval`, without this preventing the element
+from ever being cleaned up by garbage collector.
 
 ```jsx
 const view = (() => {
-  const img = <img src="https://i.imgur.com/rsD0RUq.jpg" />;
+  const img = <img src="https://i.imgur.com/rsD0RUq.jpg"/>;
 
-  on('tick', time => (img.style.transform = `rotate(${time % 180}deg)`));
+  img.attach(
+    on('tick').map(time => (img.style.transform = `rotate(${time % 180}deg)`))
+  );
 
   return (
     <div>
