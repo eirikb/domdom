@@ -1,4 +1,4 @@
-import { Data, Pathifier } from '@eirikb/data';
+import { Data, ListenerCallbackWithType, Pathifier } from '@eirikb/data';
 import { DomStower, StowerTransformer } from './dom-stower';
 import { DomSquint } from './dom-squint';
 import ddProps from './dd-props';
@@ -77,7 +77,7 @@ export class React {
 }
 
 export class Domdom {
-  public readonly data: Data;
+  private readonly data: Data;
   React: React;
 
   constructor(data: Data) {
@@ -105,6 +105,11 @@ export class Domdom {
   trigger = (path: string, value?: any) => {
     return this.data.trigger(path, value);
   };
+
+  globalOn = <T = any>(
+    flagsAndPath: string,
+    listener: ListenerCallbackWithType<T>
+  ): string => this.data.on(flagsAndPath, listener);
 
   init = (parent: HTMLElement, child?: HTMLElement) => {
     const domSquint = new DomSquint(parent);

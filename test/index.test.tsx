@@ -23,7 +23,7 @@ async function html() {
   return element.innerHTML;
 }
 
-let { init, React, get, set, unset, on, trigger, data } = new Domdom(
+let { init, React, get, set, unset, on, trigger, globalOn } = new Domdom(
   new Data()
 );
 
@@ -37,7 +37,7 @@ test.beforeEach(() => {
   get = d.get;
   on = d.on;
   trigger = d.trigger;
-  data = d.data;
+  globalOn = d.globalOn;
 });
 
 test('Component', async t => {
@@ -1761,13 +1761,13 @@ test('properties without value should not crash', async t => {
 test('path should not be part of data', async t => {
   t.plan(3);
   init(element, <div>{on('test')}</div>);
-  data.on('!+* test', val => {
+  globalOn('!+* test', val => {
     t.deepEqual(val, { hello: 'world' });
   });
   set('test', {
     hello: 'world',
   });
-  data.on('!+* test', val => {
+  globalOn('!+* test', val => {
     t.deepEqual(val, { hello: 'world' });
   });
   t.is('<div>{"hello":"world"}</div>', await html());
@@ -1833,14 +1833,14 @@ test('sub-path trigger', async t => {
       ))}
     </div>
   );
-  data.on('= test.click', t.pass);
+  globalOn('= test.click', t.pass);
   set('test', { show: true });
   await html();
   document.querySelector('button')!.dispatchEvent(new Event('click'));
 });
 
 test('Domponent-listeners should not affect global listeners', async t => {
-  data.on('+!* test', t.pass);
+  globalOn('+!* test', t.pass);
 
   function T() {
     const e = <div></div>;
@@ -1858,7 +1858,7 @@ test('Domponent-listeners should not affect global listeners', async t => {
 });
 
 test('global listener start by itself', async t => {
-  data.on('+!* test', t.pass);
+  globalOn('+!* test', t.pass);
   set('test', 'YES!');
 });
 
