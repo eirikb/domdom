@@ -5,6 +5,18 @@ import { Data } from '@eirikb/data';
 const pathSymbol = Symbol('Path');
 const proxiedSymbol = Symbol('Proxied');
 
+const p = (o, path: string[] = []) => {
+  const oldPath = (o || {})[pathSymbol];
+  if (oldPath) path = oldPath;
+  if (!o || !isProbablyPlainObject(o)) o = {};
+  return new Proxy(o, {
+    get: (target, key) => {
+      if (key === pathSymbol) return path;
+      return p(target[key], path.concat(String(key)));
+    },
+  });
+};
+
 export class GodMode<T> extends Domdom {
   public data: T;
 
@@ -62,19 +74,7 @@ export class GodMode<T> extends Domdom {
     });
   }
 
-  private p = (o, path: string[] = []) => {
-    const oldPath = (o || {})[pathSymbol];
-    if (oldPath) path = oldPath;
-    if (!o || !isProbablyPlainObject(o)) o = {};
-    return new Proxy(o, {
-      get: (target, key) => {
-        if (key === pathSymbol) return path;
-        return this.p(target[key], path.concat(String(key)));
-      },
-    });
-  };
-
   path = <X = T>(cb: (o: X) => any): string => {
-    return cb(this.p({}))[pathSymbol].join('.');
+    return cb(p({}))[pathSymbol].join('.');
   };
 }
