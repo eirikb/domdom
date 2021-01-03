@@ -1,24 +1,33 @@
 import { isProbablyPlainObject } from './dom-stower';
 import { Domdom } from './domdom';
+import { Data } from '@eirikb/data';
 
-export const godMode = <T>(domdom: Domdom) => {
-  const pathSymbol = Symbol('Path');
-  const proxiedSymbol = Symbol('Proxied');
+const pathSymbol = Symbol('Path');
+const proxiedSymbol = Symbol('Proxied');
 
-  const set = (path: string[], value: any) => {
+export class GodMode<T> extends Domdom {
+  public data: T;
+
+  constructor(data: Data) {
+    super(data);
+
+    this.data = this.proxify({}) as T;
+  }
+
+  private _set = (path: string[], value: any) => {
     if (isProbablyPlainObject(value)) {
       value = Object.assign({}, value);
     } else if (Array.isArray(value)) {
       value = value.slice();
     }
-    domdom.set(path.join('.'), value);
+    this.set(path.join('.'), value);
   };
 
-  const unset = (path: string[]) => {
-    domdom.unset(path.join('.'));
+  private _unset = (path: string[]) => {
+    this.unset(path.join('.'));
   };
 
-  function proxify(o: any, path: string[] = []) {
+  private proxify(o: any, path: string[] = []) {
     if (!(isProbablyPlainObject(o) || Array.isArray(o))) {
       return o;
     }
@@ -26,17 +35,17 @@ export const godMode = <T>(domdom: Domdom) => {
     if (o[proxiedSymbol]) return o;
 
     return new Proxy(o, {
-      set: function(target, key, value) {
+      set: (target, key, value) => {
         const p = path.concat(String(key));
-        set(p, value);
+        this._set(p, value);
         target[key] = value;
         return true;
       },
-      deleteProperty: function(target, key) {
-        unset(path.concat(String(key)));
+      deleteProperty: (target, key) => {
+        this._unset(path.concat(String(key)));
         return delete target[key];
       },
-      get: function(target, key) {
+      get: (target, key) => {
         if (key === pathSymbol) return path;
         else if (key === proxiedSymbol) return true;
 
@@ -44,31 +53,28 @@ export const godMode = <T>(domdom: Domdom) => {
         if (typeof value === 'function') {
           return (...args) => {
             const res = value.call(target, ...args);
-            set(path, target);
+            this._set(path, target);
             return res;
           };
         }
-        return proxify(value, path.concat(String(key)));
+        return this.proxify(value, path.concat(String(key)));
       },
     });
   }
 
-  const p = (o, path: string[] = []) => {
+  private p = (o, path: string[] = []) => {
     const oldPath = (o || {})[pathSymbol];
     if (oldPath) path = oldPath;
     if (!o || !isProbablyPlainObject(o)) o = {};
     return new Proxy(o, {
-      get(target, key) {
+      get: (target, key) => {
         if (key === pathSymbol) return path;
-        return p(target[key], path.concat(String(key)));
+        return this.p(target[key], path.concat(String(key)));
       },
     });
   };
 
-  return {
-    pathOf<X = T>(cb: (o: X) => any): string {
-      return cb(p({}))[pathSymbol].join('.');
-    },
-    data: proxify({}) as T,
+  path = <X = T>(cb: (o: X) => any): string => {
+    return cb(this.p({}))[pathSymbol].join('.');
   };
-};
+}

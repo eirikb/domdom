@@ -11,6 +11,7 @@ export interface Opts {
 export interface Domode extends HTMLElement, Mountable {
   isMounted: boolean;
   mountables: Mountable[];
+
   attach(pathifier: Pathifier);
 }
 

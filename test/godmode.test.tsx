@@ -1,8 +1,7 @@
 import { serial as test } from 'ava';
 // @ts-ignore
 import browserEnv from 'browser-env';
-import { Domdom } from '../src/domdom';
-import { Data } from '@eirikb/data';
+import { godMode } from '../src';
 
 browserEnv();
 
@@ -22,28 +21,21 @@ async function html() {
   return element.innerHTML;
 }
 
-let { init, React, get, on, godMode } = new Domdom(new Data());
-
 test.beforeEach(() => {
   createElement();
-  const d = new Domdom(new Data());
-  init = d.init;
-  React = d.React;
-  get = d.get;
-  on = d.on;
-  godMode = d.godMode;
 });
 
 test('hello godMode', async t => {
-  const { data } = godMode<any>();
+  const { get, data } = godMode<any>();
   data.katt = ':)';
   t.is(get('katt'), ':)');
 });
 
 test('godMode', async t => {
+  const { init, React, on, data } = godMode<any>();
+
   init(element, <div>{on('katt')}</div>);
 
-  const { data } = godMode<any>();
   data.katt = ':)';
   t.is(await html(), '<div>:)</div>');
   data.katt = ':O';
@@ -53,6 +45,8 @@ test('godMode', async t => {
 });
 
 test('godMode 2', async t => {
+  const { init, React, on, data } = godMode<any>();
+
   init(
     element,
     <div>
@@ -62,7 +56,6 @@ test('godMode 2', async t => {
     </div>
   );
 
-  const { data } = godMode<any>();
   data.users = { a: { name: 'hello' }, b: { name: 'world' } };
   t.is(await html(), '<div><b>hello</b><b>world</b></div>');
   data.users.a.name = 'wut';
@@ -74,6 +67,8 @@ test('godMode 2', async t => {
 });
 
 test('godMode 3', async t => {
+  const { init, React, on, data } = godMode<any>();
+
   init(
     element,
     <div>
@@ -83,7 +78,6 @@ test('godMode 3', async t => {
     </div>
   );
 
-  const { data } = godMode<any>();
   data.users = [{ name: 'hello' }, { name: 'world' }];
   t.is(await html(), '<div><b>hello</b><b>world</b></div>');
   data.users[0].name = 'wut';
@@ -95,6 +89,7 @@ test('godMode 3', async t => {
 });
 
 test('godMode 4', async t => {
+  const { init, React, on, data } = godMode<any>();
   init(
     element,
     <div>
@@ -104,7 +99,6 @@ test('godMode 4', async t => {
     </div>
   );
 
-  const { data } = godMode<any>();
   data.users = [{ name: 'hello' }, { name: 'world' }];
   data.users.push({ name: ':)' });
   t.is(await html(), '<div><b>hello</b><b>world</b><b>:)</b></div>');
@@ -124,7 +118,7 @@ test('godMode 5', t => {
   );
 });
 
-test('pathOf', t => {
+test('path', t => {
   interface User {
     name: string;
   }
@@ -135,18 +129,45 @@ test('pathOf', t => {
     };
   }
 
-  const { pathOf } = godMode<Yes>();
+  const { path } = godMode<Yes>();
+
   t.is(
-    pathOf(y => y.a),
+    path(y => y.a),
     'a'
   );
   t.is(
-    pathOf(y => y.a.users),
+    path(y => y.a.users),
     'a.users'
   );
   t.is(
-    pathOf(y => y.a.users['$id']),
+    path(y => y.a.users['$id']),
     'a.users.$id'
+  );
+});
+
+test('path 2', t => {
+  interface User {
+    name: string;
+  }
+
+  interface Yes {
+    a: {
+      users: User[];
+    };
+  }
+
+  const { path, data } = godMode<Yes>();
+  data.a = {
+    users: [{ name: 'Yes!' }],
+  };
+
+  t.is(
+    path(y => y.a),
+    'a'
+  );
+  t.is(
+    path<User>(u => u[0]),
+    '0'
   );
 });
 
@@ -161,20 +182,20 @@ test('pathProxy', t => {
     };
   }
 
-  const { data, pathOf } = godMode<Yes>();
+  const { path, get, data } = godMode<Yes>();
   data.a = {
     users: [{ name: 'Yes!' }],
   };
 
-  t.deepEqual(get(pathOf(y => y.a)), { users: [{ name: 'Yes!' }] });
-  t.deepEqual(get(pathOf(y => y.a.users)), [{ name: 'Yes!' }]);
-  t.deepEqual(get(pathOf(y => y.a.users[0])), { name: 'Yes!' });
-  t.deepEqual(get(pathOf(y => y.a.users[0].name)), 'Yes!');
+  t.deepEqual(get(path(y => y.a)), { users: [{ name: 'Yes!' }] });
+  t.deepEqual(get(path(y => y.a.users)), [{ name: 'Yes!' }]);
+  t.deepEqual(get(path(y => y.a.users[0])), { name: 'Yes!' });
+  t.deepEqual(get(path(y => y.a.users[0].name)), 'Yes!');
 });
 
 test('godMode on', async t => {
-  const { data, pathOf } = godMode<any>();
-  init(element, <div>{on(pathOf(y => y.ok)).map(ok => `res ${ok}`)}</div>);
+  const { React, init, data, path, on } = godMode<any>();
+  init(element, <div>{on(path(y => y.ok)).map(ok => `res ${ok}`)}</div>);
   t.is(await html(), '<div></div>');
   data.ok = ':)';
   t.is(await html(), '<div>res :)</div>');
@@ -191,11 +212,11 @@ test('godMode on 2', async t => {
     };
   }
 
-  const { data, pathOf } = godMode<Yes>();
+  const { init, React, data, on, path } = godMode<Yes>();
   init(
     element,
     <div>
-      {on(pathOf(y => y.a.users['$'])).map<User>(user => (
+      {on(path(y => y.a.users['$'])).map<User>(user => (
         <b>{user.name}</b>
       ))}
     </div>
@@ -225,12 +246,12 @@ test('godMode on 3', async t => {
     };
   }
 
-  const { data, pathOf } = godMode<Yes>();
+  const { React, init, on, data, path } = godMode<Yes>();
   init(
     element,
     <div>
-      {on(pathOf(y => y.a.users['$'])).map((_, { child }) => (
-        <span>{on(child(pathOf<User>(u => u.name)))}</span>
+      {on(path(y => y.a.users['$'])).map((_, { child }) => (
+        <span>{on(child(path<User>(u => u.name)))}</span>
       ))}
     </div>
   );

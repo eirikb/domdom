@@ -4,7 +4,6 @@ import { DomSquint } from './dom-squint';
 import ddProps from './dd-props';
 import { Domode, Opts } from './types';
 import { DomPathifier } from './pathifier';
-import { godMode } from './godmode';
 
 export class React {
   private readonly data: Data;
@@ -78,41 +77,41 @@ export class React {
 }
 
 export class Domdom {
-  private readonly data: Data;
+  private readonly _data: Data;
   React: React;
 
   constructor(data: Data) {
-    this.data = data;
-    this.React = new React(this.data);
+    this._data = data;
+    this.React = new React(this._data);
   }
 
   on = (path: string): Pathifier => {
-    return new DomPathifier(this.data, path);
+    return new DomPathifier(this._data, path);
   };
 
   set = (path: string, value: any, byKey?: string) => {
-    this.data.set(path, value, byKey);
+    this._data.set(path, value, byKey);
   };
 
   unset = (path: string) => {
-    this.data.unset(path);
+    this._data.unset(path);
   };
 
-  off = (refs: string) => this.data.off(refs);
+  off = (refs: string) => this._data.off(refs);
 
   get = <T = any>(path?: string): T | undefined => {
-    if (!path) return this.data.get();
-    return this.data.get(path);
+    if (!path) return this._data.get();
+    return this._data.get(path);
   };
 
   trigger = (path: string, value?: any) => {
-    return this.data.trigger(path, value);
+    return this._data.trigger(path, value);
   };
 
   globalOn = <T = any>(
     flagsAndPath: string,
     listener: ListenerCallbackWithType<T>
-  ): string => this.data.on(flagsAndPath, listener);
+  ): string => this._data.on(flagsAndPath, listener);
 
   init = (parent: HTMLElement, child?: HTMLElement) => {
     const domSquint = new DomSquint(parent);
@@ -121,6 +120,4 @@ export class Domdom {
       parent.appendChild(child);
     }
   };
-
-  godMode = <T>() => godMode<T>(this);
 }
