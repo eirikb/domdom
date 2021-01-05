@@ -27,45 +27,45 @@
 
 **Facts** - not highlights, just facts:
 
-- Alternative to React + Redux or Vue + Vuex, with support for routing
+- Alternative to React + Redux or Vue + Vuex
+- Written in TypeScript
 - No virtual dom
 - Support for Deno (without jspm or pika)
-- Support for TypeScript
 - Nothing reactive - totally unreactive - fundamentally different from React
 - One global observable state
     - Support for re-usable components (with partition of global state)
     - No local state
 - JSX return pure elements
-- Doesn't support arrays
-
-    - It's not as bad as you might think - Not great, not terrible
 
 ## Menu
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
 - [Deno](#deno)
 - [Getting started](#getting-started)
 - [APIsh](#apish)
-    - [Initialize domdom](#initialize-domdom)
-    - [Elements](#elements)
-    - ["Domponents"](#domponents)
-        - [Children / Composition](#children--composition)
-    - [Events](#events)
-    - [on(path)](#onpath)
-        - [Standalone `on`](#standalone-on)
-        - [Child path lookup](#child-path-lookup)
-    - [or](#or)
-    - [dd-model](#dd-model)
-    - [Attributes](#attributes)
-        - [Pathifier](#pathifier)
+  - [Initialize domdom](#initialize-domdom)
+  - [Elements](#elements)
+  - ["Domponents"](#domponents)
+    - [Children / Composition](#children--composition)
+  - [Events](#events)
+  - [on(path)](#onpath)
+    - [Standalone `on`](#standalone-on)
+    - [Child path lookup](#child-path-lookup)
+  - [or](#or)
+  - [dd-model](#dd-model)
+  - [Attributes](#attributes)
+    - [Pathifier](#pathifier)
 - [Recipes](#recipes)
-    - [Routing](#routing)
-    - [Login form](#login-form)
-    - [Split view and data](#split-view-and-data)
-    - [Animation (garbage collection)](#animation-garbage-collection)
+  - [Routing](#routing)
+  - [Login form](#login-form)
+  - [Split view and data](#split-view-and-data)
+  - [Animation (garbage collection)](#animation-garbage-collection)
 - [TypeScript](#typescript)
+  - [GodMode](#godmode)
+    - [Example](#example)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -512,3 +512,73 @@ const view = <div>
 ## TypeScript
 
 domdom has full TypeScript support, it's written in TypeScript.
+
+### GodMode
+
+An experimental mode. Creates
+a [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy). When properties are
+modified `set`/`unset` will be called automatically.  
+This makes it much easier to work with TypeScript and types.  
+Note: Does **not** support IE11.
+
+`godMode` extends from `domdom` and has the same properties.  
+In addition, it has `data` and `path`.  
+`data` is the single big data object as previously interacted with through `get` and `set`.  
+`path` is a helper function to create a path from a type. e.g.,
+
+```ts
+interface User {
+    name: string;
+    children: User[];
+}
+
+interface Data {
+    a: {
+        users: User[]
+    }
+}
+
+const pathAsString = path<Data>(p => p.users['$id']);
+// pathAsString will be 'users.$id'
+```
+
+Note you still need the path modifiers, such as `*` or `$`. These can be provided as shown above.
+
+#### Example
+
+```tsx
+import {godMode} from '@eirikb/domdom';
+
+interface User {
+    name: string;
+}
+
+interface Data {
+    users: User[],
+    edit: boolean[]
+}
+
+const {React, on, path, init, data} = godMode<Data>();
+
+data.edit = [];
+data.users = [
+    {name: 'eirik'},
+    {name: 'steffen'},
+    {name: 'frank'}
+]
+
+init(document.body, <ul>
+    {on(path(p => p.users['$id'])).map((user, {child, $id}) => {
+        return <li>
+            <button onclick={() => data.edit[$id] = !data.edit[$id]}>Edit?</button>
+            {on(child(path<User>(p => p.name)))}
+            {on(path(p => p.edit[$id])).map(edit => edit ?
+                <input type="text" dd-model={child(path<User>(p => p.name))}/> : null)}
+        </li>;
+    })}
+</ul>);
+
+```
+
+Note: When changing arrays (replace, `pop`, `splice`, etc.) godMode will first clear the array. This is a workaround to
+make it easier to work with arrays.
