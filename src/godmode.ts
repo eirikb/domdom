@@ -32,7 +32,12 @@ export class GodMode<T> extends Domdom {
     } else if (Array.isArray(value)) {
       value = value.slice();
     }
-    this.set(path.join('.'), value);
+
+    const p = path.join('.');
+    if (Array.isArray(this.get(p))) {
+      this.set(p, []);
+    }
+    this.set(p, value);
   };
 
   private _unset = (path: string[]) => {

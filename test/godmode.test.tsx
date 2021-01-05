@@ -260,3 +260,31 @@ test('godMode on 3', async t => {
   data.a.users[0].name = 'OK!';
   t.is(await html(), '<div><span>OK!</span><span>no</span></div>');
 });
+
+test('array is hacked for now', async t => {
+  interface User {
+    name: string;
+  }
+
+  interface Data {
+    users: User[];
+  }
+
+  const { React, init, on, data, path } = godMode<Data>();
+  init(
+    element,
+    <ul>
+      {on(path(d => d.users['$id'])).map<User>(user => (
+        <li>{user.name}</li>
+      ))}
+    </ul>
+  );
+  data.users = [{ name: 'A' }, { name: 'B' }, { name: 'C' }];
+  t.is(await html(), '<ul><li>A</li><li>B</li><li>C</li></ul>');
+  data.users = [{ name: 'A' }, { name: 'C' }];
+  t.is(await html(), '<ul><li>A</li><li>C</li></ul>');
+  data.users = [{ name: 'A' }, { name: 'B' }, { name: 'C' }];
+  t.is(await html(), '<ul><li>A</li><li>B</li><li>C</li></ul>');
+  data.users.splice(1, 1);
+  t.is(await html(), '<ul><li>A</li><li>C</li></ul>');
+});
