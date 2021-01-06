@@ -523,39 +523,22 @@ Note: Does **not** support IE11.
 
 `godMode` has:
 
-  * `data: T` 
-    Single big data object as previously interacted with through `get` and `set`.  
-  * `path<X = T>(o?: X): X`
-    Helper function to create a path from a type. `on`, `globalOn` and `trigger` accept this.
-  * `pathOf<X = T>(o: X, cb: (o: X) => any): string`
-    Helper function to return path as a string.
-  * `init(parent: HTMLElement, child?: HTMLElement)`
-    Same as domdom. For initialization.
-  * `globalOn <T = any>(flags: string, path: any, listener: ListenerCallbackWithType<T> ): string`
-    Same as `on` from domdom, but flag and path is split up to support `path` (from above). Note that object in callback is also a proxy, supporting change.
-  * `trigger(path: any, value?: any)`
-    Same as `trigger` from domdom, but flag and path is split up to support `path` (from above).
-  * `on(path: any): Pathifier`
-    Same as `on` from domdom, but flag and path is split up to support `path` (from above). Note that object in callback is also a proxy, supporting change.
-
-
-```ts
-interface User {
-    name: string;
-    children: User[];
-}
-
-interface Data {
-    a: {
-        users: User[]
-    }
-}
-
-const pathAsString = path<Data>(p => p.users['$id']);
-// pathAsString will be 'users.$id'
-```
-
-Note you still need the path modifiers, such as `*` or `$`. These can be provided as shown above.
+* `data: T`
+  Single big data object as previously interacted with through `get` and `set`.
+* `path<X = T>(o?: X): X`
+  Helper function to create a path from a type. `on`, `globalOn` and `trigger` accept this.
+* `pathOf<X = T>(o: X, cb: (o: X) => any): string`
+  Helper function to return path as a string. This is required for `dd-model`.
+* `init(parent: HTMLElement, child?: HTMLElement)`
+  For initialization.
+* `globalOn <T = any>(flags: string, path: any, listener: ListenerCallbackWithType<T> ): string`
+  Same as `on`, but flag and path is split up to support `path` (from above). Note that object in callback is also a
+  proxy, supporting change.
+* `trigger(path: any, value?: any)`
+  Same as `trigger`, but flag and path is split up to support `path` (from above).
+* `on(path: any): Pathifier`
+  Same as `on`, but flag and path is split up to support `path` (from above). Note that object in callback is also a
+  proxy, supporting change.
 
 #### Example
 
@@ -564,33 +547,31 @@ import {godMode} from '@eirikb/domdom';
 
 interface User {
     name: string;
+    edit: boolean;
 }
 
 interface Data {
-    users: User[],
-    edit: boolean[]
+    users: User[]
 }
 
-const {React, on, path, init, data} = godMode<Data>();
+const {React, init, data, on, path, pathOf} = godMode<Data>();
 
-data.edit = [];
-data.users = [
-    {name: 'eirik'},
-    {name: 'steffen'},
-    {name: 'frank'}
-]
+data.users = ['eirik', 'steffen', 'frank'].map(name => ({name, edit: false}));
 
-init(document.body, <ul>
-    {on(path(p => p.users['$id'])).map((user, {child, $id}) => {
-        return <li>
-            <button onclick={() => data.edit[$id] = !data.edit[$id]}>Edit?</button>
-            {on(child(path<User>(p => p.name)))}
-            {on(path(p => p.edit[$id])).map(edit => edit ?
-                <input type="text" dd-model={child(path<User>(p => p.name))}/> : null)}
-        </li>;
-    })}
-</ul>);
+init(document.body, <div>
+    <button onclick={() => data.users.push({name: 'eh', edit: false})}>Add</button>
 
+    <ul>
+        {on(path().users.$).map<User>(user => {
+            return <li>
+                <button onclick={() => user.edit = !user.edit}>Edit?</button>
+                {on(path(user).name)}
+                {on(path(user).edit).map(edit => edit ?
+                    <input type="text" dd-model={pathOf(user, u => u.name)}/> : null)}
+            </li>;
+        })}
+    </ul>
+</div>);
 ```
 
 Note: When changing arrays (replace, `pop`, `splice`, etc.) godMode will first clear the array. This is a workaround to
