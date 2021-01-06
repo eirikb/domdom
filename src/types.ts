@@ -26,3 +26,11 @@ export interface Stower {
 
   remove(value: any, index: number, subIndex?: number, path?: string): void;
 }
+
+export interface React {
+  createElement(
+    input: string | Function,
+    props?: { [key: string]: any },
+    ...children: any[]
+  ): Domode | Pathifier;
+}

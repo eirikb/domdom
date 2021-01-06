@@ -1,6 +1,13 @@
 import { isProbablyPlainObject } from './dom-stower';
-import { Domdom } from './domdom';
-import { Data } from '@eirikb/data';
+import {
+  BaseTransformer,
+  Entries,
+  Entry,
+  ListenerCallbackWithType,
+  Pathifier,
+} from '@eirikb/data';
+import { Domdom } from 'domdom';
+import { React } from './types';
 
 const pathSymbol = Symbol('Path');
 const proxiedSymbol = Symbol('Proxied');
@@ -17,31 +24,46 @@ const p = (o, path: string[] = []) => {
   });
 };
 
-export class GodMode<T> extends Domdom {
+function pathus(path: any): string {
+  if (typeof path === 'string') return path;
+  if (Array.isArray(path[pathSymbol])) {
+    return path[pathSymbol].join('.');
+  }
+  throw new Error(`Path ${path} is not a proper path`);
+}
+
+function deregulate(value: any): any {
+  if (isProbablyPlainObject(value)) {
+    return Object.assign({}, value);
+  } else if (Array.isArray(value)) {
+    return value.slice();
+  } else {
+    return value;
+  }
+}
+
+export class GodMode<T> {
   public data: T;
+  public React: React;
+  private readonly domdom: Domdom;
 
-  constructor(data: Data) {
-    super(data);
-
+  constructor(domdom: Domdom) {
+    this.domdom = domdom;
     this.data = this.proxify({}) as T;
+    this.React = domdom.React;
   }
 
   private _set = (path: string[], value: any) => {
-    if (isProbablyPlainObject(value)) {
-      value = Object.assign({}, value);
-    } else if (Array.isArray(value)) {
-      value = value.slice();
-    }
-
+    value = deregulate(value);
     const p = path.join('.');
-    if (Array.isArray(this.get(p))) {
-      this.set(p, []);
+    if (Array.isArray(this.domdom.get(p))) {
+      this.domdom.set(p, []);
     }
-    this.set(p, value);
+    this.domdom.set(p, value);
   };
 
   private _unset = (path: string[]) => {
-    this.unset(path.join('.'));
+    this.domdom.unset(path.join('.'));
   };
 
   private proxify(o: any, path: string[] = []) {
@@ -79,7 +101,63 @@ export class GodMode<T> extends Domdom {
     });
   }
 
-  path = <X = T>(cb: (o: X) => any): string => {
-    return cb(p({}))[pathSymbol].join('.');
+  on = (path: any): Pathifier => {
+    const pathAsString = pathus(path);
+
+    const self = this;
+    const pathifier = this.domdom.on(pathAsString);
+    pathifier.addTransformer(
+      new (class extends BaseTransformer {
+        entries: Entries = new Entries();
+
+        private proxify(entry: Entry): Entry {
+          entry.value = self.proxify(
+            deregulate(entry.value),
+            entry.opts.path.split('.')
+          );
+          return entry;
+        }
+
+        add(index: number, entry: Entry): void {
+          this.next?.add(index, this.proxify(entry));
+        }
+
+        remove(index: number, entry: Entry): void {
+          this.next?.remove(index, entry);
+        }
+
+        update(oldIndex: number, index: number, entry: Entry): void {
+          this.next?.update(oldIndex, index, this.proxify(entry));
+        }
+      })()
+    );
+    return pathifier;
+  };
+
+  trigger = (path: any, value?: any) => {
+    return this.domdom.trigger(pathus(path), value);
+  };
+
+  globalOn = <T = any>(
+    flags: string,
+    path: any,
+    listener: ListenerCallbackWithType<T>
+  ): string => {
+    return this.domdom.globalOn(
+      [flags, pathus(path)].join(' '),
+      (value, opts) =>
+        listener(this.proxify(deregulate(value), opts.path.split('.')), opts)
+    );
+  };
+
+  init = (parent: HTMLElement, child?: HTMLElement) =>
+    this.domdom.init(parent, child);
+
+  path = <X = T>(o?: X): X => {
+    return p(o);
+  };
+
+  pathOf = <X = T>(o: X, cb: (o: X) => any): string => {
+    return cb(p(o))[pathSymbol].join('.');
   };
 }

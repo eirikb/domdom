@@ -1,7 +1,7 @@
 import { serial as test } from 'ava';
 // @ts-ignore
 import browserEnv from 'browser-env';
-import { godMode } from '../src';
+import domdom, { godMode } from '../src';
 
 browserEnv();
 
@@ -23,12 +23,6 @@ async function html() {
 
 test.beforeEach(() => {
   createElement();
-});
-
-test('hello godMode', async t => {
-  const { get, data } = godMode<any>();
-  data.katt = ':)';
-  t.is(get('katt'), ':)');
 });
 
 test('godMode', async t => {
@@ -129,18 +123,18 @@ test('path', t => {
     };
   }
 
-  const { path } = godMode<Yes>();
+  const { pathOf, data } = godMode<Yes>();
 
   t.is(
-    path(y => y.a),
+    pathOf(data, y => y.a),
     'a'
   );
   t.is(
-    path(y => y.a.users),
+    pathOf(data, y => y.a.users),
     'a.users'
   );
   t.is(
-    path(y => y.a.users['$id']),
+    pathOf(data, y => y.a.users['$id']),
     'a.users.$id'
   );
 });
@@ -156,46 +150,24 @@ test('path 2', t => {
     };
   }
 
-  const { path, data } = godMode<Yes>();
+  const { pathOf, data } = godMode<Yes>();
   data.a = {
     users: [{ name: 'Yes!' }],
   };
 
   t.is(
-    path(y => y.a),
+    pathOf(data, y => y.a),
     'a'
   );
   t.is(
-    path<User>(u => u[0]),
-    '0'
+    pathOf(data.a.users, u => u[0]),
+    'a.users.0'
   );
-});
-
-test('pathProxy', t => {
-  interface User {
-    name: string;
-  }
-
-  interface Yes {
-    a: {
-      users: User[];
-    };
-  }
-
-  const { path, get, data } = godMode<Yes>();
-  data.a = {
-    users: [{ name: 'Yes!' }],
-  };
-
-  t.deepEqual(get(path(y => y.a)), { users: [{ name: 'Yes!' }] });
-  t.deepEqual(get(path(y => y.a.users)), [{ name: 'Yes!' }]);
-  t.deepEqual(get(path(y => y.a.users[0])), { name: 'Yes!' });
-  t.deepEqual(get(path(y => y.a.users[0].name)), 'Yes!');
 });
 
 test('godMode on', async t => {
   const { React, init, data, path, on } = godMode<any>();
-  init(element, <div>{on(path(y => y.ok)).map(ok => `res ${ok}`)}</div>);
+  init(element, <div>{on(path().ok).map(ok => `res ${ok}`)}</div>);
   t.is(await html(), '<div></div>');
   data.ok = ':)';
   t.is(await html(), '<div>res :)</div>');
@@ -216,7 +188,7 @@ test('godMode on 2', async t => {
   init(
     element,
     <div>
-      {on(path(y => y.a.users['$'])).map<User>(user => (
+      {on(path().a.users['$']).map<User>(user => (
         <b>{user.name}</b>
       ))}
     </div>
@@ -246,12 +218,38 @@ test('godMode on 3', async t => {
     };
   }
 
+  const { React, init, on, data, path, pathOf } = godMode<Yes>();
+  init(
+    element,
+    <div>
+      {on(path().a.users['$']).map(u => (
+        <span>{on(pathOf(u, u => u.name))}</span>
+      ))}
+    </div>
+  );
+  data.a = { users: [{ name: 'yes' }, { name: 'no' }] };
+  t.is(await html(), '<div><span>yes</span><span>no</span></div>');
+  data.a.users[0].name = 'OK!';
+  t.is(await html(), '<div><span>OK!</span><span>no</span></div>');
+});
+
+test('godMode on 4', async t => {
+  interface User {
+    name: string;
+  }
+
+  interface Yes {
+    a: {
+      users: User[];
+    };
+  }
+
   const { React, init, on, data, path } = godMode<Yes>();
   init(
     element,
     <div>
-      {on(path(y => y.a.users['$'])).map((_, { child }) => (
-        <span>{on(child(path<User>(u => u.name)))}</span>
+      {on(path(data).a.users['$']).map(user => (
+        <span>{on(path(user).name)}</span>
       ))}
     </div>
   );
@@ -274,7 +272,7 @@ test('array is hacked for now', async t => {
   init(
     element,
     <ul>
-      {on(path(d => d.users['$id'])).map<User>(user => (
+      {on(path().users['$id']).map<User>(user => (
         <li>{user.name}</li>
       ))}
     </ul>
@@ -287,4 +285,46 @@ test('array is hacked for now', async t => {
   t.is(await html(), '<ul><li>A</li><li>B</li><li>C</li></ul>');
   data.users.splice(1, 1);
   t.is(await html(), '<ul><li>A</li><li>C</li></ul>');
+});
+
+test('trigger', t => {
+  const { globalOn, path, trigger } = godMode<any>();
+  globalOn('=', path().a.b.c, val => {
+    t.is(val, 'Yes!');
+  });
+  trigger(path().a.b.c, 'Yes!');
+});
+
+test('globalOn noGod', t => {
+  const { globalOn, set } = domdom();
+  globalOn('!+* users.$', (_, { child }) => {
+    set(child('child'), { name: 'Child!' });
+  });
+  globalOn('!+* users.$.child', user => {
+    t.is(user.name, 'Child!');
+  });
+
+  set('users', [{ name: 'Yes!' }]);
+});
+
+test('globalOn change', t => {
+  interface User {
+    name: string;
+    child?: User;
+  }
+
+  interface Data {
+    users: User[];
+  }
+
+  const { data, path, globalOn } = godMode<Data>();
+
+  globalOn<User>('!+*', path().users['$'], u => {
+    u.child = { name: 'Child!' };
+  });
+  globalOn<User>('!+*', path().users['$'].child, user => {
+    t.is(user.name, 'Child!');
+  });
+
+  data.users = [{ name: 'Yes!' }];
 });

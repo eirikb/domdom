@@ -521,10 +521,23 @@ modified `set`/`unset` will be called automatically.
 This makes it much easier to work with TypeScript and types.  
 Note: Does **not** support IE11.
 
-`godMode` extends from `domdom` and has the same properties.  
-In addition, it has `data` and `path`.  
-`data` is the single big data object as previously interacted with through `get` and `set`.  
-`path` is a helper function to create a path from a type. e.g.,
+`godMode` has:
+
+  * `data: T` 
+    Single big data object as previously interacted with through `get` and `set`.  
+  * `path<X = T>(o?: X): X`
+    Helper function to create a path from a type. `on`, `globalOn` and `trigger` accept this.
+  * `pathOf<X = T>(o: X, cb: (o: X) => any): string`
+    Helper function to return path as a string.
+  * `init(parent: HTMLElement, child?: HTMLElement)`
+    Same as domdom. For initialization.
+  * `globalOn <T = any>(flags: string, path: any, listener: ListenerCallbackWithType<T> ): string`
+    Same as `on` from domdom, but flag and path is split up to support `path` (from above). Note that object in callback is also a proxy, supporting change.
+  * `trigger(path: any, value?: any)`
+    Same as `trigger` from domdom, but flag and path is split up to support `path` (from above).
+  * `on(path: any): Pathifier`
+    Same as `on` from domdom, but flag and path is split up to support `path` (from above). Note that object in callback is also a proxy, supporting change.
+
 
 ```ts
 interface User {
