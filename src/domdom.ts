@@ -17,6 +17,15 @@ export class ReactImpl implements React {
     props?: { [key: string]: any },
     ...children: any[]
   ): Domode | Pathifier {
+    return this._createElement(input, props, undefined, ...children);
+  }
+
+  private _createElement(
+    input: string | Function,
+    props?: { [key: string]: any },
+    namespaceURI?: string,
+    ...children: any[]
+  ): Domode | Pathifier {
     children = [].concat(...children);
 
     if (typeof input === 'function') {
@@ -39,8 +48,28 @@ export class ReactImpl implements React {
       return res;
     }
 
-    const el = document.createElement(input) as Domode;
+    let el = document.createElement(input) as Domode;
+    if ((input === 'svg' || props?.xmlns) && !namespaceURI) {
+      namespaceURI = props?.xmlns || 'http://www.w3.org/2000/svg';
+    }
+    if (namespaceURI) {
+      el = (document.createElementNS(namespaceURI, input) as any) as Domode;
+
+      children = children.map(child =>
+        child.rebuild ? child.rebuild(namespaceURI) : child
+      );
+    }
+
     el.mountables = [];
+
+    el.rebuild = (namespaceURI?: string) => {
+      return this._createElement(
+        input,
+        props,
+        namespaceURI,
+        children
+      ) as Domode;
+    };
 
     el.mounted = () => {
       for (const mountable of el.mountables) {

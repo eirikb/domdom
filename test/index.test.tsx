@@ -1758,6 +1758,16 @@ test('properties without value should not crash', async t => {
   t.is(await html(), '<div style=""></div>');
 });
 
+test('attributes', async t => {
+  t.is((<div a="yes" />).outerHTML, '<div a="yes"></div>');
+  t.is((<div a="false" />).outerHTML, '<div a="false"></div>');
+  t.is((<div a={true} />).outerHTML, '<div a="true"></div>');
+  t.is((<div a={false} />).outerHTML, '<div a=""></div>');
+  t.is((<div a={''} />).outerHTML, '<div a=""></div>');
+  t.is((<div a={null} />).outerHTML, '<div a=""></div>');
+  t.is((<div a={undefined} />).outerHTML, '<div a=""></div>');
+});
+
 test('path should not be part of data', async t => {
   t.plan(3);
   init(element, <div>{on('test')}</div>);
@@ -2050,4 +2060,38 @@ test('Pathifier instead of Domponent with element', async t => {
   t.is(await html(), '<div><h2>h2</h2></div>');
   set('test', true);
   t.is(await html(), '<div><h1>h1</h1></div>');
+});
+
+test('svg', async t => {
+  init(
+    element,
+    <div>
+      <svg>
+        <circle r="42" />
+      </svg>
+    </div>
+  );
+  t.is(await html(), '<div><svg><circle r="42"></circle></svg></div>');
+  t.is(
+    document.querySelector('svg')?.namespaceURI,
+    'http://www.w3.org/2000/svg'
+  );
+  t.is(
+    document.querySelector('circle')?.namespaceURI,
+    'http://www.w3.org/2000/svg'
+  );
+});
+
+test('xmlns', async t => {
+  init(
+    element,
+    <div>
+      <a xmlns="http://eh/eh">
+        <b>eh</b>
+      </a>
+    </div>
+  );
+  t.is(await html(), '<div><a xmlns="http://eh/eh"><b>eh</b></a></div>');
+  t.is(document.querySelector('a')?.namespaceURI, 'http://eh/eh');
+  t.is(document.querySelector('b')?.namespaceURI, 'http://eh/eh');
 });

@@ -100,7 +100,7 @@ export default (
         const dataKey = key.split('-')[1];
         element.dataset[dataKey] = value;
       } else {
-        element[key] = value;
+        element.setAttribute(key, value || '');
       }
     }
   }
