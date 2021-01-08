@@ -6,11 +6,16 @@ export function isProbablyPlainObject(obj: any) {
 }
 
 export class StowerTransformer extends BaseTransformer {
-  private readonly _stower: Stower;
-  private readonly _index: number;
+  private _stower: Stower;
+  private _index: number;
 
   constructor(stower: Stower, index: number) {
     super();
+    this._stower = stower;
+    this._index = index;
+  }
+
+  bloodyRebuild(stower: Stower, index: number) {
     this._stower = stower;
     this._index = index;
   }
