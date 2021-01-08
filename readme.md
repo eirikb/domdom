@@ -574,5 +574,5 @@ init(document.body, <div>
 </div>);
 ```
 
-Note: When changing arrays (replace, `pop`, `splice`, etc.) godMode will first clear the array. This is a workaround to
+Note: When changing arrays (replace, `pop`, `splice`, etc.) `godMode` will first clear the array. This is a workaround to
 make it easier to work with arrays.
