@@ -1755,17 +1755,17 @@ test('on with properties', async t => {
 
 test('properties without value should not crash', async t => {
   init(element, <div style={undefined} />);
-  t.is(await html(), '<div style=""></div>');
+  t.is(await html(), '<div></div>');
 });
 
 test('attributes', async t => {
   t.is((<div a="yes" />).outerHTML, '<div a="yes"></div>');
   t.is((<div a="false" />).outerHTML, '<div a="false"></div>');
-  t.is((<div a={true} />).outerHTML, '<div a="true"></div>');
-  t.is((<div a={false} />).outerHTML, '<div a=""></div>');
+  t.is((<div a={true} />).outerHTML, '<div a=""></div>');
+  t.is((<div a={false} />).outerHTML, '<div></div>');
   t.is((<div a={''} />).outerHTML, '<div a=""></div>');
   t.is((<div a={null} />).outerHTML, '<div a=""></div>');
-  t.is((<div a={undefined} />).outerHTML, '<div a=""></div>');
+  t.is((<div a={undefined} />).outerHTML, '<div></div>');
 });
 
 test('path should not be part of data', async t => {
@@ -2094,4 +2094,54 @@ test('xmlns', async t => {
   t.is(await html(), '<div><a xmlns="http://eh/eh"><b>eh</b></a></div>');
   t.is(document.querySelector('a')?.namespaceURI, 'http://eh/eh');
   t.is(document.querySelector('b')?.namespaceURI, 'http://eh/eh');
+});
+
+test('on attribute svg', async t => {
+  init(
+    element,
+    <div>
+      <svg>
+        <circle r={on('r')}>
+          <rect x={on('x')} />
+        </circle>
+      </svg>
+    </div>
+  );
+  t.is(await html(), '<div><svg><circle><rect></rect></circle></svg></div>');
+  set('r', 42);
+  t.is(
+    await html(),
+    '<div><svg><circle r="42"><rect></rect></circle></svg></div>'
+  );
+  set('x', 137);
+  t.is(
+    await html(),
+    '<div><svg><circle r="42"><rect x="137"></rect></circle></svg></div>'
+  );
+});
+
+test('on svg', async t => {
+  init(
+    element,
+    <div>
+      <svg>{on('show').map(show => (show ? <rect /> : null))}</svg>
+    </div>
+  );
+  t.is(await html(), '<div><svg></svg></div>');
+  set('show', true);
+  t.is(await html(), '<div><svg><rect></rect></svg></div>');
+});
+
+test('on svg 2', async t => {
+  init(
+    element,
+    <div>
+      <svg>
+        <circle>{on('show').map(show => (show ? <rect /> : null))}</circle>
+      </svg>
+    </div>
+  );
+  t.is(await html(), '<div><svg><circle></circle></svg></div>');
+  set('show', true);
+  t.is(await html(), '<div><svg><circle><rect></rect></circle></svg></div>');
 });

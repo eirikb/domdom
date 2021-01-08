@@ -11,7 +11,7 @@ export interface Opts {
 export interface Domode extends HTMLElement, Mountable {
   isMounted: boolean;
   mountables: Mountable[];
-  rebuild: (namespaceURI?: string) => Domode;
+  bloodyRebuild: (namespaceURI?: string) => Domode;
 
   attach(pathifier: Pathifier);
 }

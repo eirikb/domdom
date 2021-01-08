@@ -2,8 +2,31 @@ import { Domode, Mountable } from './types';
 import { BaseTransformer, Data } from '@eirikb/data';
 import { DomPathifier } from './pathifier';
 
+function setAttribute(element: HTMLElement, key: string, value: any) {
+  if (value === null) value = '';
+
+  if (key === 'class') {
+    element.className = value;
+  } else if (key.startsWith('data-')) {
+    const dataKey = key.split('-')[1];
+    element.dataset[dataKey] = value;
+  } else if (typeof value === 'object') {
+    Object.assign(element[key], value);
+  } else {
+    if (typeof value === 'boolean' || typeof value === 'undefined') {
+      if (value) {
+        element.setAttribute(key, '');
+      } else {
+        element.removeAttribute(key);
+      }
+    } else {
+      element.setAttribute(key, value);
+    }
+  }
+}
+
 class AttributeTransformer extends BaseTransformer {
-  private readonly element: Domode | HTMLInputElement;
+  element: Domode | HTMLInputElement;
   private readonly key: string;
 
   constructor(element: Domode | HTMLInputElement, key: string) {
@@ -13,11 +36,7 @@ class AttributeTransformer extends BaseTransformer {
   }
 
   setVal(value: any) {
-    if (typeof value === 'object') {
-      Object.assign(this.element[this.key], value);
-    } else {
-      this.element[this.key] = value;
-    }
+    setAttribute(this.element, this.key, value);
   }
 
   add(_: number, entry): void {
@@ -89,18 +108,17 @@ export default (
 
     for (let [key, value] of Object.entries(props)) {
       if (value && value instanceof DomPathifier) {
-        value.transformer = new AttributeTransformer(element, key);
+        if (value.transformer instanceof AttributeTransformer) {
+          value.transformer.element = element;
+        } else {
+          value.transformer = new AttributeTransformer(element, key);
+        }
         mountables.push(value);
       } else if (key.startsWith('on')) {
         const name = key[2].toLocaleLowerCase() + key.slice(3);
         element.addEventListener(name, (...args) => value(...args));
-      } else if (key === 'class') {
-        element.className = value;
-      } else if (key.startsWith('data-')) {
-        const dataKey = key.split('-')[1];
-        element.dataset[dataKey] = value;
       } else {
-        element.setAttribute(key, value || '');
+        setAttribute(element, key, value);
       }
     }
   }

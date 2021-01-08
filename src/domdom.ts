@@ -56,13 +56,13 @@ export class ReactImpl implements React {
       el = (document.createElementNS(namespaceURI, input) as any) as Domode;
 
       children = children.map(child =>
-        child.rebuild ? child.rebuild(namespaceURI) : child
+        child.bloodyRebuild ? child.bloodyRebuild(namespaceURI) : child
       );
     }
 
     el.mountables = [];
 
-    el.rebuild = (namespaceURI?: string) => {
+    el.bloodyRebuild = (namespaceURI?: string) => {
       return this._createElement(
         input,
         props,
@@ -88,7 +88,11 @@ export class ReactImpl implements React {
       const child = children[index];
       if (child instanceof DomPathifier) {
         el.mountables.push(child);
-        child.transformer = new StowerTransformer(stower, index);
+        if (child.transformer instanceof StowerTransformer) {
+          child.transformer.bloodyRebuild(stower, index);
+        } else {
+          child.transformer = new StowerTransformer(stower, index);
+        }
       } else {
         stower.add(child, index);
       }
