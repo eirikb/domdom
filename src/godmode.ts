@@ -85,7 +85,8 @@ export class GodMode<T> {
         return delete target[key];
       },
       get: (target, key) => {
-        if (key === pathSymbol) return path;
+        if (key === 'constructor') return target[key];
+        else if (key === pathSymbol) return path;
         else if (key === proxiedSymbol) return true;
 
         const value = target[key];

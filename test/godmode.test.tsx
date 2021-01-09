@@ -2,6 +2,7 @@ import { serial as test } from 'ava';
 // @ts-ignore
 import browserEnv from 'browser-env';
 import domdom, { godMode } from '../src';
+import { isProbablyPlainObject } from '../src/dom-stower';
 
 browserEnv();
 
@@ -327,4 +328,22 @@ test('globalOn change', t => {
   });
 
   data.users = [{ name: 'Yes!' }];
+});
+
+test('proxified objects are probably objects', t => {
+  const { data } = godMode<any>();
+  const eh = { hello: 'world' };
+  data.eh = eh;
+  t.true(isProbablyPlainObject(eh));
+  t.true(isProbablyPlainObject(data.eh));
+});
+
+test('on object', async t => {
+  const { init, React, data, on } = godMode<any>();
+
+  init(element, <div>{on('eh')}</div>);
+  data.eh = 'eh';
+  t.is(await html(), '<div>eh</div>');
+  data.eh = { hello: 'world' };
+  t.is(await html(), '<div>{"hello":"world"}</div>');
 });
