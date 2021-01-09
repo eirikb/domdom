@@ -139,6 +139,19 @@ export class GodMode<T> {
     return this.domdom.trigger(pathus(path), value);
   };
 
+  get = <T = any>(path?: any): T | undefined => {
+    if (!path) return this.domdom.get();
+    return this.domdom.get(pathus(path));
+  };
+
+  set = (path: any, value: any, byKey?: string) => {
+    this.domdom.set(pathus(path), value, byKey);
+  };
+
+  unset = (path: any) => {
+    this.domdom.unset(pathus(path));
+  };
+
   globalOn = <T = any>(
     flags: string,
     path: any,
