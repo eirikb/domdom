@@ -2145,3 +2145,9 @@ test('on svg 2', async t => {
   set('show', true);
   t.is(await html(), '<div><svg><circle><rect></rect></circle></svg></div>');
 });
+
+test('object attributes', async t => {
+  init(element, <div yes={{ hello: 'world' }}></div>);
+  console.log(await html());
+  t.pass();
+});

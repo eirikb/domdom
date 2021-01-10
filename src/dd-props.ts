@@ -1,6 +1,7 @@
 import { Domode, Mountable } from './types';
 import { BaseTransformer, Data } from '@eirikb/data';
 import { DomPathifier } from './pathifier';
+import { isProbablyPlainObject } from './dom-stower';
 
 function setAttribute(element: HTMLElement, key: string, value: any) {
   if (value === null) value = '';
@@ -10,8 +11,12 @@ function setAttribute(element: HTMLElement, key: string, value: any) {
   if (key.startsWith('data-')) {
     const dataKey = key.split('-')[1];
     element.dataset[dataKey] = value;
-  } else if (typeof value === 'object') {
-    Object.assign(element[key], value);
+  } else if (isProbablyPlainObject(value)) {
+    if (!element[key]) {
+      element[key] = value;
+    } else {
+      Object.assign(element[key], value);
+    }
   } else {
     if (typeof value === 'boolean' || typeof value === 'undefined') {
       if (value) {
