@@ -1,5 +1,5 @@
 import { Domode, Mountable } from './types';
-import { Transformer, BaseTransformer, Data } from '@eirikb/data';
+import { BaseTransformer, Data } from '@eirikb/data';
 import { DomPathifier } from './pathifier';
 
 function setAttribute(element: HTMLElement, key: string, value: any) {
@@ -29,12 +29,8 @@ class AttributeTransformer extends BaseTransformer {
   element: Domode | HTMLInputElement;
   private readonly key: string;
 
-  constructor(
-    parent: Transformer,
-    element: Domode | HTMLInputElement,
-    key: string
-  ) {
-    super(parent);
+  constructor(element: Domode | HTMLInputElement, key: string) {
+    super();
     this.element = element;
     this.key = key;
   }
@@ -115,11 +111,7 @@ export default (
         if (value.transformer instanceof AttributeTransformer) {
           value.transformer.element = element;
         } else {
-          value.transformer = new AttributeTransformer(
-            value.lastTransformer(),
-            element,
-            key
-          );
+          value.transformer = new AttributeTransformer(element, key);
         }
         mountables.push(value);
       } else if (key.startsWith('on')) {

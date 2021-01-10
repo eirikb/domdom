@@ -91,11 +91,7 @@ export class ReactImpl implements React {
         if (child.transformer instanceof StowerTransformer) {
           child.transformer.bloodyRebuild(stower, index);
         } else {
-          child.transformer = new StowerTransformer(
-            child.lastTransformer(),
-            stower,
-            index
-          );
+          child.transformer = new StowerTransformer(stower, index);
         }
       } else {
         stower.add(child, index);
