@@ -1,4 +1,3 @@
-import { Transformer } from '@eirikb/data';
 import { isProbablyPlainObject } from './dom-stower';
 import {
   BaseTransformer,
@@ -111,10 +110,6 @@ export class GodMode<T> {
     pathifier.addTransformer(
       new (class extends BaseTransformer {
         entries: Entries = new Entries();
-
-        constructor() {
-          super({} as Transformer);
-        }
 
         private proxify(entry: Entry): Entry {
           entry.value = self.proxify(

@@ -1,6 +1,6 @@
 {
   "name": "@eirikb/domdom",
-  "version": "6.1.8",
+  "version": "6.1.9",
   "description": "The proactive web front-end framework for the unprofessional",
   "scripts": {
     "build": "tsdx build",
@@ -40,7 +40,7 @@
   },
   "module": "dist/domdom.esm.js",
   "dependencies": {
-    "@eirikb/data": "~4.0.3"
+    "@eirikb/data": "~4.0.4"
   },
   "devDependencies": {
     "ava": "3.8.2",

@@ -1,4 +1,4 @@
-import { Transformer, BaseTransformer, Entry } from '@eirikb/data';
+import { BaseTransformer, Entry } from '@eirikb/data';
 import { Stower } from './types';
 
 export function isProbablyPlainObject(obj: any) {
@@ -9,8 +9,8 @@ export class StowerTransformer extends BaseTransformer {
   private _stower: Stower;
   private _index: number;
 
-  constructor(parent: Transformer, stower: Stower, index: number) {
-    super(parent);
+  constructor(stower: Stower, index: number) {
+    super();
     this._stower = stower;
     this._index = index;
   }
