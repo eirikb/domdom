@@ -515,7 +515,7 @@ domdom has full TypeScript support, it's written in TypeScript.
 
 ### GodMode
 
-An experimental mode. Creates
+An **EXPERIMENTAL** mode. Creates
 a [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy). When properties are
 modified `set`/`unset` will be called automatically.  
 This makes it much easier to work with TypeScript and types.  
