@@ -56,6 +56,8 @@ export class DomStower implements Stower {
       return document.createTextNode(`${child}`);
     } else if (isProbablyPlainObject(child)) {
       return document.createTextNode(JSON.stringify(child));
+    } else if (child instanceof Error) {
+      return document.createTextNode(`${child.name}: ${child.message}`);
     }
     return child;
   }

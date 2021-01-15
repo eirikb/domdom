@@ -2146,7 +2146,12 @@ test('on svg 2', async t => {
   t.is(await html(), '<div><svg><circle><rect></rect></circle></svg></div>');
 });
 
-test('object attributes', async t => {
+test('object attributes', t => {
   const e = <div yes={{ hello: 'world' }} />;
   t.deepEqual(e.yes, { hello: 'world' });
+});
+
+test('error in dom', t => {
+  const e = <div>{new Error('Oh my')}</div>;
+  t.is(e.outerHTML, '<div>Error: Oh my</div>');
 });
