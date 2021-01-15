@@ -2147,7 +2147,6 @@ test('on svg 2', async t => {
 });
 
 test('object attributes', async t => {
-  init(element, <div yes={{ hello: 'world' }}></div>);
-  console.log(await html());
-  t.pass();
+  const e = <div yes={{ hello: 'world' }} />;
+  t.deepEqual(e.yes, { hello: 'world' });
 });
