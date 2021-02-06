@@ -7,6 +7,8 @@ export function isProbablyPlainObject(obj: any) {
 }
 
 function escapeChild(child: any): Node {
+  if (child instanceof Node) return child;
+
   if (child === null || typeof child === 'undefined') {
     return document.createTextNode('');
   } else if (
@@ -51,19 +53,14 @@ export class StowerTransformer extends BaseTransformer {
 
 type Child = Node | DomStower;
 
-interface First {
-  child: Child;
-  index: number;
-}
-
 export class DomStower implements Stower {
   private readonly element: HTMLElement;
   private readonly subIndex?: number;
   private readonly parent?: DomStower;
   private readonly children: (Child | undefined)[] = [];
-  private first?: First;
-  // ors: any[] = [];
-  // hasOr: any[] = [];
+  private childCount = 0;
+  private _or: any;
+  private _orSet: boolean = false;
 
   constructor(element: HTMLElement, subIndex?: number, parent?: DomStower) {
     this.element = element;
@@ -72,21 +69,14 @@ export class DomStower implements Stower {
   }
 
   firstNode(): Node | undefined {
-    if (!this.first) return;
-    const { child } = this.first;
-    if (child instanceof DomStower) {
-      return child.firstNode();
-    }
-    return child;
+    return this.findChildAfterIndex(-1);
   }
 
   private setChild(child: Child, index: number) {
     if (this.children[index]) return;
 
-    if (!this.first || (this.first && index < this.first.index)) {
-      this.first = { child, index };
-    }
     this.children[index] = child;
+    this.childCount++;
   }
 
   private findChildAfterIndex(index: number): Node | undefined {
@@ -100,12 +90,22 @@ export class DomStower implements Stower {
     return undefined;
   }
 
-  add(child: any, index: number) {
-    console.log(`${this.subIndex ?? 'x'} add`, index, child);
+  add(child: any, index: number, checkOr = true) {
+    if (checkOr) {
+      this.checkOr();
+    }
+
+    // console.log(`${this.subIndex ?? 'x'} add`, index, child);
     if (child instanceof DomPathifier) {
       const childStower = new DomStower(this.element, index, this);
-      child.transformer = new StowerTransformer(childStower);
       (this.element as any).mountables.push(child);
+
+      if (child.transformer instanceof StowerTransformer) {
+        child.transformer.bloodyRebuild(this);
+      } else {
+        child.transformer = new StowerTransformer(childStower);
+      }
+
       this.setChild(childStower, index);
     } else if (Array.isArray(child)) {
       const childStower = new DomStower(this.element, index, this);
@@ -114,53 +114,50 @@ export class DomStower implements Stower {
         childStower.add(child[i], i);
       }
     } else {
-      console.log(
-        `${this.subIndex ?? 'x'} nodes before`,
-        this.children.map(c => {
-          if (c instanceof DomStower) return 'dd' + (c.subIndex ?? 'x');
-          return c;
-        })
-      );
-      console.log(
-        `${this.subIndex ?? 'x'} nodes BEFORE`,
-        this.children.map(c => {
-          if (c instanceof DomStower) return c.firstNode();
-          return c;
-        })
-      );
+      // console.log(
+      //   `${this.subIndex ?? 'x'} nodes before`,
+      //   this.children.map(c => {
+      //     if (c instanceof DomStower) return 'dd' + (c.subIndex ?? 'x');
+      //     return c;
+      //   })
+      // );
+      // console.log(
+      //   `${this.subIndex ?? 'x'} nodes BEFORE`,
+      //   this.children.map(c => {
+      //     if (c instanceof DomStower) return c.firstNode();
+      //     return c;
+      //   })
+      // );
       const nodeAtIndex = this.findChildAfterIndex(index);
-      console.log('nodeAtIndex', nodeAtIndex);
+      // console.log('nodeAtIndex', nodeAtIndex);
 
       if (nodeAtIndex) {
         const escaped = escapeChild(child);
-        console.log('escaped', escaped, 'nodeatindex', nodeAtIndex);
-        try {
-          this.element.insertBefore(escaped, nodeAtIndex);
-          this.setChild(escaped, index);
-        } catch (e) {
-          console.log(e);
-        }
-        console.log(`${this.subIndex ?? 'x'} insertBefore`, nodeAtIndex);
+        // console.log('escaped', escaped, 'nodeatindex', nodeAtIndex);
+        this.element.insertBefore(escaped, nodeAtIndex);
+        this.setChild(escaped, index);
+        // console.log(`${this.subIndex ?? 'x'} insertBefore`, nodeAtIndex);
       } else {
         const escaped = escapeChild(child);
         if (this.subIndex !== undefined) {
           this.parent?.add(escaped, this.subIndex);
           this.setChild(escaped, index);
         } else {
-          console.log(`${this.subIndex ?? 'x'} appendChild`);
+          // console.log(`${this.subIndex ?? 'x'} appendChild`);
           this.element.appendChild(escaped);
           this.setChild(escaped, index);
         }
       }
-      console.log(
-        `${this.subIndex ?? 'x'} nodes after`,
-        this.children.map(c => {
-          if (c instanceof DomStower) return 'dd' + (c.subIndex ?? 'x');
-          return c;
-        })
-      );
-      console.log('first', this.first, this.firstNode());
-      console.log('html', this.element.innerHTML);
+      // console.log(
+      //   `${this.subIndex ?? 'x'} nodes after`,
+      //   this.children.map(c => {
+      //     if (c instanceof DomStower) return 'dd' + (c.subIndex ?? 'x');
+      //     return c;
+      //   })
+      // );
+
+      // console.log('first', this.firstNode());
+      // console.log('html', this.element.innerHTML);
     }
     // if (child instanceof DomPathifier) {
     //   const childStower = new ChildStower(this, index, child);
@@ -185,17 +182,37 @@ export class DomStower implements Stower {
     // }
   }
 
-  remove(child: any, index: number) {
-    console.log('remove', index, child);
+  remove(child: any, index: number, checkOr = true) {
+    // console.log('remove', index, child);
     child = this.children[index] || child;
     if (child) {
       this.element.removeChild(child);
     }
     delete this.children[index];
+    this.childCount--;
+    // console.log(this.childCount);
+    if (checkOr) {
+      this.checkOr();
+    }
   }
 
-  // or(index: number, or: any) {
-  //   this.ors[index] = or;
-  //   this._remove(index);
-  // }
+  private checkOr() {
+    // console.log('  > checkor', this.childCount, this._orSet);
+    if (this._or !== undefined && this.childCount === 0 && !this._orSet) {
+      // console.log('add or');
+      this._orSet = true;
+      let or = this._or;
+      if (typeof or === 'function') or = or();
+      this.add(or, 0, false);
+    } else if (this.childCount > 0 && this._orSet) {
+      // console.log('remove or');
+      this._orSet = false;
+      this.remove(null, 0, false);
+    }
+  }
+
+  or(or: any) {
+    this._or = or;
+    this.checkOr();
+  }
 }
