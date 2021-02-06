@@ -128,23 +128,30 @@ export class DomStower implements Stower {
           return c;
         })
       );
-      const escaped = escapeChild(child);
       const nodeAtIndex = this.findChildAfterIndex(index);
       console.log('nodeAtIndex', nodeAtIndex);
 
       if (nodeAtIndex) {
+        const escaped = escapeChild(child);
         console.log('escaped', escaped, 'nodeatindex', nodeAtIndex);
-        this.element.insertBefore(escaped, nodeAtIndex);
+        try {
+          this.element.insertBefore(escaped, nodeAtIndex);
+          this.setChild(escaped, index);
+        } catch (e) {
+          console.log(e);
+        }
         console.log(`${this.subIndex ?? 'x'} insertBefore`, nodeAtIndex);
       } else {
+        const escaped = escapeChild(child);
         if (this.subIndex !== undefined) {
-          this.parent?.add(child, this.subIndex);
+          this.parent?.add(escaped, this.subIndex);
+          this.setChild(escaped, index);
         } else {
           console.log(`${this.subIndex ?? 'x'} appendChild`);
           this.element.appendChild(escaped);
+          this.setChild(escaped, index);
         }
       }
-      this.setChild(escaped, index);
       console.log(
         `${this.subIndex ?? 'x'} nodes after`,
         this.children.map(c => {
@@ -152,6 +159,7 @@ export class DomStower implements Stower {
           return c;
         })
       );
+      console.log('first', this.first, this.firstNode());
       console.log('html', this.element.innerHTML);
     }
     // if (child instanceof DomPathifier) {
