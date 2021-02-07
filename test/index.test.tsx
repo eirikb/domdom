@@ -2155,3 +2155,16 @@ test('error in dom', t => {
   const e = <div>{new Error('Oh my')}</div>;
   t.is(e.outerHTML, '<div>Error: Oh my</div>');
 });
+
+// test('on in on', async t => {
+//   console.log(1);
+//   init(
+//     element,
+//     <div>{on('test').map(() => on('ing').map(() => 'Yeah!'))}</div>
+//   );
+//   set('ing', true);
+//   console.log(1, await html());
+//   set('test', true);
+//   console.log(2, await html());
+//   t.pass();
+// });

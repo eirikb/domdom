@@ -58,7 +58,6 @@ export class DomStower implements Stower {
   private readonly subIndex?: number;
   private readonly parent?: DomStower;
   private readonly children: (Child | undefined)[] = [];
-  private childCount = 0;
   private _or: any;
   private _orSet: boolean = false;
 
@@ -69,18 +68,11 @@ export class DomStower implements Stower {
   }
 
   firstNode(): Node | undefined {
-    return this.findChildAfterIndex(-1);
-  }
-
-  private setChild(child: Child, index: number) {
-    if (this.children[index]) return;
-
-    this.children[index] = child;
-    this.childCount++;
+    return this.findChildAfterIndex(0);
   }
 
   private findChildAfterIndex(index: number): Node | undefined {
-    for (let i = index + 1; i < this.children.length; i++) {
+    for (let i = index; i < this.children.length; i++) {
       let child = this.children[i];
       if (child instanceof DomStower) {
         child = child.firstNode();
@@ -90,12 +82,28 @@ export class DomStower implements Stower {
     return undefined;
   }
 
+  appendChild(escaped: Node, index: number, updateChildren: boolean) {
+    const nodeAtIndex = this.findChildAfterIndex(index);
+    if (nodeAtIndex) {
+      this.element.insertBefore(escaped, nodeAtIndex);
+      if (updateChildren)
+        this.children.splice(Math.max(0, index - 1), 0, escaped);
+    } else {
+      if (this.subIndex !== undefined) {
+        this.parent?.appendChild(escaped, this.subIndex + 1, false);
+        if (updateChildren) this.children.splice(index, 0, escaped);
+      } else {
+        this.element.appendChild(escaped);
+        if (updateChildren) this.children.splice(index, 0, escaped);
+      }
+    }
+  }
+
   add(child: any, index: number, checkOr = true) {
     if (checkOr) {
       this.checkOr();
     }
 
-    // console.log(`${this.subIndex ?? 'x'} add`, index, child);
     if (child instanceof DomPathifier) {
       const childStower = new DomStower(this.element, index, this);
       (this.element as any).mountables.push(child);
@@ -106,106 +114,38 @@ export class DomStower implements Stower {
         child.transformer = new StowerTransformer(childStower);
       }
 
-      this.setChild(childStower, index);
+      this.children[index] = childStower;
     } else if (Array.isArray(child)) {
       const childStower = new DomStower(this.element, index, this);
-      this.setChild(childStower, index);
+      this.children[index] = childStower;
       for (let i = 0; i < child.length; i++) {
         childStower.add(child[i], i);
       }
     } else {
-      // console.log(
-      //   `${this.subIndex ?? 'x'} nodes before`,
-      //   this.children.map(c => {
-      //     if (c instanceof DomStower) return 'dd' + (c.subIndex ?? 'x');
-      //     return c;
-      //   })
-      // );
-      // console.log(
-      //   `${this.subIndex ?? 'x'} nodes BEFORE`,
-      //   this.children.map(c => {
-      //     if (c instanceof DomStower) return c.firstNode();
-      //     return c;
-      //   })
-      // );
-      const nodeAtIndex = this.findChildAfterIndex(index);
-      // console.log('nodeAtIndex', nodeAtIndex);
-
-      if (nodeAtIndex) {
-        const escaped = escapeChild(child);
-        // console.log('escaped', escaped, 'nodeatindex', nodeAtIndex);
-        this.element.insertBefore(escaped, nodeAtIndex);
-        this.setChild(escaped, index);
-        // console.log(`${this.subIndex ?? 'x'} insertBefore`, nodeAtIndex);
-      } else {
-        const escaped = escapeChild(child);
-        if (this.subIndex !== undefined) {
-          this.parent?.add(escaped, this.subIndex);
-          this.setChild(escaped, index);
-        } else {
-          // console.log(`${this.subIndex ?? 'x'} appendChild`);
-          this.element.appendChild(escaped);
-          this.setChild(escaped, index);
-        }
-      }
-      // console.log(
-      //   `${this.subIndex ?? 'x'} nodes after`,
-      //   this.children.map(c => {
-      //     if (c instanceof DomStower) return 'dd' + (c.subIndex ?? 'x');
-      //     return c;
-      //   })
-      // );
-
-      // console.log('first', this.firstNode());
-      // console.log('html', this.element.innerHTML);
+      const escaped = escapeChild(child);
+      this.appendChild(escaped, index, true);
     }
-    // if (child instanceof DomPathifier) {
-    //   const childStower = new ChildStower(this, index, child);
-    //   console.log(3, child);
-    //   (this.element as any).mountables.push(childStower);
-    //   if (child.transformer instanceof StowerTransformer) {
-    //     console.log(4);
-    //     child.transformer.bloodyRebuild(this, index);
-    //   } else {
-    //     console.log(5);
-    //     child.transformer = new StowerTransformer(this, index);
-    //   }
-    // } else {
-    //   if (Array.isArray(child)) {
-    //     console.log('it is the array', child);
-    //     // this.addArray(child, index);
-    //     new ChildStower(this, index, child);
-    //     // this.add(childStower, index);
-    //   } else {
-    //     this.addSingle(child, index);
-    //   }
-    // }
   }
 
   remove(child: any, index: number, checkOr = true) {
-    // console.log('remove', index, child);
-    child = this.children[index] || child;
+    const c = this.children[index];
+    child = c || child;
     if (child) {
       this.element.removeChild(child);
     }
-    delete this.children[index];
-    this.childCount--;
-    // console.log(this.childCount);
+    this.children.splice(index, 1);
     if (checkOr) {
       this.checkOr();
     }
   }
 
   private checkOr() {
-    // console.log('  > checkor', this.childCount, this._orSet);
-    if (this._or !== undefined && this.childCount === 0 && !this._orSet) {
-      // console.log('add or');
+    if (this._or !== undefined && this.children.length === 0 && !this._orSet) {
       this._orSet = true;
       let or = this._or;
       if (typeof or === 'function') or = or();
       this.add(or, 0, false);
-    } else if (this.childCount > 0 && this._orSet) {
-      // console.log('remove or');
+    } else if (this.children.length > 0 && this._orSet) {
       this._orSet = false;
       this.remove(null, 0, false);
     }
