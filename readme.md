@@ -51,7 +51,7 @@
   - ["Domponents"](#domponents)
     - [Children / Composition](#children--composition)
   - [Events](#events)
-  - [on(path)](#onpath)
+  - [don(path)](#donpath)
     - [Standalone `on`](#standalone-on)
     - [Child path lookup](#child-path-lookup)
   - [or](#or)
@@ -94,9 +94,9 @@ app.jsx:
 ```jsx
 import domdom from '@eirikb/domdom';
 
-const { React, init, on, set } = domdom();
+const { React, init, don, set } = domdom();
 
-const view = <div>Hello, {on('name')}</div>;
+const view = <div>Hello, {don('name')}</div>;
 
 init(document.body, view);
 
@@ -137,7 +137,7 @@ By creating a function you create a Domponent (component).
 function MyComponent() {
   return (
     <ul>
-      {on('players.$id.name').map(name => (
+      {don('players.$id.name').map(name => (
         <li>Player {name}</li>
       ))}
     </ul>
@@ -191,15 +191,15 @@ function MyButton() {
 }
 ```
 
-### on(path)
+### don(path)
 
 ```jsx
 const view = (
   <ul>
-    {on('players.$id.name').map(name => (
+    {don('players.$id.name').map(name => (
       <li>Player {name}</li>
     ))}
-    {on('info')}
+    {don('info')}
   </ul>
 );
 ```
@@ -216,7 +216,7 @@ modifiers:
 `path` can contain wildcards, either names with `$` or any with `*`. Named wildcards can be resolved in the callback:
 
 ```jsx
-on('players.$id').map((player, { $id }) => console.log(`Id is ${$id}`));
+don('players.$id').map((player, { $id }) => console.log(`Id is ${$id}`));
 ```
 
 You can have multiple wildcards: `players.$id.items.$itemId.size`.
@@ -225,17 +225,17 @@ You can have multiple wildcards: `players.$id.items.$itemId.size`.
 
 `on` inside JSX will be attached to the element so listeners are turned on/off based on elements present in the DOM.  
 Calling `on` outside of JSX will _not_ automatically start the listener.  
-If you want a global forever call `globalOn()`. This returns a string reference you can use to remove the listener,
+If you want a global forever call `on()`. This returns a string reference you can use to remove the listener,
 using `off`:
 
 ```js
-const ref = globalOn('!+* test', console.log);
+const ref = on('!+* test', console.log);
 // ... later
 off(ref);
 ```
 
-The `!+*` above are flags. These only apply to `globalOn`. They state when the listener should trigger. You can have one
-or several of these. The space separate flags and path. Supported flags are:
+The `!+*` above are flags. These only apply to `on`. They state when the listener should trigger. You can have one or
+several of these. The space separate flags and path. Supported flags are:
 
 ```
      *   Value changed
@@ -250,7 +250,7 @@ If you have an element you should `attach` it to that, like this:
 ```jsx
 const element = <div></div>;
 element.attach(
-  on('!*+ test', x => element.textContent = x)
+  don('!*+ test', x => element.textContent = x)
 );
 ```
 
@@ -265,10 +265,10 @@ They have data in global state, but don't rely on the parent path.
 ```jsx
 const view = (
   <div>
-    {on('players.$id').map((player, { child }) => (
+    {don('players.$id').map((player, { child }) => (
       <div>
         Player name: (won't update on change): {player.name} <br/>
-        {on(child('name')).map(name => (
+        {don(child('name')).map(name => (
           <span>Player name: {name}</span>
         ))}
       </div>
@@ -279,13 +279,13 @@ const view = (
 
 ### or
 
-Neither `on` will trigger unless there is a value on the path, in order to show something at all until some value is
+Neither `don` will trigger unless there is a value on the path, in order to show something at all until some value is
 set `or` must be used.
 
 ```jsx
 const view = (
   <div>
-    {on('ready').map(() => 'Ready!').or(
+    {don('ready').map(() => 'Ready!').or(
       <div>Loading app in the fastest possible way...</div>
     )}
   </div>
@@ -299,7 +299,7 @@ Similar to v-model and ng-model.
 Suggest not using this if possible, using forms directly like in recipes is much better.
 
 ```jsx
-globalOn('= search', event => {
+on('= search', event => {
   event.preventDefault();
   set('result', `Data for ${get('text')} here...`);
 });
@@ -308,32 +308,33 @@ const view = (
   <form onSubmit={e => trigger('search', e)}>
     <input type="search" dd-model="text"/>
     <input type="checkbox" dd-model="more"/>
-    {on('more').map(() => 'This is more')}
-    Current text: {on('text')}
+    {don('more').map(() => 'This is more')}
+    Current text: {don('text')}
     <button type="submit">Search</button>
-    {on('result')}
+    {don('result')}
   </form>
 );
 ```
 
 ### Attributes
 
-It's possible to use `on` directly on attributes.  
+It's possible to use `don` directly on attributes.  
 It might feel and look a bit quirky, but there it is.
 
 ```jsx
 const view = (
   <div>
     <button onClick={() => set('toggle', !get('toggle'))}>Toggle</button>
-    <button disabled={on('toggle').or(true)}>A</button>
-    <button disabled={on('toggle').map(res => !res)}>B</button>
+    <button disabled={don('toggle').or(true)}>A</button>
+    <button disabled={don('toggle').map(res => !res)}>B</button>
   </div>
 );
 ```
 
 #### Pathifier
 
-Every time you call `on` you always get a `pathifier`. With support for `map`, `filter`, `sort`, `slice` and `aggregate`
+Every time you call `don` you always get a `pathifier`. With support for `map`, `filter`, `sort`, `slice`
+and `aggregate`
 .
 
 E.g.,
@@ -341,7 +342,7 @@ E.g.,
 ```jsx
 const view = (
   <ul>
-    {on('users')
+    {don('users')
       .map(user => <li>{user.name}</li>)
       .filter(user => user.name !== 'Mr. B')
       .sort((a, b) => b.id.localeCompare(a.id))}
@@ -368,7 +369,7 @@ E.g.,
 ```jsx
 const view = (
   <ul>
-    {on('users')
+    {don('users')
       .map(user => <li>{user.name}</li>)
       .filterOn('test', (user, { onValue }) => user.name !== onValue)}
   </ul>
@@ -396,7 +397,7 @@ How to handle common tasks with domdom
 ```jsx
 const view = (
   <div>
-    {on('route').map(route => {
+    {don('route').map(route => {
       switch (route) {
         case 'login':
           return <Login/>;
@@ -450,8 +451,9 @@ import domdom from '@eirikb/domdom';
 const dd = domdom();
 export const React = dd.React;
 export const init = dd.init;
+export const don = dd.don;
 export const on = dd.on;
-export const globalOn = dd.globalOn;
+export const on = dd.on;
 export const get = dd.get;
 export const set = dd.set;
 export const trigger = dd.trigger;
@@ -460,9 +462,9 @@ export const trigger = dd.trigger;
 _data.js_
 
 ```js
-import { on, globalOn, set } from './domdom';
+import { on, set } from './domdom';
 
-globalOn('= search', event => {
+on('= search', event => {
   event.preventDefault();
   const searchText = event.target.search.value;
   set('result', `Data for ${searchText} here...`);
@@ -473,13 +475,13 @@ _index.jsx_
 
 ```jsx
 import data from './data';
-import { on, init, trigger } from './domdom';
+import { don, init, trigger } from './domdom';
 
 const view = (
   <form onSubmit={e => trigger('search', e)}>
     <input type="search" name="search"/>
     <button type="submit">Search</button>
-    {on('result')}
+    {don('result')}
   </form>
 );
 
@@ -496,7 +498,7 @@ from ever being cleaned up by garbage collector.
 ```jsx
 const view = <div>
   <img src="https://i.imgur.com/rsD0RUq.jpg" style={
-    on('tick').map(time => ({ rotate: `${time % 180}deg` }
+    don('tick').map(time => ({ rotate: `${time % 180}deg` }
     ))
   }/>
   <button onClick={() => set('run', !get('run'))}>Start/Stop</button>
@@ -527,17 +529,17 @@ Note: Does **not** support IE11.
 * `data: T`
   Single big data object as previously interacted with through `get` and `set`.
 * `pathOf<X = T>(o?: X): Wrapper<X>`
-  Helper function to create a path from a type. `on`, `globalOn` and `trigger` accept this. Prepend `$path` to get the
-  path in plain string (required for `dd-model`). Prepend `$` to achieve same as `$string` path pattern.
+  Helper function to create a path from a type. `don`, `on` and `trigger` accept this. Prepend `$path` to get the path
+  in plain string (required for `dd-model`). Prepend `$` to achieve same as `$string` path pattern.
 * `init(parent: HTMLElement, child?: HTMLElement)`
   For initialization.
-* `globalOn <T = any>(flags: string, path: string | Wrapper, listener: ListenerCallbackWithType<T> ): string`
-  Same as `on`, but flag and path is split up to support `path` (from above). Note that object in callback is also a
+* `on<T = any>(flags: string, path: string | Wrapper, listener: ListenerCallbackWithType<T> ): string`
+  Same as `don`, but flag and path is split up to support `path` (from above). Note that object in callback is also a
   proxy, supporting change.
 * `trigger(path: string | Wrapper, value?: any)`
   Same as `trigger`, but flag and path is split up to support `path` (from above).
-* `on(path: string | Wrapper): Pathifier`
-  Same as `on`, but flag and path is split up to support `path` (from above). Note that object in callback is also a
+* `don(path: string | Wrapper): Pathifier`
+  Same as `don`, but flag and path is split up to support `path` (from above). Note that object in callback is also a
   proxy, supporting change.
 
 #### Example
@@ -554,7 +556,7 @@ interface Data {
     users: User[]
 }
 
-const {React, init, data, on, pathOf} = godMode<Data>();
+const {React, init, data, don, pathOf} = godMode<Data>();
 
 data.users = ['eirik', 'steffen', 'frank'].map(name => ({name, edit: false}));
 
@@ -562,11 +564,11 @@ init(document.body, <div>
     <button onclick={() => data.users.push({name: 'eh', edit: false})}>Add</button>
 
     <ul>
-        {on(pathOf().users.$.ok).map<User>(user => {
+        {don(pathOf().users.$.ok).map<User>(user => {
             return <li>
                 <button onclick={() => user.edit = !user.edit}>Edit?</button>
-                {on(pathOf(user).name)}
-                {on(pathOf(user).edit).map(edit => edit ?
+                {don(pathOf(user).name)}
+                {don(pathOf(user).edit).map(edit => edit ?
                     <input type="text" dd-model={pathOf(user).name.$path}/> : null)}
             </li>;
         })}

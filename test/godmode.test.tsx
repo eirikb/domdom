@@ -27,9 +27,9 @@ test.beforeEach(() => {
 });
 
 test('godMode', async t => {
-  const { init, React, on, data } = godMode<any>();
+  const { init, React, don, data } = godMode<any>();
 
-  init(element, <div>{on('katt')}</div>);
+  init(element, <div>{don('katt')}</div>);
 
   data.katt = ':)';
   t.is(await html(), '<div>:)</div>');
@@ -40,12 +40,12 @@ test('godMode', async t => {
 });
 
 test('godMode 2', async t => {
-  const { init, React, on, data } = godMode<any>();
+  const { init, React, don, data } = godMode<any>();
 
   init(
     element,
     <div>
-      {on('users.$.*').map(user => (
+      {don('users.$.*').map(user => (
         <b>{user.name}</b>
       ))}
     </div>
@@ -62,12 +62,12 @@ test('godMode 2', async t => {
 });
 
 test('godMode 3', async t => {
-  const { init, React, on, data } = godMode<any>();
+  const { init, React, don, data } = godMode<any>();
 
   init(
     element,
     <div>
-      {on('users.$.*').map(user => (
+      {don('users.$.*').map(user => (
         <b>{user.name}</b>
       ))}
     </div>
@@ -84,11 +84,11 @@ test('godMode 3', async t => {
 });
 
 test('godMode 4', async t => {
-  const { init, React, on, data } = godMode<any>();
+  const { init, React, don, data } = godMode<any>();
   init(
     element,
     <div>
-      {on('users.$.*').map(user => (
+      {don('users.$.*').map(user => (
         <b>{user.name}</b>
       ))}
     </div>
@@ -151,9 +151,9 @@ test('path 2', t => {
   t.is(pathOf().a.users[0].$path, 'a.users.0');
 });
 
-test('godMode on', async t => {
-  const { React, init, data, pathOf, on } = godMode<any>();
-  init(element, <div>{on(pathOf().ok).map(ok => `res ${ok}`)}</div>);
+test('godMode don', async t => {
+  const { React, init, data, pathOf, don } = godMode<any>();
+  init(element, <div>{don(pathOf().ok).map(ok => `res ${ok}`)}</div>);
   t.is(await html(), '<div></div>');
   data.ok = ':)';
   t.is(await html(), '<div>res :)</div>');
@@ -170,11 +170,11 @@ test('godMode on 2', async t => {
     };
   }
 
-  const { init, React, data, on, pathOf } = godMode<Yes>();
+  const { init, React, data, don, pathOf } = godMode<Yes>();
   init(
     element,
     <div>
-      {on(pathOf().a.users.$.ok).map<User>(user => (
+      {don(pathOf().a.users.$.ok).map<User>(user => (
         <b>{user.name}</b>
       ))}
     </div>
@@ -204,12 +204,12 @@ test('godMode on 3', async t => {
     };
   }
 
-  const { React, init, on, data, pathOf } = godMode<Yes>();
+  const { React, init, don, data, pathOf } = godMode<Yes>();
   init(
     element,
     <div>
-      {on(pathOf().a.users.$.ok).map(u => (
-        <span>{on(pathOf(u).name)}</span>
+      {don(pathOf().a.users.$.ok).map(u => (
+        <span>{don(pathOf(u).name)}</span>
       ))}
     </div>
   );
@@ -230,12 +230,12 @@ test('godMode on 4', async t => {
     };
   }
 
-  const { React, init, on, data, pathOf } = godMode<Yes>();
+  const { React, init, don, data, pathOf } = godMode<Yes>();
   init(
     element,
     <div>
-      {on(pathOf().a.users.$.ok).map(user => (
-        <span>{on(pathOf(user).name)}</span>
+      {don(pathOf().a.users.$.ok).map(user => (
+        <span>{don(pathOf(user).name)}</span>
       ))}
     </div>
   );
@@ -254,11 +254,11 @@ test('array is hacked for now', async t => {
     users: User[];
   }
 
-  const { React, init, on, data, pathOf } = godMode<Data>();
+  const { React, init, don, data, pathOf } = godMode<Data>();
   init(
     element,
     <ul>
-      {on(pathOf().users['$id']).map<User>(user => (
+      {don(pathOf().users['$id']).map<User>(user => (
         <li>{user.name}</li>
       ))}
     </ul>
@@ -274,26 +274,26 @@ test('array is hacked for now', async t => {
 });
 
 test('trigger', t => {
-  const { globalOn, pathOf, trigger } = godMode<any>();
-  globalOn('=', pathOf().a.b.c, val => {
+  const { on, pathOf, trigger } = godMode<any>();
+  on('=', pathOf().a.b.c, val => {
     t.is(val, 'Yes!');
   });
   trigger(pathOf().a.b.c, 'Yes!');
 });
 
-test('globalOn noGod', t => {
-  const { globalOn, set } = domdom();
-  globalOn('!+* users.$', (_, { child }) => {
+test('on noGod', t => {
+  const { on, set } = domdom();
+  on('!+* users.$', (_, { child }) => {
     set(child('child'), { name: 'Child!' });
   });
-  globalOn('!+* users.$.child', user => {
+  on('!+* users.$.child', user => {
     t.is(user.name, 'Child!');
   });
 
   set('users', [{ name: 'Yes!' }]);
 });
 
-test('globalOn change', t => {
+test('on change', t => {
   interface User {
     name: string;
     child?: User;
@@ -303,12 +303,12 @@ test('globalOn change', t => {
     users: User[];
   }
 
-  const { data, pathOf, globalOn } = godMode<Data>();
+  const { data, pathOf, on } = godMode<Data>();
 
-  globalOn<User>('!+*', pathOf().users.$.ok, u => {
+  on<User>('!+*', pathOf().users.$.ok, u => {
     u.child = { name: 'Child!' };
   });
-  globalOn<User>('!+*', pathOf().users.$.ok.child!, user => {
+  on<User>('!+*', pathOf().users.$.ok.child!, user => {
     t.is(user.name, 'Child!');
   });
 
@@ -324,9 +324,9 @@ test('proxified objects are probably objects', t => {
 });
 
 test('on object', async t => {
-  const { init, React, data, on } = godMode<any>();
+  const { init, React, data, don } = godMode<any>();
 
-  init(element, <div>{on('eh')}</div>);
+  init(element, <div>{don('eh')}</div>);
   data.eh = 'eh';
   t.is(await html(), '<div>eh</div>');
   data.eh = { hello: 'world' };
