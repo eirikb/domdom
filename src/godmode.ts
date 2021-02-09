@@ -12,24 +12,29 @@ import { React } from './types';
 const pathSymbol = Symbol('Path');
 const proxiedSymbol = Symbol('Proxied');
 
-const p = (o, path: string[] = []) => {
+const p = (o, path: string[] = [], hack = false) => {
   const oldPath = (o || {})[pathSymbol];
   if (oldPath) path = oldPath;
   if (!o || !isProbablyPlainObject(o)) o = {};
   return new Proxy(o, {
     get: (target, key) => {
+      if (hack) {
+        key = path.pop() + String(key);
+        hack = false;
+      }
+
       if (key === pathSymbol) return path;
-      return p(target[key], path.concat(String(key)));
+      else if (key === '$path') return path.join('.');
+      else if (key === '$') hack = true;
+
+      return p(target[key], path.concat(String(key)), hack);
     },
   });
 };
 
-function pathus(path: any): string {
+function pathus(path: string | Wrapper): string {
   if (typeof path === 'string') return path;
-  if (Array.isArray(path[pathSymbol])) {
-    return path[pathSymbol].join('.');
-  }
-  throw new Error(`Path ${path} is not a proper path`);
+  return path.$path;
 }
 
 function deregulate(value: any): any {
@@ -88,6 +93,7 @@ export class GodMode<T> {
         if (key === 'constructor') return target[key];
         else if (key === pathSymbol) return path;
         else if (key === proxiedSymbol) return true;
+        else if (key === '$path') return path.concat(key).join('.');
 
         const value = target[key];
         if (typeof value === 'function') {
@@ -102,7 +108,7 @@ export class GodMode<T> {
     });
   }
 
-  on = (path: any): Pathifier => {
+  on = (path: string | Wrapper): Pathifier => {
     const pathAsString = pathus(path);
 
     const self = this;
@@ -135,26 +141,26 @@ export class GodMode<T> {
     return pathifier;
   };
 
-  trigger = (path: any, value?: any) => {
+  trigger = (path: string | Wrapper, value?: any) => {
     return this.domdom.trigger(pathus(path), value);
   };
 
-  get = <T = any>(path?: any): T | undefined => {
+  get = <T = any>(path?: string | Wrapper): T | undefined => {
     if (!path) return this.domdom.get();
     return this.domdom.get(pathus(path));
   };
 
-  set = (path: any, value: any, byKey?: string) => {
+  set = (path: string | Wrapper, value: any, byKey?: string) => {
     this.domdom.set(pathus(path), value, byKey);
   };
 
-  unset = (path: any) => {
+  unset = (path: string | Wrapper) => {
     this.domdom.unset(pathus(path));
   };
 
   globalOn = <T = any>(
     flags: string,
-    path: any,
+    path: string | Wrapper,
     listener: ListenerCallbackWithType<T>
   ): string => {
     return this.domdom.globalOn(
@@ -167,11 +173,25 @@ export class GodMode<T> {
   init = (parent: HTMLElement, child?: HTMLElement) =>
     this.domdom.init(parent, child);
 
-  path = <X = T>(o?: X): X => {
-    return p(o);
-  };
-
-  pathOf = <X = T>(o: X, cb: (o: X) => any): string => {
-    return cb(p(o))[pathSymbol].join('.');
-  };
+  pathOf<X = T>(o?: X): Wrapper<X> {
+    return p(o) as Wrapper<X>;
+  }
 }
+
+export type Wrapper<T = unknown> = {
+  [P in keyof T]: Wrapper<T[P]>;
+} &
+  (T extends Array<infer A>
+    ? {
+        $path: string;
+        $: {
+          [key: string]: Wrapper<A>;
+        };
+        [index: number]: Wrapper<A>;
+      }
+    : {
+        $path: string;
+        $: {
+          [key: string]: Wrapper<T>;
+        };
+      });

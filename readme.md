@@ -116,7 +116,8 @@ npx parcel index.html
 ```jsx
 import domdom from '@eirikb/domdom';
 
-const dd = domdom(parentElement, view);
+const dd = domdom();
+dd.init(parentElement, view);
 ```
 
 ### Elements
@@ -525,18 +526,17 @@ Note: Does **not** support IE11.
 
 * `data: T`
   Single big data object as previously interacted with through `get` and `set`.
-* `path<X = T>(o?: X): X`
-  Helper function to create a path from a type. `on`, `globalOn` and `trigger` accept this.
-* `pathOf<X = T>(o: X, cb: (o: X) => any): string`
-  Helper function to return path as a string. This is required for `dd-model`.
+* `pathOf<X = T>(o?: X): Wrapper<X>`
+  Helper function to create a path from a type. `on`, `globalOn` and `trigger` accept this. Prepend `$path` to get the
+  path in plain string (required for `dd-model`). Prepend `$` to achieve same as `$string` path pattern.
 * `init(parent: HTMLElement, child?: HTMLElement)`
   For initialization.
-* `globalOn <T = any>(flags: string, path: any, listener: ListenerCallbackWithType<T> ): string`
+* `globalOn <T = any>(flags: string, path: string | Wrapper, listener: ListenerCallbackWithType<T> ): string`
   Same as `on`, but flag and path is split up to support `path` (from above). Note that object in callback is also a
   proxy, supporting change.
-* `trigger(path: any, value?: any)`
+* `trigger(path: string | Wrapper, value?: any)`
   Same as `trigger`, but flag and path is split up to support `path` (from above).
-* `on(path: any): Pathifier`
+* `on(path: string | Wrapper): Pathifier`
   Same as `on`, but flag and path is split up to support `path` (from above). Note that object in callback is also a
   proxy, supporting change.
 
@@ -554,7 +554,7 @@ interface Data {
     users: User[]
 }
 
-const {React, init, data, on, path, pathOf} = godMode<Data>();
+const {React, init, data, on, pathOf} = godMode<Data>();
 
 data.users = ['eirik', 'steffen', 'frank'].map(name => ({name, edit: false}));
 
@@ -562,17 +562,17 @@ init(document.body, <div>
     <button onclick={() => data.users.push({name: 'eh', edit: false})}>Add</button>
 
     <ul>
-        {on(path().users.$).map<User>(user => {
+        {on(pathOf().users.$.ok).map<User>(user => {
             return <li>
                 <button onclick={() => user.edit = !user.edit}>Edit?</button>
-                {on(path(user).name)}
-                {on(path(user).edit).map(edit => edit ?
-                    <input type="text" dd-model={pathOf(user, u => u.name)}/> : null)}
+                {on(pathOf(user).name)}
+                {on(pathOf(user).edit).map(edit => edit ?
+                    <input type="text" dd-model={pathOf(user).name.$path}/> : null)}
             </li>;
         })}
     </ul>
 </div>);
 ```
 
-Note: When changing arrays (replace, `pop`, `splice`, etc.) `godMode` will first clear the array. This is a workaround to
-make it easier to work with arrays.
+Note: When changing arrays (replace, `pop`, `splice`, etc.) `godMode` will first clear the array. This is a workaround
+to make it easier to work with arrays.
