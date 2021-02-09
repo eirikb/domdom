@@ -108,11 +108,11 @@ export class GodMode<T> {
     });
   }
 
-  on = (path: string | Wrapper): Pathifier => {
+  don = (path: string | Wrapper): Pathifier => {
     const pathAsString = pathus(path);
 
     const self = this;
-    const pathifier = this.domdom.on(pathAsString);
+    const pathifier = this.domdom.don(pathAsString);
     pathifier.addTransformer(
       new (class extends BaseTransformer {
         entries: Entries = new Entries();
@@ -158,15 +158,13 @@ export class GodMode<T> {
     this.domdom.unset(pathus(path));
   };
 
-  globalOn = <T = any>(
+  on = <T = any>(
     flags: string,
     path: string | Wrapper,
     listener: ListenerCallbackWithType<T>
   ): string => {
-    return this.domdom.globalOn(
-      [flags, pathus(path)].join(' '),
-      (value, opts) =>
-        listener(this.proxify(deregulate(value), opts.path.split('.')), opts)
+    return this.domdom.on([flags, pathus(path)].join(' '), (value, opts) =>
+      listener(this.proxify(deregulate(value), opts.path.split('.')), opts)
     );
   };
 
