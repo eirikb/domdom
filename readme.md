@@ -116,7 +116,8 @@ npx parcel index.html
 ```jsx
 import domdom from '@eirikb/domdom';
 
-const dd = domdom(parentElement, view);
+const dd = domdom();
+dd.init(parentElement, view);
 ```
 
 ### Elements
