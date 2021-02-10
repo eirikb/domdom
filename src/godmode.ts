@@ -19,20 +19,23 @@ const p = (o, path: string[] = [], hack = false) => {
   return new Proxy(o, {
     get: (target, key) => {
       if (hack) {
-        key = path.pop() + String(key);
+        path.pop();
+        key = '$' + String(key);
         hack = false;
       }
 
       if (key === pathSymbol) return path;
       else if (key === '$path') return path.join('.');
-      else if (key === '$') hack = true;
+      else if (key === '$x') key = '*';
+      else if (key === '$xx') key = '**';
+      else if (key === '$$') hack = true;
 
       return p(target[key], path.concat(String(key)), hack);
     },
   });
 };
 
-function pathus(path: string | Wrapper): string {
+function pathus(path: string | PathOf): string {
   if (typeof path === 'string') return path;
   return path.$path;
 }
@@ -108,7 +111,7 @@ export class GodMode<T> {
     });
   }
 
-  don = (path: string | Wrapper): Pathifier => {
+  don = (path: string | PathOf): Pathifier => {
     const pathAsString = pathus(path);
 
     const self = this;
@@ -141,26 +144,26 @@ export class GodMode<T> {
     return pathifier;
   };
 
-  trigger = (path: string | Wrapper, value?: any) => {
+  trigger = (path: string | PathOf, value?: any) => {
     return this.domdom.trigger(pathus(path), value);
   };
 
-  get = <T = any>(path?: string | Wrapper): T | undefined => {
+  get = <T = any>(path?: string | PathOf): T | undefined => {
     if (!path) return this.domdom.get();
     return this.domdom.get(pathus(path));
   };
 
-  set = (path: string | Wrapper, value: any, byKey?: string) => {
+  set = (path: string | PathOf, value: any, byKey?: string) => {
     this.domdom.set(pathus(path), value, byKey);
   };
 
-  unset = (path: string | Wrapper) => {
+  unset = (path: string | PathOf) => {
     this.domdom.unset(pathus(path));
   };
 
   on = <T = any>(
     flags: string,
-    path: string | Wrapper,
+    path: string | PathOf,
     listener: ListenerCallbackWithType<T>
   ): string => {
     return this.domdom.on([flags, pathus(path)].join(' '), (value, opts) =>
@@ -171,25 +174,31 @@ export class GodMode<T> {
   init = (parent: HTMLElement, child?: HTMLElement) =>
     this.domdom.init(parent, child);
 
-  pathOf<X = T>(o?: X): Wrapper<X> {
-    return p(o) as Wrapper<X>;
+  pathOf<X = T>(o?: X): PathOf<X> {
+    return p(o) as PathOf<X>;
   }
 }
 
-export type Wrapper<T = unknown> = {
-  [P in keyof T]: Wrapper<T[P]>;
+export type PathOf<T = unknown> = {
+  [P in keyof T]: PathOf<T[P]>;
 } &
   (T extends Array<infer A>
     ? {
         $path: string;
-        $: {
-          [key: string]: Wrapper<A>;
+        $: PathOf<A>;
+        $x: PathOf<A>;
+        $xx: PathOf<A>;
+        $$: {
+          [key: string]: PathOf<A>;
         };
-        [index: number]: Wrapper<A>;
+        [index: number]: PathOf<A>;
       }
     : {
         $path: string;
-        $: {
-          [key: string]: Wrapper<T>;
+        $: PathOf<T>;
+        $x: PathOf<T>;
+        $xx: PathOf<T>;
+        $$: {
+          [key: string]: PathOf<T>;
         };
       });
