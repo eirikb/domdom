@@ -19,13 +19,16 @@ const p = (o, path: string[] = [], hack = false) => {
   return new Proxy(o, {
     get: (target, key) => {
       if (hack) {
-        key = path.pop() + String(key);
+        path.pop();
+        key = '$' + String(key);
         hack = false;
       }
 
       if (key === pathSymbol) return path;
       else if (key === '$path') return path.join('.');
-      else if (key === '$') hack = true;
+      else if (key === '$x') key = '*';
+      else if (key === '$xx') key = '**';
+      else if (key === '$$') hack = true;
 
       return p(target[key], path.concat(String(key)), hack);
     },
@@ -182,14 +185,20 @@ export type PathOf<T = unknown> = {
   (T extends Array<infer A>
     ? {
         $path: string;
-        $: {
+        $: PathOf<A>;
+        $x: PathOf<A>;
+        $xx: PathOf<A>;
+        $$: {
           [key: string]: PathOf<A>;
         };
         [index: number]: PathOf<A>;
       }
     : {
         $path: string;
-        $: {
+        $: PathOf<T>;
+        $x: PathOf<T>;
+        $xx: PathOf<T>;
+        $$: {
           [key: string]: PathOf<T>;
         };
       });

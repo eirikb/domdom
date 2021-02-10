@@ -174,7 +174,7 @@ test('godMode on 2', async t => {
   init(
     element,
     <div>
-      {don(pathOf().a.users.$.ok).map<User>(user => (
+      {don(pathOf().a.users.$).map<User>(user => (
         <b>{user.name}</b>
       ))}
     </div>
@@ -208,7 +208,7 @@ test('godMode on 3', async t => {
   init(
     element,
     <div>
-      {don(pathOf().a.users.$.ok).map(u => (
+      {don(pathOf().a.users.$).map(u => (
         <span>{don(pathOf(u).name)}</span>
       ))}
     </div>
@@ -234,7 +234,7 @@ test('godMode on 4', async t => {
   init(
     element,
     <div>
-      {don(pathOf().a.users.$.ok).map(user => (
+      {don(pathOf().a.users.$).map(user => (
         <span>{don(pathOf(user).name)}</span>
       ))}
     </div>
@@ -305,10 +305,10 @@ test('on change', t => {
 
   const { data, pathOf, on } = godMode<Data>();
 
-  on<User>('!+*', pathOf().users.$.ok, u => {
+  on<User>('!+*', pathOf().users.$, u => {
     u.child = { name: 'Child!' };
   });
-  on<User>('!+*', pathOf().users.$.ok.child!, user => {
+  on<User>('!+*', pathOf().users.$.child!, user => {
     t.is(user.name, 'Child!');
   });
 
@@ -350,9 +350,12 @@ test('pathus', async t => {
 
   const { pathOf } = godMode<Data>();
 
-  t.is('users', pathOf().users.$path);
-  t.is('users.0', pathOf().users[0].$path);
-  t.is('users.$ok', pathOf().users.$.ok.$path);
-  t.is('users.0.$ok', pathOf().users[0].$.ok.$path);
-  t.is('users.$ok.name', pathOf().users.$.ok.name.$path);
+  t.is(pathOf().users.$path, 'users');
+  t.is(pathOf().users[0].$path, 'users.0');
+  t.is(pathOf().users.$$.ok.$path, 'users.$ok');
+  t.is(pathOf().users[0].$.$path, 'users.0.$');
+  t.is(pathOf().users.$.name.$path, 'users.$.name');
+  t.is(pathOf().users.$$.ok.name.$path, 'users.$ok.name');
+  t.is(pathOf().users.$x.$path, 'users.*');
+  t.is(pathOf().users.$xx.$path, 'users.**');
 });
