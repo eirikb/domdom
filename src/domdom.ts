@@ -109,7 +109,7 @@ export class Domdom {
     this.React = new ReactImpl(this._data);
   }
 
-  on = (path: string): Pathifier => {
+  don = (path: string): Pathifier => {
     return new DomPathifier(this._data, path);
   };
 
@@ -132,7 +132,7 @@ export class Domdom {
     return this._data.trigger(path, value);
   };
 
-  globalOn = <T = any>(
+  on = <T = any>(
     flagsAndPath: string,
     listener: ListenerCallbackWithType<T>
   ): string => this._data.on(flagsAndPath, listener);
