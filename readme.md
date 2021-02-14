@@ -245,17 +245,6 @@ several of these. The space separate flags and path. Supported flags are:
      =   Trigger only (no value set)
 ```
 
-If you have an element you should `attach` it to that, like this:
-
-```jsx
-const element = <div></div>;
-element.attach(
-  don('!*+ test', x => element.textContent = x)
-);
-```
-
-`attach` is added to elements created by domdom (`Domode` in TSX).
-
 #### Child path lookup
 
 By using `child` it's possible to listen to relative paths "from parent".  

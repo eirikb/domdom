@@ -441,12 +441,14 @@ test('Multiple child paths', async t => {
 
 test('Have some path with flags', async t => {
   const Ok = () => {
-    const e = <div></div>;
-    e.attach(don('b').map(wat => (e.innerHTML = wat)));
     return (
       <div>
         {don('a')}
-        {e}
+        {don('b').map(b => {
+          const e = <div></div>;
+          e.innerHTML = b;
+          return e;
+        })}
       </div>
     );
   };
@@ -460,12 +462,14 @@ test('Have some path with flags without component', async t => {
   init(
     element,
     (() => {
-      const e = <div></div>;
-      e.attach(don('b').map(wat => (e.innerHTML = wat)));
       return (
         <div>
           {don('a')}
-          {e}
+          {don('b').map(b => {
+            const e = <div></div>;
+            e.innerHTML = b;
+            return e;
+          })}
         </div>
       );
     })()
@@ -482,7 +486,7 @@ test.skip('Listeners are cleared', async t => {
 
   function Child() {
     const e = <div />;
-    e.attach(don('* test').map(() => i++));
+    // e.attach(don('* test').map(() => i++));
     return e;
   }
 
@@ -512,7 +516,7 @@ test.skip('Listeners are not overcleared', async t => {
 
   function Child() {
     const e = <div />;
-    e.attach(don('* test').map(() => i++));
+    // e.attach(don('* test').map(() => i++));
     return e;
   }
 
@@ -548,7 +552,7 @@ test.skip('Listeners are support change of parent', async t => {
 
   function Child() {
     const e = <p />;
-    e.attach(don('* test').map(() => i++));
+    // e.attach(don('* test').map(() => i++));
     return e;
   }
 
@@ -580,7 +584,7 @@ test.skip('Listeners in when', async t => {
 
   function Child() {
     const e = <div />;
-    e.attach(don('test').map(() => i++));
+    // e.attach(don('test').map(() => i++));
     return e;
   }
 
@@ -604,7 +608,7 @@ test.skip('Listener in when 2', async t => {
 
   function Child() {
     const e = <div />;
-    e.attach(don('test').map(() => i++));
+    // e.attach(don('test').map(() => i++));
     return e;
   }
 
@@ -1620,12 +1624,12 @@ test.skip('Flags in components are work and cleared', async t => {
 
   const Hello = () => {
     const e = <div>Hello!</div>;
-    e.attach(
-      don('tast').map(test => {
-        counter++;
-        e.textContent = test;
-      })
-    );
+    // e.attach(
+    //   don('tast').map(test => {
+    //     counter++;
+    //     e.textContent = test;
+    //   })
+    // );
     return e;
   };
 
@@ -1851,9 +1855,15 @@ test('Domponent-listeners should not affect global listeners', async t => {
   on('+!* test', t.pass);
 
   function T() {
-    const e = <div></div>;
-    e.attach(don('test').map(v => (e.innerHTML = v)));
-    return e;
+    return (
+      <div>
+        {don('test').map(v => {
+          const e = <div></div>;
+          e.innerHTML = v;
+          return e;
+        })}
+      </div>
+    );
   }
 
   init(element, <div>{don('show').map(show => (show ? <T /> : null))}</div>);
@@ -1940,13 +1950,11 @@ test('standalone on', async t => {
     element,
     <div>
       {(() => {
-        const e = <b />;
-        e.attach(
-          don('test').map(res => {
-            e.textContent = res;
-          })
-        );
-        return e;
+        return don('test').map(res => {
+          const e = <b />;
+          e.textContent = res;
+          return e;
+        });
       })()}
     </div>
   );
@@ -1964,13 +1972,11 @@ test('sub-path pathifier standalone on', async t => {
         <div>
           {player.name}
           {(() => {
-            const e = <b />;
-            e.attach(
-              don(child('level')).map(level => {
-                e.textContent = level;
-              })
-            );
-            return e;
+            return don(child('level')).map(level => {
+              const e = <b />;
+              e.textContent = level;
+              return e;
+            });
           })()}
         </div>
       ))}

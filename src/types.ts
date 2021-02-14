@@ -12,8 +12,6 @@ export interface Domode extends HTMLElement, Mountable {
   isMounted: boolean;
   mountables: Mountable[];
   bloodyRebuild: (namespaceURI?: string) => Domode;
-
-  attach(pathifier: Pathifier);
 }
 
 export interface Mountable {
