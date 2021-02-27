@@ -133,10 +133,15 @@ export class DomStower implements Stower {
   remove(child: any, index: number, checkOr = true) {
     const c = this.children[index];
     child = c || child;
-    if (child) {
+    const isDomStower = child instanceof DomStower;
+    if (child && !isDomStower) {
       this.element.removeChild(child);
+    } else if (isDomStower) {
+      child.clearOut();
     }
-    this.children.splice(index, 1);
+    if (!isDomStower) {
+      this.children.splice(index, 1);
+    }
     if (checkOr) {
       this.checkOr();
     }
@@ -157,5 +162,16 @@ export class DomStower implements Stower {
   or(or: any) {
     this._or = or;
     this.checkOr();
+  }
+
+  clearOut() {
+    for (const child of this.children) {
+      if (child instanceof DomStower) {
+        child.clearOut();
+      } else {
+        this.element.removeChild(child as Node);
+      }
+      this.children.length = 0;
+    }
   }
 }
