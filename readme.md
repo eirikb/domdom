@@ -553,7 +553,7 @@ init(document.body, <div>
     <button onclick={() => data.users.push({name: 'eh', edit: false})}>Add</button>
 
     <ul>
-        {don(pathOf().users.$.ok).map<User>(user => {
+        {don(pathOf().users.$).map<User>(user => {
             return <li>
                 <button onclick={() => user.edit = !user.edit}>Edit?</button>
                 {don(pathOf(user).name)}
