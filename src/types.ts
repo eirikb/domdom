@@ -21,9 +21,9 @@ export interface Mountable {
 }
 
 export interface Stower {
-  add(value: any, index: number, subIndex?: number, path?: string): void;
+  add(value: any, index: number): void;
 
-  remove(value: any, index: number, subIndex?: number, path?: string): void;
+  remove(value: any, index: number): void;
 }
 
 export interface React {

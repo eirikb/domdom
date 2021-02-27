@@ -1,197 +1,177 @@
 import { BaseTransformer, Entry } from '@eirikb/data';
 import { Stower } from './types';
+import { DomPathifier } from './pathifier';
 
 export function isProbablyPlainObject(obj: any) {
   return typeof obj === 'object' && obj !== null && obj.constructor === Object;
 }
 
-export class StowerTransformer extends BaseTransformer {
-  private _stower: Stower;
-  private _index: number;
+function escapeChild(child: any): Node {
+  if (child instanceof Node) return child;
 
-  constructor(stower: Stower, index: number) {
+  if (child === null || typeof child === 'undefined') {
+    return document.createTextNode('');
+  } else if (
+    typeof child === 'string' ||
+    typeof child === 'number' ||
+    typeof child === 'boolean'
+  ) {
+    return document.createTextNode(`${child}`);
+  } else if (isProbablyPlainObject(child)) {
+    return document.createTextNode(JSON.stringify(child));
+  } else if (child instanceof Error) {
+    return document.createTextNode(`${child.name}: ${child.message}`);
+  }
+  return child;
+}
+
+export class StowerTransformer extends BaseTransformer {
+  private stower: DomStower;
+
+  constructor(stower: DomStower) {
     super();
-    this._stower = stower;
-    this._index = index;
+    this.stower = stower;
   }
 
-  bloodyRebuild(stower: Stower, index: number) {
-    this._stower = stower;
-    this._index = index;
+  bloodyRebuild(stower: DomStower) {
+    this.stower = stower;
   }
 
   add(index: number, entry: Entry): void {
-    this._stower.add(entry.value, this._index, index);
+    this.stower.add(entry.value, index);
   }
 
   remove(index: number, entry: Entry): void {
-    this._stower.remove(entry.value, this._index, index);
+    this.stower.remove(entry.value, index);
   }
 
   update(oldIndex: number, index: number, entry: Entry): void {
-    this._stower.remove(entry.value, this._index, oldIndex);
-    this._stower.add(entry.value, this._index, index);
+    this.stower.remove(entry.value, oldIndex);
+    this.stower.add(entry.value, index);
   }
 }
 
+type Child = Node | DomStower;
+
 export class DomStower implements Stower {
-  constructor(element: HTMLElement) {
+  private readonly element: HTMLElement;
+  private readonly subIndex?: number;
+  private readonly parent?: DomStower;
+  private readonly children: (Child | undefined)[] = [];
+  private _or: any;
+  private _orSet: boolean = false;
+
+  constructor(element: HTMLElement, subIndex?: number, parent?: DomStower) {
     this.element = element;
+    this.subIndex = subIndex;
+    this.parent = parent;
   }
 
-  element: HTMLElement;
-  slots: HTMLElement[][] = [];
-  first: HTMLElement[] = [];
-  ors: any[] = [];
-  hasOr: any[] = [];
-
-  escapeChild(child: any) {
-    if (child === null || typeof child === 'undefined') {
-      return document.createTextNode('');
-    } else if (
-      typeof child === 'string' ||
-      typeof child === 'number' ||
-      typeof child === 'boolean'
-    ) {
-      return document.createTextNode(`${child}`);
-    } else if (isProbablyPlainObject(child)) {
-      return document.createTextNode(JSON.stringify(child));
-    } else if (child instanceof Error) {
-      return document.createTextNode(`${child.name}: ${child.message}`);
-    }
-    return child;
+  firstNode(): Node | undefined {
+    return this.findChildAfterIndex(0);
   }
 
-  _add(index: number, child: any, before: HTMLElement) {
-    if (typeof this.hasOr[index] !== 'undefined') {
-      this.element.removeChild(this.hasOr[index]);
-      delete this.hasOr[index];
+  private findChildAfterIndex(index: number): Node | undefined {
+    for (let i = index; i < this.children.length; i++) {
+      let child = this.children[i];
+      if (child instanceof DomStower) {
+        child = child.firstNode();
+      }
+      if (child) return child;
     }
-    if (before) {
-      this.element.insertBefore(child, before);
+    return undefined;
+  }
+
+  appendChild(escaped: Node, index: number, updateChildren: boolean) {
+    const nodeAtIndex = this.findChildAfterIndex(index);
+    if (nodeAtIndex) {
+      this.element.insertBefore(escaped, nodeAtIndex);
+      if (updateChildren) this.children.splice(Math.max(0, index), 0, escaped);
     } else {
-      this.element.appendChild(child);
-    }
-  }
-
-  _remove(index: number, child?: HTMLElement) {
-    if (child) {
-      this.element.removeChild(child);
-    }
-
-    if (
-      typeof this.ors[index] !== 'undefined' &&
-      (!this.slots[index] || this.slots[index].length === 0)
-    ) {
-      let or = this.ors[index];
-      if (typeof or === 'function') or = or();
-      or = this.escapeChild(or);
-      this.hasOr[index] = or;
-      this.element.appendChild(or);
-    }
-  }
-
-  addSingle(child: any, index: number) {
-    child = this.escapeChild(child);
-    if (this.slots[index]) {
-      this.removeSingle(this.slots[index], index);
-    }
-    const before = this.first.slice(index).find(element => element);
-    this._add(index, child, before!);
-    this.first[index] = child;
-    this.slots[index] = child;
-  }
-
-  addArray(children: any[], index: number) {
-    children = children.map(this.escapeChild);
-    if (this.slots[index]) {
-      this.removeArray(this.slots[index], index);
-    }
-    const before = this.first.slice(index).find(element => element);
-    children.map(child => this._add(index, child, before!));
-    this.first[index] = children[0];
-    this.slots[index] = children;
-  }
-
-  addWithSubIndex(child: any, index: number, subIndex: number) {
-    const isArray = Array.isArray(child);
-    child = isArray ? child.map(this.escapeChild) : this.escapeChild(child);
-    let before: HTMLElement | undefined;
-    if (this.first[index]) {
-      before = this.slots[index][subIndex];
-    }
-    if (before === undefined) {
-      before = this.first.slice(index + 1).find(element => element);
-    }
-
-    if (isArray) {
-      (child as any[]).forEach(child => this._add(index, child, before!));
-    } else {
-      this._add(index, child, before!);
-    }
-    this.slots[index] = this.slots[index] || [];
-    this.slots[index].splice(subIndex, 0, child);
-    if (subIndex === 0) {
-      this.first[index] = isArray ? child[0] : child;
-    }
-  }
-
-  removeSingle(child: any, index: number) {
-    delete this.slots[index];
-    delete this.first[index];
-    if (child) this._remove(index, child);
-  }
-
-  removeArray(children: any[], index: number) {
-    delete this.slots[index];
-    delete this.first[index];
-    for (let child of children) {
-      this._remove(index, child);
-    }
-  }
-
-  removeWithSubIndex(index: number, subIndex: number) {
-    const child = (this.slots[index] || [])[subIndex];
-    if (!child) return;
-
-    if (Array.isArray(child)) {
-      child.forEach(child => this._remove(index, child));
-      this.slots[index] = [];
-      this._remove(index);
-    } else {
-      this.slots[index].splice(subIndex, 1);
-      this._remove(index, child);
-    }
-    if (subIndex === 0) {
-      this.first[index] = this.slots[index][0];
-    }
-  }
-
-  add(child: any, index: number, subIndex?: number) {
-    if (typeof subIndex !== 'undefined') {
-      this.addWithSubIndex(child, index, subIndex);
-    } else if (Array.isArray(child)) {
-      this.addArray(child, index);
-    } else {
-      this.addSingle(child, index);
-    }
-  }
-
-  remove(_: any, index: number, subIndex?: number) {
-    if (typeof subIndex !== 'undefined') {
-      this.removeWithSubIndex(index, subIndex);
-    } else {
-      const child = this.slots[index];
-      if (Array.isArray(child)) {
-        this.removeArray(child, index);
+      if (this.subIndex !== undefined) {
+        this.parent?.appendChild(escaped, this.subIndex + 1, false);
+        if (updateChildren) this.children.splice(index, 0, escaped);
       } else {
-        this.removeSingle(child, index);
+        this.element.appendChild(escaped);
+        if (updateChildren) this.children.splice(index, 0, escaped);
       }
     }
   }
 
-  or(index: number, or: any) {
-    this.ors[index] = or;
-    this._remove(index);
+  add(child: any, index: number, checkOr = true) {
+    if (checkOr) {
+      this.checkOr();
+    }
+
+    if (child instanceof DomPathifier) {
+      const childStower = new DomStower(this.element, index, this);
+      (this.element as any).mountables.push(child);
+
+      if (child.transformer instanceof StowerTransformer) {
+        child.transformer.bloodyRebuild(this);
+      } else {
+        child.transformer = new StowerTransformer(childStower);
+      }
+
+      if ((this.element as any).isMounted) {
+        child.mounted();
+      }
+
+      this.children[index] = childStower;
+    } else if (Array.isArray(child)) {
+      const childStower = new DomStower(this.element, index, this);
+      this.children[index] = childStower;
+      for (let i = 0; i < child.length; i++) {
+        childStower.add(child[i], i);
+      }
+    } else {
+      const escaped = escapeChild(child);
+      this.appendChild(escaped, index, true);
+    }
+  }
+
+  remove(child: any, index: number, checkOr = true) {
+    const c = this.children[index];
+    child = c || child;
+    const isDomStower = child instanceof DomStower;
+    if (child && !isDomStower) {
+      this.element.removeChild(child);
+    } else if (isDomStower) {
+      child.clearOut();
+    }
+    if (!isDomStower) {
+      this.children.splice(index, 1);
+    }
+    if (checkOr) {
+      this.checkOr();
+    }
+  }
+
+  private checkOr() {
+    if (this._or !== undefined && this.children.length === 0 && !this._orSet) {
+      this._orSet = true;
+      let or = this._or;
+      if (typeof or === 'function') or = or();
+      this.add(or, 0, false);
+    } else if (this.children.length > 0 && this._orSet) {
+      this._orSet = false;
+      this.remove(null, 0, false);
+    }
+  }
+
+  or(or: any) {
+    this._or = or;
+    this.checkOr();
+  }
+
+  clearOut() {
+    for (const child of this.children) {
+      if (child instanceof DomStower) {
+        child.clearOut();
+      } else {
+        this.element.removeChild(child as Node);
+      }
+      this.children.length = 0;
+    }
   }
 }
