@@ -106,14 +106,15 @@ export class DomStower implements Stower {
     if (child instanceof DomPathifier) {
       const childStower = new DomStower(this.element, index, this);
       (this.element as any).mountables.push(child);
-      if ((this.element as any).isMounted) {
-        child.mounted();
-      }
 
       if (child.transformer instanceof StowerTransformer) {
         child.transformer.bloodyRebuild(this);
       } else {
         child.transformer = new StowerTransformer(childStower);
+      }
+
+      if ((this.element as any).isMounted) {
+        child.mounted();
       }
 
       this.children[index] = childStower;

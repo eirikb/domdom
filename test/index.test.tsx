@@ -2170,3 +2170,14 @@ test('on in on 1', async t => {
   set('ing', true);
   t.is(await html(), '<div>Yeah!</div>');
 });
+
+test('on in on 2', async t => {
+  init(
+    element,
+    <div>{don('test').map(() => don('ing').map(() => 'Yeah!'))}</div>
+  );
+  set('ing', true);
+  t.is(await html(), '<div></div>');
+  set('test', true);
+  t.is(await html(), '<div>Yeah!</div>');
+});
