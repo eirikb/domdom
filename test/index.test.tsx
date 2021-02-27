@@ -2160,15 +2160,13 @@ test('error in dom', t => {
   t.is(e.outerHTML, '<div>Error: Oh my</div>');
 });
 
-// test('on in on', async t => {
-//   console.log(1);
-//   init(
-//     element,
-//     <div>{on('test').map(() => on('ing').map(() => 'Yeah!'))}</div>
-//   );
-//   set('ing', true);
-//   console.log(1, await html());
-//   set('test', true);
-//   console.log(2, await html());
-//   t.pass();
-// });
+test('on in on 1', async t => {
+  init(
+    element,
+    <div>{don('test').map(() => don('ing').map(() => 'Yeah!'))}</div>
+  );
+  set('test', true);
+  t.is(await html(), '<div></div>');
+  set('ing', true);
+  t.is(await html(), '<div>Yeah!</div>');
+});
