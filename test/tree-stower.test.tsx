@@ -28,12 +28,12 @@ test('array initial', async t => {
 });
 
 test('on', async t => {
-  const { React, init, on, set } = domdom();
+  const { React, init, don, set } = domdom();
   init(
     createElement(),
     <div>
-      {on('a')}
-      {on('b')}
+      {don('a')}
+      {don('b')}
     </div>
   );
   set('b', 'b');

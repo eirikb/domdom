@@ -51,8 +51,8 @@ test('add by index 2', t => {
 
   stower.add(span, 1);
   t.deepEqual(element.innerHTML, '<div></div><span></span><b></b>');
-  // stower.add(c, 1);
-  // t.deepEqual(element.innerHTML, '<div></div><span></span><c></c><b></b>');
+  stower.add(c, 1);
+  t.deepEqual(element.innerHTML, '<div></div><c></c><span></span><b></b>');
 });
 
 test('add by multiple index', t => {
@@ -191,7 +191,7 @@ test('add before string', t => {
   t.deepEqual(element.innerHTML, '<a></a>b');
 });
 
-test('inserting over another index should push the rest', t => {
+test('inserting over another index should push the rest - or should it?!', t => {
   const { element, stower, div, a, b, c } = t.context;
   stower.add(a, 0);
   stower.add(b, 0);

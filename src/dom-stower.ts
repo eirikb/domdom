@@ -86,8 +86,7 @@ export class DomStower implements Stower {
     const nodeAtIndex = this.findChildAfterIndex(index);
     if (nodeAtIndex) {
       this.element.insertBefore(escaped, nodeAtIndex);
-      if (updateChildren)
-        this.children.splice(Math.max(0, index - 1), 0, escaped);
+      if (updateChildren) this.children.splice(Math.max(0, index), 0, escaped);
     } else {
       if (this.subIndex !== undefined) {
         this.parent?.appendChild(escaped, this.subIndex + 1, false);
