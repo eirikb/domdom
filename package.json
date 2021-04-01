@@ -1,6 +1,6 @@
 {
   "name": "@eirikb/domdom",
-  "version": "7.2.1",
+  "version": "7.2.2",
   "description": "The proactive web front-end framework for the unprofessional",
   "scripts": {
     "build": "tsdx build",
@@ -45,9 +45,9 @@
   "devDependencies": {
     "ava": "^3.15.0",
     "browser-env": "^3.3.0",
-    "ts-node": "^8.10.2",
+    "ts-node": "^9.1.1",
     "tsdx": "^0.14.1",
-    "tslib": "^2.0.0",
-    "typescript": "^3.9.5"
+    "tslib": "^2.1.0",
+    "typescript": "^4.2.3"
   }
 }

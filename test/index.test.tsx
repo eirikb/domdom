@@ -1601,7 +1601,7 @@ test('dd-model select before options are set', async t => {
   set('test', ['', 'hello', 'world']);
   await html();
   const select = document.querySelector('select');
-  return Promise.resolve().then(() => {
+  await Promise.resolve().then(() => {
     t.is(select!.value, 'hello');
   });
 });
@@ -1726,7 +1726,7 @@ test('Element with Pathifier but not added via domdom', async t => {
     })()
   );
   set('test', 'Hello!');
-  await new Promise(r => {
+  await new Promise<void>(r => {
     setTimeout(async () => {
       t.is(await html(), '<main><div><span>Hello!</span></div></main>');
       r();
