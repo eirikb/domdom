@@ -113,7 +113,7 @@ npx parcel index.html
 
 ### Initialize domdom
 
-```jsx
+```tsx
 import domdom from '@eirikb/domdom';
 
 const dd = domdom();

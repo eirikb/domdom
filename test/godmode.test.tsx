@@ -27,7 +27,7 @@ test.beforeEach(() => {
 });
 
 test('godMode', async t => {
-  const { init, React, don, data } = godMode<any>();
+  const { init, React, don, data } = godMode<any>({});
 
   init(element, <div>{don('katt')}</div>);
 
@@ -40,7 +40,7 @@ test('godMode', async t => {
 });
 
 test('godMode 2', async t => {
-  const { init, React, don, data } = godMode<any>();
+  const { init, React, don, data } = godMode<any>({});
 
   init(
     element,
@@ -62,7 +62,7 @@ test('godMode 2', async t => {
 });
 
 test('godMode 3', async t => {
-  const { init, React, don, data } = godMode<any>();
+  const { init, React, don, data } = godMode<any>({});
 
   init(
     element,
@@ -84,7 +84,7 @@ test('godMode 3', async t => {
 });
 
 test('godMode 4', async t => {
-  const { init, React, don, data } = godMode<any>();
+  const { init, React, don, data } = godMode<any>({});
   init(
     element,
     <div>
@@ -102,7 +102,7 @@ test('godMode 4', async t => {
 });
 
 test('godMode 5', t => {
-  const { data } = godMode<any>();
+  const { data } = godMode<any>({});
   data.users = [{ name: 'hello' }, { name: 'world' }];
   data.users.push({ name: ':)' });
   t.deepEqual(
@@ -124,7 +124,7 @@ test('path', t => {
     };
   }
 
-  const { pathOf } = godMode<Yes>();
+  const { pathOf } = godMode<Yes>({ a: { users: [] } });
 
   t.is(pathOf().a.$path, 'a');
   t.is(pathOf().a.users.$path, 'a.users');
@@ -142,7 +142,7 @@ test('path 2', t => {
     };
   }
 
-  const { pathOf, data } = godMode<Yes>();
+  const { pathOf, data } = godMode<Yes>({ a: { users: [] } });
   data.a = {
     users: [{ name: 'Yes!' }],
   };
@@ -152,7 +152,7 @@ test('path 2', t => {
 });
 
 test('godMode don', async t => {
-  const { React, init, data, pathOf, don } = godMode<any>();
+  const { React, init, data, pathOf, don } = godMode<any>({});
   init(element, <div>{don(pathOf().ok).map(ok => `res ${ok}`)}</div>);
   t.is(await html(), '<div></div>');
   data.ok = ':)';
@@ -170,7 +170,7 @@ test('godMode on 2', async t => {
     };
   }
 
-  const { init, React, data, don, pathOf } = godMode<Yes>();
+  const { init, React, data, don, pathOf } = godMode<Yes>({ a: { users: [] } });
   init(
     element,
     <div>
@@ -204,7 +204,9 @@ test('godMode on 3', async t => {
     };
   }
 
-  const { React, init, don, data, pathOf } = godMode<Yes>();
+  const { React, init, don, data, pathOf } = godMode<Yes>({
+    a: { users: [] },
+  });
   init(
     element,
     <div>
@@ -230,7 +232,9 @@ test('godMode on 4', async t => {
     };
   }
 
-  const { React, init, don, data, pathOf } = godMode<Yes>();
+  const { React, init, don, data, pathOf } = godMode<Yes>({
+    a: { users: [] },
+  });
   init(
     element,
     <div>
@@ -254,7 +258,9 @@ test('array is hacked for now', async t => {
     users: User[];
   }
 
-  const { React, init, don, data, pathOf } = godMode<Data>();
+  const { React, init, don, data, pathOf } = godMode<Data>({
+    users: [],
+  });
   init(
     element,
     <ul>
@@ -274,7 +280,7 @@ test('array is hacked for now', async t => {
 });
 
 test('trigger', t => {
-  const { on, pathOf, trigger } = godMode<any>();
+  const { on, pathOf, trigger } = godMode<any>({});
   on('=', pathOf().a.b.c, val => {
     t.is(val, 'Yes!');
   });
@@ -303,7 +309,9 @@ test('on change', t => {
     users: User[];
   }
 
-  const { data, pathOf, on } = godMode<Data>();
+  const { data, pathOf, on } = godMode<Data>({
+    users: [],
+  });
 
   on<User>('!+*', pathOf().users.$, u => {
     u.child = { name: 'Child!' };
@@ -316,7 +324,7 @@ test('on change', t => {
 });
 
 test('proxified objects are probably objects', t => {
-  const { data } = godMode<any>();
+  const { data } = godMode<any>({});
   const eh = { hello: 'world' };
   data.eh = eh;
   t.true(isProbablyPlainObject(eh));
@@ -324,7 +332,7 @@ test('proxified objects are probably objects', t => {
 });
 
 test('on object', async t => {
-  const { init, React, data, don } = godMode<any>();
+  const { init, React, data, don } = godMode<any>({});
 
   init(element, <div>{don('eh')}</div>);
   data.eh = 'eh';
@@ -348,7 +356,9 @@ test('pathus', async t => {
     users: User[];
   }
 
-  const { pathOf } = godMode<Data>();
+  const { pathOf } = godMode<Data>({
+    users: [],
+  });
 
   t.is(pathOf().users.$path, 'users');
   t.is(pathOf().users[0].$path, 'users.0');
@@ -358,4 +368,17 @@ test('pathus', async t => {
   t.is(pathOf().users.$$.ok.name.$path, 'users.$ok.name');
   t.is(pathOf().users.$x.$path, 'users.*');
   t.is(pathOf().users.$xx.$path, 'users.**');
+});
+
+test('setting initial data', async t => {
+  interface Data {
+    hello: string;
+  }
+
+  const { React, init, don, pathOf } = godMode<Data>({
+    hello: ':)',
+  });
+
+  init(element, <div>{don(pathOf().hello)}</div>);
+  t.is(await html(), '<div>:)</div>');
 });
