@@ -16,12 +16,6 @@
 	<a href="https://www.npmjs.com/package/@eirikb/domdom">npm</a> ·
 	<a href="https://deno.land/x/domdom">Deno</a>
 </p>
-<p align="center">
-<a target="_blank" rel="noopener noreferrer"
-     href="https://user-images.githubusercontent.com/241706/83919341-b0a9fb00-a77a-11ea-9965-beea17502fdd.gif"><img
-    src="https://user-images.githubusercontent.com/241706/83919341-b0a9fb00-a77a-11ea-9965-beea17502fdd.gif"
-    style=""></a>
-</p>
 
 ---
 
@@ -35,39 +29,9 @@
 - One global observable state
     - Support for re-usable components (with partition of global state)
     - No local state
-- JSX return pure elements
+- TSX/JSX return pure elements
 
 ## Menu
-
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
-
-- [Deno](#deno)
-- [Getting started](#getting-started)
-- [APIsh](#apish)
-  - [Initialize domdom](#initialize-domdom)
-  - [Elements](#elements)
-  - ["Domponents"](#domponents)
-    - [Children / Composition](#children--composition)
-  - [Events](#events)
-  - [don(path)](#donpath)
-    - [Standalone `on`](#standalone-on)
-    - [Child path lookup](#child-path-lookup)
-  - [or](#or)
-  - [dd-model](#dd-model)
-  - [Attributes](#attributes)
-    - [Pathifier](#pathifier)
-- [Recipes](#recipes)
-  - [Routing](#routing)
-  - [Login form](#login-form)
-  - [Split view and data](#split-view-and-data)
-  - [Animation (garbage collection)](#animation-garbage-collection)
-- [TypeScript](#typescript)
-  - [GodMode](#godmode)
-    - [Example](#example)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Deno
 
@@ -106,7 +70,7 @@ set('name', 'world!');
 Run:
 
 ```bash
-npx parcel index.html
+npx parcel 2_index.html
 ```
 
 ## APIsh
