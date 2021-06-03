@@ -1,4 +1,4 @@
-// npm i --no-save shelljs puppeteer http-server
+// npm i --no-save shelljs puppeteer http-server gifencoder png-js
 import sh from 'shelljs';
 import { buildMenu, current, readCode, run } from './halp';
 
@@ -41,6 +41,16 @@ ${await run('domponents')}
 ${readCode('domponents-options/app.tsx')}
 Output:
 ${await run('domponents-options')}
+
+### Events
+
+${readCode('events/app.tsx')}
+Output:
+${await run('events', async ({ snapshot, page }) => {
+  await snapshot();
+  page.click('button');
+  await snapshot();
+})}
 
 `;
   const res = `

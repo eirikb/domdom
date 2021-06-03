@@ -1,8 +1,26 @@
+import fs from 'fs';
 import sh from 'shelljs';
 import puppeteer from 'puppeteer';
+import GIFEncoder from 'gifencoder';
+import PNG from 'png-js';
+import { installMouseHelper } from './mouse-helper';
 
 export const current = sh.pwd();
 const tmp = `${sh.tempdir()}/dd-demo-${Math.random() * 100000000000000000}`;
+
+function decode(png) {
+  return new Promise(r => {
+    png.decode(pixels => r(pixels));
+  });
+}
+
+async function gifAddFrame(page, encoder) {
+  const pngBuffer = await page.screenshot({
+    clip: { width: 1024, height: 768, x: 0, y: 0 },
+  });
+  const png = new PNG(pngBuffer);
+  await decode(png).then(pixels => encoder.addFrame(pixels));
+}
 
 export const readCode = (
   name: string,
@@ -24,7 +42,18 @@ export const readCode = (
   return [header + ':', '```' + type, code, '```'].join('\n');
 };
 
-export const run = async (name: string): Promise<string> => {
+interface HandlerOptions {
+  snapshot(): Promise<void>;
+
+  page: puppeteer.Page;
+}
+
+type Handler = (options: HandlerOptions) => Promise<void>;
+
+export const run = async (
+  name: string,
+  handler: Handler | undefined = undefined
+): Promise<string> => {
   sh.cd(current);
   console.log('GO GO DEMO', name);
   if (!sh.test('-e', tmp)) {
@@ -48,15 +77,44 @@ export const run = async (name: string): Promise<string> => {
   const child = sh.exec('../node_modules/.bin/http-server', { async: true });
   console.log('http');
   console.log('puppeteer');
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    slowMo: 0,
+  });
   const page = await browser.newPage();
 
   const errors: Error[] = [];
   page.on('pageerror', err => errors.push(err));
   page.on('error', err => errors.push(err));
-  await page.goto('http://localhost:8080');
-  const img = `${name}.png`;
-  await page.screenshot({ path: `${current}/img/${img}` });
+
+  await page.goto('http://localhost:8080', {
+    waitUntil: ['networkidle0'],
+  });
+
+  let img = `${name}.png`;
+  if (handler !== undefined) {
+    img = `${name}.gif`;
+    const encoder = new GIFEncoder(1024, 768);
+    encoder
+      .createWriteStream()
+      .pipe(fs.createWriteStream(`${current}/img/${img}`));
+    encoder.start();
+    encoder.setRepeat(0);
+    encoder.setDelay(150);
+
+    await installMouseHelper(page);
+    await handler({
+      async snapshot() {
+        for (let i = 0; i < 5; i++) {
+          await gifAddFrame(page, encoder);
+        }
+      },
+      page,
+    });
+    encoder.finish();
+  } else {
+    await page.screenshot({ path: `${current}/img/${img}` });
+  }
+
   await browser.close();
   child.kill();
   console.log(errors);
