@@ -1,533 +1,305 @@
-<h1 align="center">domdom</h1>
-<p align="center">The proactive web front-end framework for the unprofessional</p>
-<p align="center">
 
-  <a href="https://npmjs.org/package/@eirikb/domdom">
-    <img src="https://img.shields.io/npm/v/@eirikb/domdom.svg">
-  </a>
-  <a href="https://github.com/eirikb/domdom/actions?query=workflow%3ABuild">
-    <img src="https://github.com/eirikb/domdom/workflows/Build/badge.svg">
-  </a>
-  <a href="https://bundlephobia.com/result?p=@eirikb/domdom">
-    <img src="https://badgen.net/bundlephobia/minzip/@eirikb/domdom">
-  </a>
-</p>
-<p align="center">
-	<a href="https://www.npmjs.com/package/@eirikb/domdom">npm</a> ·
-	<a href="https://deno.land/x/domdom">Deno</a>
-</p>
 
----
-
-**Facts** - not highlights, just facts:
-
-- Alternative to React + Redux or Vue + Vuex
-- Written in TypeScript
-- No virtual dom
-- Support for Deno (without jspm or pika)
-- Nothing reactive - totally unreactive - fundamentally different from React
-- One global observable state
-    - Support for re-usable components (with partition of global state)
-    - No local state
-- TSX/JSX return pure elements
 
 ## Menu
+  - [Deno](#deno)
+  - [Getting started](#getting-started)
+  - [Basics](#basics)
+    - [Hello, world!](#hello,-world!)
+    - [TSX tags are pure elements](#tsx-tags-are-pure-elements)
+    - [Domponents](#domponents)
+    - [Domponents with options](#domponents-with-options)
+    - [Events](#events)
+  - [State](#state)
+    - [Listen for changes](#listen-for-changes)
+    - [Listen for changes in arrays / objects](#listen-for-changes-in-arrays---objects)
+    - [Listen for changes in sub-listeners](#listen-for-changes-in-sub-listeners)
+    - [Update state](#update-state)
+    - [Automatic binding](#automatic-binding)
+    - [Data in attributes](#data-in-attributes)
+  - [Pathifier](#pathifier)
+
 
 ## Deno
 
 domdom has full support for Deno!  
 See https://github.com/eirikb/domdom-deno and https://deno.land/x/domdom .
 
+
 ## Getting started
 
+Install:
 ```bash
 npm i @eirikb/domdom
 ```
 
+## Basics
+
+### Hello, world!
+run.sh:
+```bash
+npx parcel index.html
+```
 index.html:
-
 ```html
-
 <body>
-<script src="app.jsx"></script>
+<script src="app.tsx"></script>
 </body>
 ```
-
-app.jsx:
-
-```jsx
-import domdom from '@eirikb/domdom';
-
-const { React, init, don, set } = domdom();
-
-const view = <div>Hello, {don('name')}</div>;
-
-init(document.body, view);
-
-set('name', 'world!');
-```
-
-Run:
-
-```bash
-npx parcel 2_index.html
-```
-
-## APIsh
-
-### Initialize domdom
-
+app.tsx:
 ```tsx
 import domdom from '@eirikb/domdom';
 
-const dd = domdom();
-dd.init(parentElement, view);
+interface Data {
+  hello: string;
+}
+
+const { React, init, don, pathOf } = domdom<Data>({ hello: 'world' });
+
+const view = <div>Hello, {don(pathOf().hello)}</div>;
+
+init(document.body, view);
 ```
 
-### Elements
+Output:
 
-All elements created with jsx, in the context of domdom, are elements which can be instantly referenced.
+![hello-world](readme/img/hello-world.png)
 
-```jsx
-const element = <div>Behold!</div>;
+### TSX tags are pure elements
+
+app.tsx:
+```tsx
+const element = <span>Hello, world :)</span>;
 element.style.color = 'red';
 ```
+Output:
 
-### "Domponents"
+![pure-elements](readme/img/pure-elements.png)
 
-By creating a function you create a Domponent (component).
+### Domponents
 
-```jsx
-function MyComponent() {
-  return (
-    <ul>
-      {don('players.$id.name').map(name => (
-        <li>Player {name}</li>
-      ))}
-    </ul>
-  );
-}
-```
-
-#### Children / Composition
-
-Content of a component will be passed as `children`.
-
-```jsx
-function Button({}, { children }) {
-  return <button>{children}</button>;
-}
+app.tsx:
+```tsx
+const Button = () => <button>I am button!</button>;
 
 const view = (
   <div>
-    <Button>
-      <b>Hello</b>
-    </Button>
+    <Button />
   </div>
 );
 ```
+Output:
 
-In TypeScript (TSX):
+![domponents](readme/img/domponents.png)
 
+### Domponents with options
+
+app.tsx:
 ```tsx
-import {Opts} from '@eirikb/domdom';
-
-const Button = ({something}: { something: string }, {children}: Opts) => (
-    <button>{children}</button>
-);
+const Button = ({ color }: { color: string }, { mounted, children }: Opts) => {
+  const button = <button>Hello {children}</button>;
+  mounted(() => (button.style.color = color));
+  return button;
+};
 
 const view = (
-    <div>
-        <Button something=":)">
-            <b>Hello</b>
-        </Button>
-    </div>
+  <div>
+    <Button color="blue">World!</Button>
+  </div>
 );
 ```
+Output:
+
+![domponents-options](readme/img/domponents-options.png)
 
 ### Events
 
-All attributes starting with 'on' are added to `addEventListener` on the element.
-
-```jsx
-function MyButton() {
-  return <button onClick={() => trigger('Clicked!')}>Click me!</button>;
-}
-```
-
-### don(path)
-
-```jsx
-const view = (
-  <ul>
-    {don('players.$id.name').map(name => (
-      <li>Player {name}</li>
-    ))}
-    {don('info')}
-  </ul>
-);
-```
-
-This will match on `players.p1.name` and `players.p2.name` etc. The `$id` is a **path modifier**. domdom supports these
-modifiers:
-
-```
-     $x   Named wildcard
-     *    Wildcard
-     **   Recursive wildcard (can only be put at the end)
-```
-
-`path` can contain wildcards, either names with `$` or any with `*`. Named wildcards can be resolved in the callback:
-
-```jsx
-don('players.$id').map((player, { $id }) => console.log(`Id is ${$id}`));
-```
-
-You can have multiple wildcards: `players.$id.items.$itemId.size`.
-
-#### Standalone `on`
-
-`on` inside JSX will be attached to the element so listeners are turned on/off based on elements present in the DOM.  
-Calling `on` outside of JSX will _not_ automatically start the listener.  
-If you want a global forever call `on()`. This returns a string reference you can use to remove the listener,
-using `off`:
-
-```js
-const ref = on('!+* test', console.log);
-// ... later
-off(ref);
-```
-
-The `!+*` above are flags. These only apply to `on`. They state when the listener should trigger. You can have one or
-several of these. The space separate flags and path. Supported flags are:
-
-```
-     *   Value changed
-     !   Immediate callback if value exists
-     +   Value added
-     -   Value removed
-     =   Trigger only (no value set)
-```
-
-#### Child path lookup
-
-By using `child` it's possible to listen to relative paths "from parent".  
-This is how it's possible to make re-usable "detached" components.  
-They have data in global state, but don't rely on the parent path.
-
-```jsx
-const view = (
-  <div>
-    {don('players.$id').map((player, { child }) => (
-      <div>
-        Player name: (won't update on change): {player.name} <br/>
-        {don(child('name')).map(name => (
-          <span>Player name: {name}</span>
-        ))}
-      </div>
-    ))}
-  </div>
-);
-```
-
-### or
-
-Neither `don` will trigger unless there is a value on the path, in order to show something at all until some value is
-set `or` must be used.
-
-```jsx
-const view = (
-  <div>
-    {don('ready').map(() => 'Ready!').or(
-      <div>Loading app in the fastest possible way...</div>
-    )}
-  </div>
-);
-```
-
-### dd-model
-
-This is a convenience hack for putting data into and out of a data path from an input.  
-Similar to v-model and ng-model.  
-Suggest not using this if possible, using forms directly like in recipes is much better.
-
-```jsx
-on('= search', event => {
-  event.preventDefault();
-  set('result', `Data for ${get('text')} here...`);
-});
-
-const view = (
-  <form onSubmit={e => trigger('search', e)}>
-    <input type="search" dd-model="text"/>
-    <input type="checkbox" dd-model="more"/>
-    {don('more').map(() => 'This is more')}
-    Current text: {don('text')}
-    <button type="submit">Search</button>
-    {don('result')}
-  </form>
-);
-```
-
-### Attributes
-
-It's possible to use `don` directly on attributes.  
-It might feel and look a bit quirky, but there it is.
-
-```jsx
-const view = (
-  <div>
-    <button onClick={() => set('toggle', !get('toggle'))}>Toggle</button>
-    <button disabled={don('toggle').or(true)}>A</button>
-    <button disabled={don('toggle').map(res => !res)}>B</button>
-  </div>
-);
-```
-
-#### Pathifier
-
-Every time you call `don` you always get a `pathifier`. With support for `map`, `filter`, `sort`, `slice`
-and `aggregate`
-.
-
-E.g.,
-
-```jsx
-const view = (
-  <ul>
-    {don('users')
-      .map(user => <li>{user.name}</li>)
-      .filter(user => user.name !== 'Mr. B')
-      .sort((a, b) => b.id.localeCompare(a.id))}
-  </ul>
-);
-```
-
-Will render as:
-
-```html
-
-<ul>
-  <li>Mr. C</li>
-  <li>Mr. A</li>
-</ul>
-```
-
-There's also `mapOn`, `filterOn`, `sortOn` and `sliceOn`. Use these if you want to listen for another path for changes,
-and then map/filter/sort/slice when these changes.  
-This will listen both for changes on the given path, and the path provided to the method.
-
-E.g.,
-
-```jsx
-const view = (
-  <ul>
-    {don('users')
-      .map(user => <li>{user.name}</li>)
-      .filterOn('test', (user, { onValue }) => user.name !== onValue)}
-  </ul>
-);
-set('test', 'Mr. C');
-// Add users as above
-```
-
-Will render as:
-
-```html
-
-<ul>
-  <li>Mr. A</li>
-  <li>Mr. B</li>
-</ul>
-```
-
-## Recipes
-
-How to handle common tasks with domdom
-
-### Routing
-
-```jsx
-const view = (
-  <div>
-    {don('route').map(route => {
-      switch (route) {
-        case 'login':
-          return <Login/>;
-
-        case 'welcome':
-          return <Welcome/>;
-
-        default:
-          return 'Loading app...';
-      }
-    })}
-  </div>
-);
-
-function gotoRoute(route) {
-  window.location.hash = route;
-}
-
-window.addEventListener('hashchange', () =>
-  set('route', window.location.hash.slice(1))
-);
-```
-
-### Login form
-
-```jsx
-function login(event) {
-  event.preventDefault();
-  fetch('/login', {
-    method: 'post',
-    body: new URLSearchParams(new FormData(event.target)),
-  });
-}
-
-const view = (
-  <form onSubmit={login}>
-    <input name="username"/>
-    <input name="password" type="password"/>
-    <button type="submit">Login</button>
-  </form>
-);
-```
-
-### Split view and data
-
-_domdom.js_
-
-```js
-import domdom from '@eirikb/domdom';
-
-const dd = domdom();
-export const React = dd.React;
-export const init = dd.init;
-export const don = dd.don;
-export const on = dd.on;
-export const on = dd.on;
-export const get = dd.get;
-export const set = dd.set;
-export const trigger = dd.trigger;
-```
-
-_data.js_
-
-```js
-import { on, set } from './domdom';
-
-on('= search', event => {
-  event.preventDefault();
-  const searchText = event.target.search.value;
-  set('result', `Data for ${searchText} here...`);
-});
-```
-
-_index.jsx_
-
-```jsx
-import data from './data';
-import { don, init, trigger } from './domdom';
-
-const view = (
-  <form onSubmit={e => trigger('search', e)}>
-    <input type="search" name="search"/>
-    <button type="submit">Search</button>
-    {don('result')}
-  </form>
-);
-
-init(document.body, view);
-```
-
-### Animation (garbage collection)
-
-At writing moment domdom doesn't have any unmount callback.  
-I'm not a big fan of destructors, unmounted, dispose or similar.  
-This might seem silly, and it might not be obvious how to use say `setInterval`, without this preventing the element
-from ever being cleaned up by garbage collector.
-
-```jsx
-const view = <div>
-  <img src="https://i.imgur.com/rsD0RUq.jpg" style={
-    don('tick').map(time => ({ rotate: `${time % 180}deg` }
-    ))
-  }/>
-  <button onClick={() => set('run', !get('run'))}>Start/Stop</button>
-</div>;
-
-(function loop(time) {
-  if (get('run')) {
-    set('tick', time);
-  }
-  requestAnimationFrame(loop);
-})(0);
-```
-
-## TypeScript
-
-domdom has full TypeScript support, it's written in TypeScript.
-
-### GodMode
-
-An **EXPERIMENTAL** mode. Creates
-a [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy). When properties are
-modified `set`/`unset` will be called automatically.  
-This makes it much easier to work with TypeScript and types.  
-Note: Does **not** support IE11.
-
-`godMode` has:
-
-* `data: T`
-  Single big data object as previously interacted with through `get` and `set`.
-* `pathOf<X = T>(o?: X): Wrapper<X>`
-  Helper function to create a path from a type. `don`, `on` and `trigger` accept this. Prepend `$path` to get the path
-  in plain string (required for `dd-model`). Prepend `$` to achieve same as `$string` path pattern.
-* `init(parent: HTMLElement, child?: HTMLElement)`
-  For initialization.
-* `on<T = any>(flags: string, path: string | Wrapper, listener: ListenerCallbackWithType<T> ): string`
-  Same as `don`, but flag and path is split up to support `path` (from above). Note that object in callback is also a
-  proxy, supporting change.
-* `trigger(path: string | Wrapper, value?: any)`
-  Same as `trigger`, but flag and path is split up to support `path` (from above).
-* `don(path: string | Wrapper): Pathifier`
-  Same as `don`, but flag and path is split up to support `path` (from above). Note that object in callback is also a
-  proxy, supporting change.
-
-#### Example
-
+app.tsx:
 ```tsx
-import {godMode} from '@eirikb/domdom';
+const view = (
+  <button
+    onClick={(event: Event) => {
+      event.target.style.color = 'red';
+    }}
+  >
+    Click me!
+  </button>
+);
+```
+Output:
 
+![events](readme/img/events.gif)
+
+## State
+
+### Listen for changes
+
+app.tsx:
+```tsx
+interface Data {
+  hello: string;
+}
+
+const { React, init, don, pathOf } = domdom<Data>({
+  hello: 'World!',
+});
+
+const view = <span>{don(pathOf().hello)}</span>;
+```
+Output:
+
+![don](readme/img/don.png)
+
+### Listen for changes in arrays / objects
+
+app.tsx:
+```tsx
 interface User {
-    name: string;
-    edit: boolean;
+  name: string;
 }
 
 interface Data {
-    users: User[]
+  users: User[];
 }
 
-const {React, init, data, don, pathOf} = godMode<Data>();
+const { React, init, don, pathOf } = domdom<Data>({
+  users: [{ name: 'Hello' }, { name: 'World' }],
+});
 
-data.users = ['eirik', 'steffen', 'frank'].map(name => ({name, edit: false}));
-
-init(document.body, <div>
-    <button onclick={() => data.users.push({name: 'eh', edit: false})}>Add</button>
-
-    <ul>
-        {don(pathOf().users.$).map<User>(user => {
-            return <li>
-                <button onclick={() => user.edit = !user.edit}>Edit?</button>
-                {don(pathOf(user).name)}
-                {don(pathOf(user).edit).map(edit => edit ?
-                    <input type="text" dd-model={pathOf(user).name.$path}/> : null)}
-            </li>;
-        })}
-    </ul>
-</div>);
+const view = (
+  <ul>
+    {don(pathOf().users.$).map(user => (
+      <li>{user.name}</li>
+    ))}
+  </ul>
+);
 ```
+Output:
 
-Note: When changing arrays (replace, `pop`, `splice`, etc.) `godMode` will first clear the array. This is a workaround
-to make it easier to work with arrays.
+![don-wildcard](readme/img/don-wildcard.png)
+
+### Listen for changes in sub-listeners
+
+app.tsx:
+```tsx
+interface User {
+  name: string;
+}
+
+interface Data {
+  users: User[];
+}
+
+const { React, init, don, data, pathOf } = domdom<Data>({
+  users: [{ name: 'Hello' }, { name: 'World' }, { name: 'Yup' }],
+});
+
+const view = (
+  <div>
+    <ul>
+      {don(pathOf().users.$).map(user => (
+        <li>{don(pathOf(user).name)}</li>
+      ))}
+    </ul>
+    <button onClick={() => (data.users[1].name = '🤷')}>Click me!</button>
+  </div>
+);
+```
+Output:
+
+![don-children](readme/img/don-children.gif)
+
+### Update state
+
+app.tsx:
+```tsx
+interface Data {
+  hello: string;
+}
+
+const { React, init, don, pathOf, data } = domdom<Data>({
+  hello: 'World!',
+});
+
+const view = (
+  <div>
+    <div>A: Hello, {data.hello}</div>
+    <div>B: Hello, {don(pathOf().hello)}</div>
+    <div>
+      <button onClick={() => (data.hello = 'there!')}>Click me!</button>
+    </div>
+  </div>
+);
+```
+Output:
+
+![data-set](readme/img/data-set.gif)
+
+### Automatic binding
+
+app.tsx:
+```tsx
+interface Data {
+  hello: string;
+}
+
+const { React, init, don, pathOf } = domdom<Data>({
+  hello: 'World!',
+});
+
+const view = (
+  <div>
+    <div>Hello, {don(pathOf().hello)}</div>
+    <div>
+      <input type="text" dd-model="hello" />
+    </div>
+  </div>
+);
+```
+Output:
+
+![dd-model](readme/img/dd-model.gif)
+
+### Data in attributes
+
+app.tsx:
+```tsx
+
+```
+Output:
+
+![data-attributes](readme/img/data-attributes.gif)
+
+## Pathifier
+
+app.tsx:
+```tsx
+interface User {
+  name: string;
+}
+
+interface Data {
+  users: User[];
+}
+
+const { React, init, don, pathOf } = domdom<Data>({
+  users: [{ name: 'Yup' }, { name: 'World' }, { name: 'Hello' }],
+});
+
+const view = (
+  <ul>
+    {don(pathOf().users.$)
+      .filter(user => user.name !== 'World')
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map(user => (
+        <li>{user.name}</li>
+      ))}
+  </ul>
+);
+```
+Output:
+
+![pathifier](readme/img/pathifier.png)
+
+
+  

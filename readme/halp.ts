@@ -130,4 +130,12 @@ export const buildMenu = (input: string): string =>
   input
     .split('\n')
     .filter(p => p.startsWith('#'))
+    .map(p => {
+      const parts = p.split('#');
+      const size = parts.length - 2;
+      const name = parts[parts.length - 1].trim();
+      return `${''.padStart(size * 2)}- [${name}](#${name
+        .replace(/[ \/]/g, '-')
+        .toLocaleLowerCase()})`;
+    })
     .join('\n');

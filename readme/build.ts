@@ -24,30 +24,35 @@ ${readCode('hello-world/index.html')}
 ${readCode('hello-world/app.tsx')}
 
 Output:
+
 ${await run('hello-world')}
 
 ### TSX tags are pure elements
 
 ${readCode('pure-elements/app.tsx')}
 Output:
+
 ${await run('pure-elements')}
 
 ### Domponents
 
 ${readCode('domponents/app.tsx')}
 Output:
+
 ${await run('domponents')}
 
 ### Domponents with options
 
 ${readCode('domponents-options/app.tsx')}
 Output:
+
 ${await run('domponents-options')}
 
 ### Events
 
 ${readCode('events/app.tsx')}
 Output:
+
 ${await run('events', async ({ snapshot, page }) => {
   await snapshot();
   page.click('button');
@@ -60,18 +65,21 @@ ${await run('events', async ({ snapshot, page }) => {
 
 ${readCode('don/app.tsx')}
 Output:
+
 ${await run('don')}
 
 ### Listen for changes in arrays / objects
 
 ${readCode('don-wildcard/app.tsx')}
 Output:
+
 ${await run('don-wildcard')}
 
 ### Listen for changes in sub-listeners
 
 ${readCode('don-children/app.tsx')}
 Output:
+
 ${await run('don-children', async ({ page, snapshot }) => {
   await snapshot();
   await page.click('button');
@@ -82,6 +90,7 @@ ${await run('don-children', async ({ page, snapshot }) => {
 
 ${readCode('data-set/app.tsx')}
 Output:
+
 ${await run('data-set', async ({ snapshot, page }) => {
   await snapshot();
   page.click('button');
@@ -92,6 +101,7 @@ ${await run('data-set', async ({ snapshot, page }) => {
 
 ${readCode('dd-model/app.tsx')}
 Output:
+
 ${await run('dd-model', async ({ snapshot, page }) => {
   await snapshot();
   await page.click('input', { clickCount: 3 });
@@ -105,6 +115,7 @@ ${await run('dd-model', async ({ snapshot, page }) => {
 
 ${readCode('data-attibutes/app.tsx')}
 Output:
+
 ${await run('data-attributes', async ({ snapshot, page }) => {
   await snapshot();
   await page.click('button');
@@ -119,6 +130,7 @@ ${await run('data-attributes', async ({ snapshot, page }) => {
 
 ${readCode('pathifier/app.tsx')}
 Output:
+
 ${await run('pathifier')}
 
 `;
@@ -132,5 +144,5 @@ ${buildMenu(bottom)}
 ${bottom}
   `;
 
-  sh.echo(res).to(`${current}/../readme-out.md`);
+  sh.echo(res).to(`${current}/../readme.md`);
 })();
