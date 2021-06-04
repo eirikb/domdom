@@ -5,6 +5,9 @@ import GIFEncoder from 'gifencoder';
 import PNG from 'png-js';
 import { installMouseHelper } from './mouse-helper';
 
+const width = 320;
+const height = 100;
+
 export const current = sh.pwd();
 const tmp = `${sh.tempdir()}/dd-demo-${Math.random() * 100000000000000000}`;
 
@@ -16,7 +19,7 @@ function decode(png) {
 
 async function gifAddFrame(page, encoder) {
   const pngBuffer = await page.screenshot({
-    clip: { width: 1024, height: 768, x: 0, y: 0 },
+    clip: { width, height, x: 0, y: 0 },
   });
   const png = new PNG(pngBuffer);
   await decode(png).then(pixels => encoder.addFrame(pixels));
@@ -91,7 +94,7 @@ export const run = async (
   let img = `${name}.png`;
   if (handler !== undefined) {
     img = `${name}.gif`;
-    const encoder = new GIFEncoder(1024, 768);
+    const encoder = new GIFEncoder(width, height);
     encoder
       .createWriteStream()
       .pipe(fs.createWriteStream(`${current}/img/${img}`));
@@ -108,7 +111,10 @@ export const run = async (
     });
     await encoder.finish();
   } else {
-    await page.screenshot({ path: `${current}/img/${img}` });
+    await page.screenshot({
+      path: `${current}/img/${img}`,
+      clip: { width, height, x: 0, y: 0 },
+    });
   }
 
   await browser.close();

@@ -121,21 +121,6 @@ ${readCode('pathifier/app.tsx')}
 Output:
 ${await run('pathifier')}
 
-### Pathifier with listeners
-
-${readCode('pathifier-on/app.tsx')}
-Output:
-${false &&
-  (await run('pathifier-on', async ({ snapshot, page }) => {
-    await snapshot();
-    await page.click('#desc');
-    await snapshot();
-    for (const c of 'll'.split('')) {
-      await page.type('input', c);
-      await snapshot();
-    }
-  }))}
-
 `;
 
   const res = `
