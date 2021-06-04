@@ -77,9 +77,7 @@ export const run = async (
   const child = sh.exec('../node_modules/.bin/http-server', { async: true });
   console.log('http');
   console.log('puppeteer');
-  const browser = await puppeteer.launch({
-    slowMo: 0,
-  });
+  const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
   const errors: Error[] = [];
@@ -104,13 +102,11 @@ export const run = async (
     await installMouseHelper(page);
     await handler({
       async snapshot() {
-        for (let i = 0; i < 5; i++) {
-          await gifAddFrame(page, encoder);
-        }
+        await gifAddFrame(page, encoder);
       },
       page,
     });
-    encoder.finish();
+    await encoder.finish();
   } else {
     await page.screenshot({ path: `${current}/img/${img}` });
   }

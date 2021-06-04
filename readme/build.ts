@@ -13,6 +13,8 @@ ${'```bash'}
 npm i @eirikb/domdom
 ${'```'}
 
+## Basics
+
 ### Hello, world!
 run.sh:
 ${'```bash'}
@@ -52,7 +54,90 @@ ${await run('events', async ({ snapshot, page }) => {
   await snapshot();
 })}
 
+## State
+
+### Listen for changes
+
+${readCode('don/app.tsx')}
+Output:
+${await run('don')}
+
+### Listen for changes in arrays / objects
+
+${readCode('don-wildcard/app.tsx')}
+Output:
+${await run('don-wildcard')}
+
+### Listen for changes in sub-listeners
+
+${readCode('don-children/app.tsx')}
+Output:
+${await run('don-children', async ({ page, snapshot }) => {
+  await snapshot();
+  await page.click('button');
+  await snapshot();
+})}
+
+### Update state
+
+${readCode('data-set/app.tsx')}
+Output:
+${await run('data-set', async ({ snapshot, page }) => {
+  await snapshot();
+  page.click('button');
+  await snapshot();
+})}
+
+### Automatic binding
+
+${readCode('dd-model/app.tsx')}
+Output:
+${await run('dd-model', async ({ snapshot, page }) => {
+  await snapshot();
+  await page.click('input', { clickCount: 3 });
+  for (const c of 'there'.split('')) {
+    await page.type('input', c);
+    await snapshot();
+  }
+})}
+
+### Data in attributes
+
+${readCode('data-attibutes/app.tsx')}
+Output:
+${await run('data-attributes', async ({ snapshot, page }) => {
+  await snapshot();
+  await page.click('button');
+  await snapshot();
+  await page.click('button');
+  await snapshot();
+  await page.click('button');
+  await snapshot();
+})}
+
+## Pathifier
+
+${readCode('pathifier/app.tsx')}
+Output:
+${await run('pathifier')}
+
+### Pathifier with listeners
+
+${readCode('pathifier-on/app.tsx')}
+Output:
+${false &&
+  (await run('pathifier-on', async ({ snapshot, page }) => {
+    await snapshot();
+    await page.click('#desc');
+    await snapshot();
+    for (const c of 'll'.split('')) {
+      await page.type('input', c);
+      await snapshot();
+    }
+  }))}
+
 `;
+
   const res = `
 ${sh.cat('header.md')}
 
