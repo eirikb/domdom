@@ -3,13 +3,13 @@ import sh from 'shelljs';
 import puppeteer from 'puppeteer';
 import GIFEncoder from 'gifencoder';
 import PNG from 'png-js';
-import { installMouseHelper } from './mouse-helper';
 
 const width = 320;
 const height = 100;
 
 export const current = sh.pwd();
-const tmp = `${sh.tempdir()}/dd-demo-${Math.random() * 100000000000000000}`;
+export const tmp = `${sh.tempdir()}/dd-demo-${Math.random() *
+  100000000000000000}`;
 
 function decode(png) {
   return new Promise(r => {
@@ -66,7 +66,7 @@ export const run = async (
     sh.cp('-r', `../examples/${name}`, tmp);
     sh.cd(tmp);
     console.log('npm i');
-    sh.exec(`npm i parcel@next http-server ${current}/..`);
+    sh.exec(`npm i parcel@next ${current}/..`);
   } else {
     console.log(`tmp folder ${tmp} exists, preparing...`);
     sh.cp('-r', `../examples/${name}/*`, `${tmp}/`);
@@ -77,8 +77,6 @@ export const run = async (
   console.log('build');
   sh.exec('./node_modules/.bin/parcel build index.html');
   sh.cd('dist');
-  const child = sh.exec('../node_modules/.bin/http-server', { async: true });
-  console.log('http');
   console.log('puppeteer');
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
@@ -87,9 +85,7 @@ export const run = async (
   page.on('pageerror', err => errors.push(err));
   page.on('error', err => errors.push(err));
 
-  await page.goto('http://localhost:8080', {
-    waitUntil: ['networkidle0'],
-  });
+  await page.goto('http://localhost:8080');
 
   let img = `${name}.png`;
   if (handler !== undefined) {
@@ -102,7 +98,7 @@ export const run = async (
     encoder.setRepeat(0);
     encoder.setDelay(150);
 
-    await installMouseHelper(page);
+    // await installMouseHelper(page);
     await handler({
       async snapshot() {
         await gifAddFrame(page, encoder);
@@ -118,7 +114,6 @@ export const run = async (
   }
 
   await browser.close();
-  child.kill();
   console.log(errors);
 
   if (errors.length > 0) throw new Error(errors.join('\n'));

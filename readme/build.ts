@@ -1,8 +1,12 @@
 // npm i --no-save shelljs puppeteer http-server gifencoder png-js
 import sh from 'shelljs';
-import { buildMenu, current, readCode, run } from './halp';
+import { buildMenu, current, readCode, run, tmp } from './halp';
 
 (async () => {
+  const child = sh.exec(`../node_modules/.bin/http-server ${tmp}/dist`, {
+    async: true,
+  });
+
   const bottom = `
 ${sh.cat('deno.md')}
 
@@ -144,5 +148,10 @@ ${buildMenu(bottom)}
 ${bottom}
   `;
 
-  sh.echo(res).to(`${current}/../readme.md`);
+  console.log('DONE! Stop web server');
+  child.kill();
+
+  console.log('Done! Writing to file...');
+  sh.ShellString(res).to(`${current}/../readme.md`);
+  console.log('Done!');
 })();
