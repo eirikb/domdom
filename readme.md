@@ -74,11 +74,23 @@ npx parcel index.html
 ```
 [index.html](./examples/hello-world/index.html):
 ```html
-
+<body>
+<script src="app.tsx"></script>
+</body>
 ```
 [app.tsx](./examples/hello-world/app.tsx):
 ```tsx
+import domdom from '@eirikb/domdom';
 
+interface Data {
+  hello: string;
+}
+
+const { React, init, don, pathOf } = domdom<Data>({ hello: 'world' });
+
+const view = <div>Hello, {don(pathOf().hello)}</div>;
+
+init(document.body, view);
 ```
 
 Output:
@@ -91,7 +103,8 @@ All elements created with tsx are elements which can be instantly referenced.
 
 [app.tsx](./examples/pure-elements/app.tsx):
 ```tsx
-
+const element = <span>Hello, world :)</span>;
+element.style.color = 'red';
 ```
 Output:
 
@@ -103,7 +116,13 @@ By creating a function you create a Domponent (component).
 
 [app.tsx](./examples/domponents/app.tsx):
 ```tsx
+const Button = () => <button>I am button!</button>;
 
+const view = (
+  <div>
+    <Button />
+  </div>
+);
 ```
 Output:
 
@@ -116,7 +135,17 @@ All attributes are passed in first argument.
 
 [app.tsx](./examples/domponents-options/app.tsx):
 ```tsx
+const Button = ({ color }: { color: string }, { mounted, children }: Opts) => {
+  const button = <button>Hello {children}</button>;
+  mounted(() => (button.style.color = color));
+  return button;
+};
 
+const view = (
+  <div>
+    <Button color="blue">World!</Button>
+  </div>
+);
 ```
 Output:
 
@@ -128,7 +157,15 @@ All attributes starting with 'on' are added to addEventListener on the element.
 
 [app.tsx](./examples/events/app.tsx):
 ```tsx
-
+const view = (
+  <button
+    onClick={(event: Event) => {
+      event.target.style.color = 'red';
+    }}
+  >
+    Click me!
+  </button>
+);
 ```
 Output:
 
@@ -143,7 +180,15 @@ Setting data directly on the `data` object can update DOM directly in combinatio
 
 [app.tsx](./examples/don/app.tsx):
 ```tsx
+interface Data {
+  hello: string;
+}
 
+const { React, init, don, pathOf } = domdom<Data>({
+  hello: 'World!',
+});
+
+const view = <span>{don(pathOf().hello)}</span>;
 ```
 Output:
 
@@ -153,7 +198,25 @@ Output:
 
 [app.tsx](./examples/don-wildcard/app.tsx):
 ```tsx
+interface User {
+  name: string;
+}
 
+interface Data {
+  users: User[];
+}
+
+const { React, init, don, pathOf } = domdom<Data>({
+  users: [{ name: 'Hello' }, { name: 'World' }],
+});
+
+const view = (
+  <ul>
+    {don(pathOf().users.$).map(user => (
+      <li>{user.name}</li>
+    ))}
+  </ul>
+);
 ```
 Output:
 
@@ -163,7 +226,28 @@ Output:
 
 [app.tsx](./examples/don-children/app.tsx):
 ```tsx
+interface User {
+  name: string;
+}
 
+interface Data {
+  users: User[];
+}
+
+const { React, init, don, data, pathOf } = domdom<Data>({
+  users: [{ name: 'Hello' }, { name: 'World' }, { name: 'Yup' }],
+});
+
+const view = (
+  <div>
+    <ul>
+      {don(pathOf().users.$).map(user => (
+        <li>{don(pathOf(user).name)}</li>
+      ))}
+    </ul>
+    <button onClick={() => (data.users[1].name = '🤷')}>Click me!</button>
+  </div>
+);
 ```
 Output:
 
@@ -173,7 +257,23 @@ Output:
 
 [app.tsx](./examples/data-set/app.tsx):
 ```tsx
+interface Data {
+  hello: string;
+}
 
+const { React, init, don, pathOf, data } = domdom<Data>({
+  hello: 'World!',
+});
+
+const view = (
+  <div>
+    <div>A: Hello, {data.hello}</div>
+    <div>B: Hello, {don(pathOf().hello)}</div>
+    <div>
+      <button onClick={() => (data.hello = 'there!')}>Click me!</button>
+    </div>
+  </div>
+);
 ```
 Output:
 
@@ -183,7 +283,21 @@ Output:
 
 [app.tsx](./examples/data-attributes/app.tsx):
 ```tsx
+interface Data {
+  toggle: boolean;
+}
 
+const { React, init, don, pathOf, data } = domdom<Data>({
+  toggle: false,
+});
+
+const view = (
+  <div>
+    <button onClick={() => (data.toggle = !data.toggle)}>Toggle</button>
+    <button disabled={don(pathOf().toggle)}>A</button>
+    <button disabled={don(pathOf().toggle).map(res => !res)}>B</button>
+  </div>
+);
 ```
 Output:
 
@@ -193,7 +307,22 @@ Output:
 
 [app.tsx](./examples/dd-model/app.tsx):
 ```tsx
+interface Data {
+  hello: string;
+}
 
+const { React, init, don, pathOf } = domdom<Data>({
+  hello: 'World!',
+});
+
+const view = (
+  <div>
+    <div>Hello, {don(pathOf().hello)}</div>
+    <div>
+      <input type="text" dd-model="hello" />
+    </div>
+  </div>
+);
 ```
 Output:
 
@@ -216,7 +345,28 @@ And in addition accompanying "on" version, making it possible to listen for an e
 
 [app.tsx](./examples/pathifier/app.tsx):
 ```tsx
+interface User {
+  name: string;
+}
 
+interface Data {
+  users: User[];
+}
+
+const { React, init, don, pathOf } = domdom<Data>({
+  users: [{ name: 'Yup' }, { name: 'World' }, { name: 'Hello' }],
+});
+
+const view = (
+  <ul>
+    {don(pathOf().users.$)
+      .filter(user => user.name !== 'World')
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map(user => (
+        <li>{user.name}</li>
+      ))}
+  </ul>
+);
 ```
 Output:
 
