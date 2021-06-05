@@ -1,68 +1,33 @@
 on:
   push:
     branches:
-      - master
+      - features/neo
+    paths-ignore:
+      - '**/readme.md'
 
 name: Build
 
 jobs:
-  build:
+  readme:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
       - uses: actions/setup-node@v1
         with:
-          node-version: 12
+          node-version: 14
 
       - name: install
-        run: npm ci
+        run: npm i --no-save shelljs puppeteer http-server gifencoder png-js ts-node
 
-      - name: lint
-        run: npm run lint
+      - name: readme
+        run: |
+          cd readme
+          ts-node build.ts
 
-      - name: test
-        run: npm test
-
-      - name: build
-        run: npm run build
-
-  publish-npm:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 12
-          registry-url: https://registry.npmjs.org/
-      - run: npm ci
-      - run: npm run build
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
-  release:
-    needs: publish-npm
-    name: Create Release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Set env
-        run: echo "PKG_VERSION=$(npm show . version)" >> $GITHUB_ENV
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ env.PKG_VERSION }}
-          release_name: Release v${{ env.PKG_VERSION }}
-          draft: false
-          prerelease: false
-  deno:
-    needs: release
-    name: Deno
-    runs-on: ubuntu-latest
-    steps:
-      - run: |
-          curl -XPOST -u "${{ secrets.PAT_USERNAME}}:${{secrets.PAT_TOKEN}}" -H "Accept: application/vnd.github.everest-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/eirikb/domdom-deno/dispatches --data '{"event_type": "build_application"}'
+      - name: Commit report
+        run: |
+          git config --global user.name 'Eirik Brandtzæg'
+          git config --global user.email 'eirikb@users.noreply.github.com'
+          git commit -am "Automatically built readme!"
+          git push

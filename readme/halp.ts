@@ -135,7 +135,8 @@ export const buildMenu = (input: string): string =>
       const size = parts.length - 2;
       const name = parts[parts.length - 1].trim();
       return `${''.padStart(size * 2)}- [${name}](#${name
-        .replace(/[ \/]/g, '-')
+        .replace(/[\/]/g, '')
+        .replace(/[ ]/g, '-')
         .toLocaleLowerCase()})`;
     })
     .join('\n');

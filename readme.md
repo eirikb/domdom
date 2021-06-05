@@ -12,7 +12,7 @@
     - [Events](#events)
   - [State](#state)
     - [Listen for changes](#listen-for-changes)
-    - [Listen for changes in arrays / objects](#listen-for-changes-in-arrays---objects)
+    - [Listen for changes in arrays / objects](#listen-for-changes-in-arrays--objects)
     - [Listen for changes in sub-listeners](#listen-for-changes-in-sub-listeners)
     - [Update state](#update-state)
     - [Automatic binding](#automatic-binding)
