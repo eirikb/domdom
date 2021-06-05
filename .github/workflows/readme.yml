@@ -2,8 +2,6 @@ on:
   push:
     branches:
       - feature/neo
-    paths-ignore:
-      - '**/readme.md'
 
 name: Build readme
 

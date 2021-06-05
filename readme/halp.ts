@@ -33,7 +33,7 @@ export const readCode = (
   sh.cd(current);
   if (header === undefined) {
     header = name.split('/').slice(-1)[0];
-    header = `[${header}](../examples/${name})`;
+    header = `[${header}](./examples/${name})`;
   }
   if (type === undefined) type = name.split('.').slice(-1)[0];
   const file = sh.cat(`./examples/${name}`).trim();
