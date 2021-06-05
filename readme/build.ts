@@ -150,7 +150,7 @@ ${bottom}
   `;
 
   console.log('DONE! Stop web server');
-  child.kill();
+  child.kill(9);
 
   console.log('Done! Writing to file...');
   sh.ShellString(res).to(`${current}/../readme.md`);
