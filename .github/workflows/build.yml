@@ -29,7 +29,9 @@ jobs:
       - name: readme
         run: |
           cd readme
+          echo START
           ../node_modules/.bin/ts-node build.ts
+          echo DONE!
 
       - name: Commit report
         run: |

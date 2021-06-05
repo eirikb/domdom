@@ -139,6 +139,7 @@ ${await run('pathifier')}
 
 `;
 
+  sh.cd(current);
   const res = `
 ${sh.cat('header.md')}
 
@@ -154,4 +155,11 @@ ${bottom}
   console.log('Done! Writing to file...');
   sh.ShellString(res).to(`${current}/../readme.md`);
   console.log('Done!');
-})();
+})()
+  .catch(e => {
+    console.log(e);
+  })
+  .then(() => {
+    console.log('really done...');
+    console.log('what now?');
+  });
