@@ -72,11 +72,11 @@ run.sh:
 ```bash
 npx parcel index.html
 ```
-[index.html](../examples/hello-world/index.html):
+[index.html](./examples/hello-world/index.html):
 ```html
 
 ```
-[app.tsx](../examples/hello-world/app.tsx):
+[app.tsx](./examples/hello-world/app.tsx):
 ```tsx
 
 ```
@@ -89,7 +89,7 @@ Output:
 
 All elements created with tsx are elements which can be instantly referenced.
 
-[app.tsx](../examples/pure-elements/app.tsx):
+[app.tsx](./examples/pure-elements/app.tsx):
 ```tsx
 
 ```
@@ -101,7 +101,7 @@ Output:
 
 By creating a function you create a Domponent (component).
 
-[app.tsx](../examples/domponents/app.tsx):
+[app.tsx](./examples/domponents/app.tsx):
 ```tsx
 
 ```
@@ -114,7 +114,7 @@ Output:
 It's possible to pass in children, and get a callback when a domponent is mounted (in DOM).  
 All attributes are passed in first argument.
 
-[app.tsx](../examples/domponents-options/app.tsx):
+[app.tsx](./examples/domponents-options/app.tsx):
 ```tsx
 
 ```
@@ -126,7 +126,7 @@ Output:
 
 All attributes starting with 'on' are added to addEventListener on the element.
 
-[app.tsx](../examples/events/app.tsx):
+[app.tsx](./examples/events/app.tsx):
 ```tsx
 
 ```
@@ -141,7 +141,7 @@ Setting data directly on the `data` object can update DOM directly in combinatio
 
 ### Listen for changes
 
-[app.tsx](../examples/don/app.tsx):
+[app.tsx](./examples/don/app.tsx):
 ```tsx
 
 ```
@@ -151,7 +151,7 @@ Output:
 
 ### Listen for changes in arrays / objects
 
-[app.tsx](../examples/don-wildcard/app.tsx):
+[app.tsx](./examples/don-wildcard/app.tsx):
 ```tsx
 
 ```
@@ -161,7 +161,7 @@ Output:
 
 ### Listen for changes in sub-listeners
 
-[app.tsx](../examples/don-children/app.tsx):
+[app.tsx](./examples/don-children/app.tsx):
 ```tsx
 
 ```
@@ -171,7 +171,7 @@ Output:
 
 ### Update state
 
-[app.tsx](../examples/data-set/app.tsx):
+[app.tsx](./examples/data-set/app.tsx):
 ```tsx
 
 ```
@@ -181,7 +181,7 @@ Output:
 
 ### Data in attributes
 
-[app.tsx](../examples/data-attributes/app.tsx):
+[app.tsx](./examples/data-attributes/app.tsx):
 ```tsx
 
 ```
@@ -191,7 +191,7 @@ Output:
 
 ### Automatic binding
 
-[app.tsx](../examples/dd-model/app.tsx):
+[app.tsx](./examples/dd-model/app.tsx):
 ```tsx
 
 ```
@@ -214,7 +214,7 @@ And in addition accompanying "on" version, making it possible to listen for an e
   * `sliceOn`
   * `filterOn`
 
-[app.tsx](../examples/pathifier/app.tsx):
+[app.tsx](./examples/pathifier/app.tsx):
 ```tsx
 
 ```
