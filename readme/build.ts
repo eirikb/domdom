@@ -186,6 +186,16 @@ ${readCode('structure/domdom.ts')}
 Output:
 
 ${await run('structure')}
+
+### Animation (garbage collection)
+
+At writing moment domdom doesn't have any unmount callback.
+I'm not a big fan of destructors, unmounted, dispose or similar.
+This might seem silly, and it might not be obvious how to use say setInterval, without this preventing the element from ever being cleaned up by garbage collector.
+
+This is how I would suggest putting domdom in its own file for importing.
+
+${readCode('ticks/app.tsx')}
 `;
 
   sh.cd(current);
