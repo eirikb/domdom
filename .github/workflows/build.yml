@@ -23,7 +23,7 @@ jobs:
       - name: readme
         run: |
           cd readme
-          ts-node build.ts
+          ../node_modules/.bin/ts-node build.ts
 
       - name: Commit report
         run: |
