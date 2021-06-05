@@ -155,6 +155,7 @@ ${bottom}
   console.log('Done! Writing to file...');
   sh.ShellString(res).to(`${current}/../readme.md`);
   console.log('Done!');
+  console.log(sh.exec('ps faux'));
 })()
   .catch(e => {
     console.log(e);
