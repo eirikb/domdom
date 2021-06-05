@@ -177,6 +177,7 @@ ${bottom}
   child.kill();
   sh.ShellString(res).to(`${current}/../readme.md`);
   console.log('Done!');
+
   // No idea why I have to kill the script. Something "dangling" - no idea what. Works locally, but not in GitHub Actions
   process.exit();
 })();
