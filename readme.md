@@ -54,6 +54,7 @@
   - [Recipies](#recipies)
     - [Routing](#routing)
     - [Structure](#structure)
+    - [Animation (garbage collection)](#animation-(garbage-collection))
 
 
 ## Deno
@@ -463,5 +464,47 @@ export const pathOf = dd.pathOf;
 Output:
 
 ![structure](readme/img/structure.png)
+
+### Animation (garbage collection)
+
+At writing moment domdom doesn't have any unmount callback.
+I'm not a big fan of destructors, unmounted, dispose or similar.
+This might seem silly, and it might not be obvious how to use say setInterval, without this preventing the element from ever being cleaned up by garbage collector.
+
+This is how I would suggest putting domdom in its own file for importing.
+
+[app.tsx](./examples/ticks/app.tsx):
+```tsx
+import domdom from '@eirikb/domdom';
+
+interface Data {
+  run: boolean;
+  tick: number;
+}
+
+const { React, init, don, pathOf, data } = domdom<Data>({
+  run: false,
+  tick: 0,
+});
+
+const view = (
+  <div>
+    <img
+      src="https://i.imgur.com/rsD0RUq.jpg"
+      style={don(pathOf().tick).map(tick => ({ rotate: `${tick % 180}deg` }))}
+    />
+    <button onClick={() => (data.run = !data.run)}>Start/Stop</button>
+  </div>
+);
+
+(function loop(time) {
+  if (data.run) {
+    data.tick = time;
+  }
+  requestAnimationFrame(loop);
+})(0);
+
+init(document.body, view);
+```
 
   
