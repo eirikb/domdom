@@ -1,7 +1,4 @@
-on:
-  push:
-    branches:
-      - feature/neo
+on: push
 
 name: Build readme
 
