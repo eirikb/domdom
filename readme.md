@@ -53,6 +53,7 @@
   - [Pathifier](#pathifier)
   - [Recipies](#recipies)
     - [Routing](#routing)
+    - [Structure](#structure)
 
 
 ## Deno
@@ -429,5 +430,38 @@ init(document.body, view);
 Output:
 
 ![routing](readme/img/routing.gif)
+
+### Structure
+
+This is how I would suggest putting domdom in its own file for importing.
+
+[app.tsx](./examples/structure/app.tsx):
+```tsx
+import { data, don, init, pathOf, React } from './domdom';
+
+const view = <div>Hello, {don(pathOf().hello)}</div>;
+
+data.hello = 'There :)';
+
+init(document.body, view);
+```
+[domdom.ts](./examples/structure/domdom.ts):
+```ts
+import domdom from '@eirikb/domdom';
+
+export interface Data {
+  hello: string;
+}
+
+const dd = domdom<Data>({ hello: 'world' });
+export const React = dd.React;
+export const init = dd.init;
+export const data = dd.data;
+export const don = dd.don;
+export const pathOf = dd.pathOf;
+```
+Output:
+
+![structure](readme/img/structure.png)
 
   
