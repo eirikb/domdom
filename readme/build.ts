@@ -176,6 +176,16 @@ ${await run('routing', async ({ snapshot, page }) => {
   await page.click('button');
   await snapshot(3);
 })}
+
+### Structure
+
+This is how I would suggest putting domdom in its own file for importing.
+
+${readCode('structure/app.tsx')}
+${readCode('structure/domdom.ts')}
+Output:
+
+${await run('structure')}
 `;
 
   sh.cd(current);
