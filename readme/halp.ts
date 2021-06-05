@@ -36,7 +36,7 @@ export const readCode = (
     header = `[${header}](./examples/${name})`;
   }
   if (type === undefined) type = name.split('.').slice(-1)[0];
-  const file = sh.cat(`./examples/${name}`).trim();
+  const file = sh.cat(`../examples/${name}`).trim();
   const parts = file.split(/\/\/.*important part/i);
   let code = file;
   if (parts.length > 1) {
