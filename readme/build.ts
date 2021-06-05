@@ -163,4 +163,6 @@ ${bottom}
   .then(() => {
     console.log('really done...');
     console.log('what now?');
+    console.log('meh, kill em all!');
+    sh.exec('killall node -9');
   });
