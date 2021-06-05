@@ -33,7 +33,7 @@ jobs:
           ../node_modules/.bin/ts-node build.ts
           echo DONE!
 
-      - name: Commit report
+      - name: Push new readme
         run: |
           git config --global user.name 'Eirik Brandtzæg'
           git config --global user.email 'eirikb@users.noreply.github.com'

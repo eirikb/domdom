@@ -149,20 +149,9 @@ ${buildMenu(bottom)}
 ${bottom}
   `;
 
-  console.log('DONE! Stop web server');
-  child.kill(9);
-
-  console.log('Done! Writing to file...');
+  child.kill();
   sh.ShellString(res).to(`${current}/../readme.md`);
   console.log('Done!');
-  console.log(sh.exec('ps faux'));
-})()
-  .catch(e => {
-    console.log(e);
-  })
-  .then(() => {
-    console.log('really done...');
-    console.log('what now?');
-    console.log('meh, kill em all!');
-    process.exit();
-  });
+  // No idea why I have to kill the script. Something "dangling" - no idea what. Works locally, but not in GitHub Actions
+  process.exit();
+})();
