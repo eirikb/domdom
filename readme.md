@@ -47,8 +47,8 @@
     - [Listen for changes in arrays / objects](#listen-for-changes-in-arrays--objects)
     - [Listen for changes in sub-listeners](#listen-for-changes-in-sub-listeners)
     - [Update state](#update-state)
-    - [Automatic binding](#automatic-binding)
     - [Data in attributes](#data-in-attributes)
+    - [Automatic binding](#automatic-binding)
   - [Pathifier](#pathifier)
 
 
@@ -72,25 +72,13 @@ run.sh:
 ```bash
 npx parcel index.html
 ```
-index.html:
+[index.html](../examples/hello-world/index.html):
 ```html
-<body>
-<script src="app.tsx"></script>
-</body>
+
 ```
-app.tsx:
+[app.tsx](../examples/hello-world/app.tsx):
 ```tsx
-import domdom from '@eirikb/domdom';
 
-interface Data {
-  hello: string;
-}
-
-const { React, init, don, pathOf } = domdom<Data>({ hello: 'world' });
-
-const view = <div>Hello, {don(pathOf().hello)}</div>;
-
-init(document.body, view);
 ```
 
 Output:
@@ -99,10 +87,11 @@ Output:
 
 ### TSX tags are pure elements
 
-app.tsx:
+All elements created with tsx are elements which can be instantly referenced.
+
+[app.tsx](../examples/pure-elements/app.tsx):
 ```tsx
-const element = <span>Hello, world :)</span>;
-element.style.color = 'red';
+
 ```
 Output:
 
@@ -110,15 +99,11 @@ Output:
 
 ### Domponents
 
-app.tsx:
-```tsx
-const Button = () => <button>I am button!</button>;
+By creating a function you create a Domponent (component).
 
-const view = (
-  <div>
-    <Button />
-  </div>
-);
+[app.tsx](../examples/domponents/app.tsx):
+```tsx
+
 ```
 Output:
 
@@ -126,19 +111,12 @@ Output:
 
 ### Domponents with options
 
-app.tsx:
-```tsx
-const Button = ({ color }: { color: string }, { mounted, children }: Opts) => {
-  const button = <button>Hello {children}</button>;
-  mounted(() => (button.style.color = color));
-  return button;
-};
+It's possible to pass in children, and get a callback when a domponent is mounted (in DOM).  
+All attributes are passed in first argument.
 
-const view = (
-  <div>
-    <Button color="blue">World!</Button>
-  </div>
-);
+[app.tsx](../examples/domponents-options/app.tsx):
+```tsx
+
 ```
 Output:
 
@@ -146,17 +124,11 @@ Output:
 
 ### Events
 
-app.tsx:
+All attributes starting with 'on' are added to addEventListener on the element.
+
+[app.tsx](../examples/events/app.tsx):
 ```tsx
-const view = (
-  <button
-    onClick={(event: Event) => {
-      event.target.style.color = 'red';
-    }}
-  >
-    Click me!
-  </button>
-);
+
 ```
 Output:
 
@@ -164,19 +136,14 @@ Output:
 
 ## State
 
+State handling in domdom is simple: No local state, only one huge global state.  
+Setting data directly on the `data` object can update DOM directly in combination with `don`
+
 ### Listen for changes
 
-app.tsx:
+[app.tsx](../examples/don/app.tsx):
 ```tsx
-interface Data {
-  hello: string;
-}
 
-const { React, init, don, pathOf } = domdom<Data>({
-  hello: 'World!',
-});
-
-const view = <span>{don(pathOf().hello)}</span>;
 ```
 Output:
 
@@ -184,27 +151,9 @@ Output:
 
 ### Listen for changes in arrays / objects
 
-app.tsx:
+[app.tsx](../examples/don-wildcard/app.tsx):
 ```tsx
-interface User {
-  name: string;
-}
 
-interface Data {
-  users: User[];
-}
-
-const { React, init, don, pathOf } = domdom<Data>({
-  users: [{ name: 'Hello' }, { name: 'World' }],
-});
-
-const view = (
-  <ul>
-    {don(pathOf().users.$).map(user => (
-      <li>{user.name}</li>
-    ))}
-  </ul>
-);
 ```
 Output:
 
@@ -212,30 +161,9 @@ Output:
 
 ### Listen for changes in sub-listeners
 
-app.tsx:
+[app.tsx](../examples/don-children/app.tsx):
 ```tsx
-interface User {
-  name: string;
-}
 
-interface Data {
-  users: User[];
-}
-
-const { React, init, don, data, pathOf } = domdom<Data>({
-  users: [{ name: 'Hello' }, { name: 'World' }, { name: 'Yup' }],
-});
-
-const view = (
-  <div>
-    <ul>
-      {don(pathOf().users.$).map(user => (
-        <li>{don(pathOf(user).name)}</li>
-      ))}
-    </ul>
-    <button onClick={() => (data.users[1].name = '🤷')}>Click me!</button>
-  </div>
-);
 ```
 Output:
 
@@ -243,58 +171,17 @@ Output:
 
 ### Update state
 
-app.tsx:
+[app.tsx](../examples/data-set/app.tsx):
 ```tsx
-interface Data {
-  hello: string;
-}
 
-const { React, init, don, pathOf, data } = domdom<Data>({
-  hello: 'World!',
-});
-
-const view = (
-  <div>
-    <div>A: Hello, {data.hello}</div>
-    <div>B: Hello, {don(pathOf().hello)}</div>
-    <div>
-      <button onClick={() => (data.hello = 'there!')}>Click me!</button>
-    </div>
-  </div>
-);
 ```
 Output:
 
 ![data-set](readme/img/data-set.gif)
 
-### Automatic binding
-
-app.tsx:
-```tsx
-interface Data {
-  hello: string;
-}
-
-const { React, init, don, pathOf } = domdom<Data>({
-  hello: 'World!',
-});
-
-const view = (
-  <div>
-    <div>Hello, {don(pathOf().hello)}</div>
-    <div>
-      <input type="text" dd-model="hello" />
-    </div>
-  </div>
-);
-```
-Output:
-
-![dd-model](readme/img/dd-model.gif)
-
 ### Data in attributes
 
-app.tsx:
+[app.tsx](../examples/data-attributes/app.tsx):
 ```tsx
 
 ```
@@ -302,32 +189,34 @@ Output:
 
 ![data-attributes](readme/img/data-attributes.gif)
 
+### Automatic binding
+
+[app.tsx](../examples/dd-model/app.tsx):
+```tsx
+
+```
+Output:
+
+![dd-model](readme/img/dd-model.gif)
+
 ## Pathifier
 
-app.tsx:
+Aggregate data.
+Supports:
+  * `map`
+  * `sort`
+  * `slice`
+  * `filter`
+
+And in addition accompanying "on" version, making it possible to listen for an external path:
+  * `mapOn`
+  * `sortOn`
+  * `sliceOn`
+  * `filterOn`
+
+[app.tsx](../examples/pathifier/app.tsx):
 ```tsx
-interface User {
-  name: string;
-}
 
-interface Data {
-  users: User[];
-}
-
-const { React, init, don, pathOf } = domdom<Data>({
-  users: [{ name: 'Yup' }, { name: 'World' }, { name: 'Hello' }],
-});
-
-const view = (
-  <ul>
-    {don(pathOf().users.$)
-      .filter(user => user.name !== 'World')
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .map(user => (
-        <li>{user.name}</li>
-      ))}
-  </ul>
-);
 ```
 Output:
 
