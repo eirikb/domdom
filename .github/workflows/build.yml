@@ -5,7 +5,7 @@ on:
     paths-ignore:
       - '**/readme.md'
 
-name: Build
+name: Build readme
 
 jobs:
   readme:
