@@ -49,7 +49,7 @@ export const readCode = (
 };
 
 interface HandlerOptions {
-  snapshot(): Promise<void>;
+  snapshot(frames: number): Promise<void>;
 
   page: puppeteer.Page;
 }
@@ -103,8 +103,10 @@ export const run = async (
 
     // await installMouseHelper(page);
     await handler({
-      async snapshot() {
-        await gifAddFrame(page, encoder);
+      async snapshot(frames = 1) {
+        for (let i = 0; i < frames; i++) {
+          await gifAddFrame(page, encoder);
+        }
       },
       page,
     });

@@ -67,9 +67,9 @@ ${readCode('events/app.tsx')}
 Output:
 
 ${await run('events', async ({ snapshot, page }) => {
-  await snapshot();
+  await snapshot(1);
   page.click('button');
-  await snapshot();
+  await snapshot(1);
 })}
 
 ## State
@@ -97,9 +97,9 @@ ${readCode('don-children/app.tsx')}
 Output:
 
 ${await run('don-children', async ({ page, snapshot }) => {
-  await snapshot();
+  await snapshot(1);
   await page.click('button');
-  await snapshot();
+  await snapshot(1);
 })}
 
 ### Update state
@@ -108,9 +108,9 @@ ${readCode('data-set/app.tsx')}
 Output:
 
 ${await run('data-set', async ({ snapshot, page }) => {
-  await snapshot();
+  await snapshot(1);
   page.click('button');
-  await snapshot();
+  await snapshot(1);
 })}
 
 ### Data in attributes
@@ -119,13 +119,13 @@ ${readCode('data-attributes/app.tsx')}
 Output:
 
 ${await run('data-attributes', async ({ snapshot, page }) => {
-  await snapshot();
+  await snapshot(1);
   await page.click('button');
-  await snapshot();
+  await snapshot(1);
   await page.click('button');
-  await snapshot();
+  await snapshot(1);
   await page.click('button');
-  await snapshot();
+  await snapshot(1);
 })}
 
 ### Automatic binding
@@ -134,11 +134,11 @@ ${readCode('dd-model/app.tsx')}
 Output:
 
 ${await run('dd-model', async ({ snapshot, page }) => {
-  await snapshot();
+  await snapshot(1);
   await page.click('input', { clickCount: 3 });
   for (const c of 'there'.split('')) {
     await page.type('input', c);
-    await snapshot();
+    await snapshot(1);
   }
 })}
 
@@ -162,6 +162,20 @@ Output:
 
 ${await run('pathifier')}
 
+## Recipies
+
+How to handle common tasks with domdom
+
+### Routing
+
+${readCode('routing/app.tsx')}
+Output:
+
+${await run('routing', async ({ snapshot, page }) => {
+  await snapshot(3);
+  await page.click('button');
+  await snapshot(3);
+})}
 `;
 
   sh.cd(current);

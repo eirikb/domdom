@@ -30,3 +30,4 @@
     - Support for re-usable components (with partition of global state)
     - No local state
 - TSX/JSX return pure elements
+- Close to DOM
