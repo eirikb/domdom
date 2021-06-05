@@ -1,0 +1,36 @@
+on: push
+
+name: Build readme
+
+jobs:
+  readme:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+
+      - name: install
+        run: npm i
+
+      - name: build domdom
+        run: npm run build
+
+      - name: install extra
+        run: npm i --no-save shelljs puppeteer http-server gifencoder png-js ts-node
+
+      - name: readme
+        run: |
+          cd readme
+          echo START
+          ../node_modules/.bin/ts-node build.ts
+          echo DONE!
+
+      - name: Push new readme
+        run: |
+          git config --global user.name 'Eirik Brandtzæg'
+          git config --global user.email 'eirikb@users.noreply.github.com'
+          git commit -am "Automatically built readme!"
+          git push

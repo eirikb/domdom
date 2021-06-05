@@ -55,10 +55,14 @@ export class GodMode<T> {
   public React: React;
   private readonly domdom: Domdom;
 
-  constructor(domdom: Domdom) {
+  constructor(initialData: T, domdom: Domdom) {
     this.domdom = domdom;
     this.data = this.proxify({}) as T;
     this.React = domdom.React;
+
+    for (const [key, value] of Object.entries(initialData)) {
+      this.data[key] = value;
+    }
   }
 
   private _set = (path: string[], value: any) => {
