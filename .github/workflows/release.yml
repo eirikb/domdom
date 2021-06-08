@@ -1,0 +1,66 @@
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        description: 'Version'
+
+name: Build and publish
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+
+      - name: Install
+        run: npm i
+
+      - name: Test
+        run: npm run test
+
+      - name: Build domdom
+        run: npm run build
+
+      - name: Git config
+        run: |
+          git config --global user.name 'Eirik Brandtzæg'
+          git config --global user.email 'eirikb@eirikb.no'
+
+      - name: Set version
+        run: npm version ${{ github.event.inputs.version }}
+
+      - name: Install extra
+        run: npm i --no-save shelljs puppeteer http-server gifencoder png-js ts-node
+
+      - name: Build readme
+        run: |
+          cd readme
+          echo START
+          ../node_modules/.bin/ts-node build.ts
+          echo DONE!
+
+      - name: Push version and reandme
+        run: |
+          git commit -am "CI Readme + Publish!"
+          git status
+          if git diff-index --quiet HEAD; then
+            git push
+          else
+            echo "No changes"
+          fi
+
+      - name: Create Release Draft
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          draft: false
+          tag_name: v${{ github.event.input.version }}
+
+      - name: Publish
+        run: npm publish
