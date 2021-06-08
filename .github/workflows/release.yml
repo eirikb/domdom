@@ -50,13 +50,18 @@ jobs:
       - name: Git push
         run: git push
 
+      - name: Set env
+        run: echo "PKG_VERSION=$(npm show . version)" >> $GITHUB_ENV
+
       - name: Create Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          tag_name: v${{ env.PKG_VERSION }}
+          release_name: Release v${{ env.PKG_VERSION }}
           draft: false
-          tag_name: v${{ github.event.inputs.version }}
+          prerelease: false
 
       - name: Publish
         run: npm publish
