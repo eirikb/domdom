@@ -45,7 +45,7 @@ jobs:
         run: git commit -am "Updated readme" || true
 
       - name: Set version
-        run: npm version ${{ github.event.inputs.version }}
+        run: npm version ${{ github.event.inputs.version }} --no-git-tag-version
 
       - name: Git push
         run: git push
