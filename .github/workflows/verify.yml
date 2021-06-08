@@ -1,9 +1,9 @@
 on: push
 
-name: Build readme
+name: Verify
 
 jobs:
-  readme:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -14,6 +14,9 @@ jobs:
 
       - name: install
         run: npm i
+
+      - name: test
+        run: npm run test
 
       - name: build domdom
         run: npm run build
@@ -27,10 +30,3 @@ jobs:
           echo START
           ../node_modules/.bin/ts-node build.ts
           echo DONE!
-
-      - name: Push new readme
-        run: |
-          git config --global user.name 'Eirik Brandtzæg'
-          git config --global user.email 'eirikb@users.noreply.github.com'
-          git commit -am "Automatically built readme!"
-          git push
