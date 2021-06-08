@@ -9,6 +9,7 @@ name: Build and publish
 
 jobs:
   build:
+    name: Build and publish
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -48,7 +49,7 @@ jobs:
       - name: Git push
         run: git push
 
-      - name: Create Release Draft
+      - name: Create Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -58,3 +59,5 @@ jobs:
 
       - name: Publish
         run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
