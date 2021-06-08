@@ -41,7 +41,7 @@ jobs:
           ../node_modules/.bin/ts-node build.ts
 
       - name: Git commit
-        run: git commit -am "Updated readme"
+        run: git commit -am "Updated readme" || true
 
       - name: Set version
         run: npm version ${{ github.event.inputs.version }}
