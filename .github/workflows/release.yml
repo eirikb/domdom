@@ -45,13 +45,25 @@ jobs:
         run: git commit -am "Updated readme" || true
 
       - name: Set version
-        run: npm version ${{ github.event.inputs.version }} --no-git-tag-version
+        run: npm version --no-git-tag-version ${{ github.event.inputs.version }}
 
       - name: Git push
         run: git push
 
+      - name: TEST
+        run: |
+          npm show . version
+          git status
+          git tag -l
+          git tag -v
+
       - name: Set env
         run: echo "PKG_VERSION=$(npm show . version)" >> $GITHUB_ENV
+
+      - name: TEST2
+        run: |
+          echo $GITHUB_ENV
+          echo ${{ env.PKG_VERSION }}
 
       - name: Create Release
         uses: actions/create-release@v1
