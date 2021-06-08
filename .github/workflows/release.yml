@@ -53,6 +53,7 @@ jobs:
       - name: Set env
         run: |
           VER=$(node -p 'require("./package.json").version')
+          echo "Version $VER"
           echo "PKG_VERSION=$VER" >> $GITHUB_ENV
 
       - name: Create Release
