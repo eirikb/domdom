@@ -50,23 +50,10 @@ jobs:
       - name: Git push
         run: git push
 
-      - name: TEST
-        run: |
-          npm show . version
-          git status
-          git tag -l
-          git tag -v
-
       - name: Set env
         run: |
           VER=$(node -p 'require("./package.json").version')
           echo "PKG_VERSION=$VER" >> $GITHUB_ENV
-
-      - name: TEST2
-        run: |
-          echo VER?! $VER
-          echo $GITHUB_ENV
-          echo ${{ env.PKG_VERSION }}
 
       - name: Create Release
         uses: actions/create-release@v1
