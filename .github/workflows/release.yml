@@ -31,28 +31,22 @@ jobs:
           git config --global user.name 'Eirik Brandtzæg'
           git config --global user.email 'eirikb@eirikb.no'
 
-      - name: Set version
-        run: npm version ${{ github.event.inputs.version }}
-
       - name: Install extra
         run: npm i --no-save shelljs puppeteer http-server gifencoder png-js ts-node
 
       - name: Build readme
         run: |
           cd readme
-          echo START
           ../node_modules/.bin/ts-node build.ts
-          echo DONE!
 
-      - name: Push version and reandme
-        run: |
-          git commit -am "CI Readme + Publish!"
-          git status
-          if git diff-index --quiet HEAD; then
-            git push
-          else
-            echo "No changes"
-          fi
+      - name: Git commit
+        run: git commit -am "Updated readme"
+
+      - name: Set version
+        run: npm version ${{ github.event.inputs.version }}
+
+      - name: Git push
+        run: git push
 
       - name: Create Release Draft
         uses: actions/create-release@v1
