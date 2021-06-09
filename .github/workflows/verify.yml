@@ -12,8 +12,9 @@ jobs:
         with:
           node-version: 14
 
-      - name: install
-        run: npm i
+      - run: npm i
+
+      - run: npm run lint
 
       - name: test
         run: npm run test
