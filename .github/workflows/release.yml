@@ -51,7 +51,7 @@ jobs:
           echo "PKG_VERSION=$VER" >> $GITHUB_ENV
 
       - name: Git commit
-        run: git commit -am "Automatic update ${{ env.PGK_VERSION }}!" || true
+        run: git commit -am "Automatic update ${{ env.PKG_VERSION }}!" || true
 
       - name: Git push
         run: git push
