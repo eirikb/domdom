@@ -19,30 +19,27 @@ jobs:
           node-version: 12
           registry-url: https://registry.npmjs.org/
 
-      - name: Install
-        run: npm i
+      - run: npm i
 
-      - name: Test
-        run: npm run test
+      - run: npm run lint
 
-      - name: Build domdom
-        run: npm run build
+      - run: npm run test
+
+      - run: npm run build
 
       - name: Git config
         run: |
           git config --global user.name 'Eirik Brandtzæg'
           git config --global user.email 'eirikb@eirikb.no'
 
-      - name: Install extra
-        run: npm i --no-save shelljs puppeteer http-server gifencoder png-js ts-node
+      - run: npm i --no-save shelljs puppeteer http-server gifencoder png-js ts-node
 
       - name: Build readme
         run: |
           cd readme
           ../node_modules/.bin/ts-node build.ts
 
-      - name: Set version
-        run: npm version --no-git-tag-version ${{ github.event.inputs.version }}
+      - run: npm version --no-git-tag-version ${{ github.event.inputs.version }}
 
       - name: Set env
         run: |
@@ -50,11 +47,9 @@ jobs:
           echo "Version $VER"
           echo "PKG_VERSION=$VER" >> $GITHUB_ENV
 
-      - name: Git commit
-        run: git commit -am "Automatic update ${{ env.PKG_VERSION }}!" || true
+      - run: git commit -am "Automatic update ${{ env.PKG_VERSION }}!" || true
 
-      - name: Git push
-        run: git push
+      - run: git push
 
       - name: Create Release
         uses: actions/create-release@v1

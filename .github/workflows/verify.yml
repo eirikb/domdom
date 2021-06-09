@@ -16,14 +16,11 @@ jobs:
 
       - run: npm run lint
 
-      - name: test
-        run: npm run test
+      - run: npm run test
 
-      - name: build domdom
-        run: npm run build
+      - run: npm run build
 
-      - name: install extra
-        run: npm i --no-save shelljs puppeteer http-server gifencoder png-js ts-node
+      - run: npm i --no-save shelljs puppeteer http-server gifencoder png-js ts-node
 
       - name: readme
         run: |
