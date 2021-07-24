@@ -11,7 +11,7 @@ interface Data {
   desc: boolean;
 }
 
-const { React, init, don, pathOf, data } = domdom<Data>({
+const { React, init, don, path, data } = domdom<Data>({
   users: [{ name: 'Yup' }, { name: 'World' }, { name: 'Hello' }],
   filter: '',
   desc: false,
@@ -25,7 +25,7 @@ const view = (
     <input type="text" placeholder="filter" dd-model="filter" />
 
     <ul>
-      {don(pathOf().users)
+      {don(path().users)
         .filterOn('filter', (user, { onValue }) => user.name.includes(onValue))
         .sortOn('desc', (a, b, { onValue }) =>
           onValue ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name)

@@ -9,4 +9,4 @@ export const React = dd.React;
 export const init = dd.init;
 export const data = dd.data;
 export const don = dd.don;
-export const pathOf = dd.pathOf;
+export const path = dd.path;

@@ -9,13 +9,13 @@ interface Data {
   users: User[];
 }
 
-const { React, init, don, pathOf } = domdom<Data>({
+const { React, init, don, path } = domdom<Data>({
   users: [{ name: 'Yup' }, { name: 'World' }, { name: 'Hello' }],
 });
 
 const view = (
   <ul>
-    {don(pathOf().users.$)
+    {don(path().users.$)
       .filter(user => user.name !== 'World')
       .sort((a, b) => a.name.localeCompare(b.name))
       .map(user => (

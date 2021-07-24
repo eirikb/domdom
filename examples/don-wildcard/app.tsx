@@ -9,13 +9,13 @@ interface Data {
   users: User[];
 }
 
-const { React, init, don, pathOf } = domdom<Data>({
+const { React, init, don, path } = domdom<Data>({
   users: [{ name: 'Hello' }, { name: 'World' }],
 });
 
 const view = (
   <ul>
-    {don(pathOf().users.$).map(user => (
+    {don(path().users.$).map(user => (
       <li>{user.name}</li>
     ))}
   </ul>

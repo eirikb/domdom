@@ -35,7 +35,7 @@ const p = (o, path: string[] = [], hack = false) => {
   });
 };
 
-function pathus(path: string | PathOf): string {
+function pathus(path: string | Path): string {
   if (typeof path === 'string') return path;
   return path.$path;
 }
@@ -115,7 +115,7 @@ export class GodMode<T> {
     });
   }
 
-  don = (path: string | PathOf): Pathifier => {
+  don = (path: string | Path): Pathifier => {
     const pathAsString = pathus(path);
 
     const self = this;
@@ -148,26 +148,26 @@ export class GodMode<T> {
     return pathifier;
   };
 
-  trigger = (path: string | PathOf, value?: any) => {
+  trigger = (path: string | Path, value?: any) => {
     return this.domdom.trigger(pathus(path), value);
   };
 
-  get = <T = any>(path?: string | PathOf): T | undefined => {
+  get = <T = any>(path?: string | Path): T | undefined => {
     if (!path) return this.domdom.get();
     return this.domdom.get(pathus(path));
   };
 
-  set = (path: string | PathOf, value: any, byKey?: string) => {
+  set = (path: string | Path, value: any, byKey?: string) => {
     this.domdom.set(pathus(path), value, byKey);
   };
 
-  unset = (path: string | PathOf) => {
+  unset = (path: string | Path) => {
     this.domdom.unset(pathus(path));
   };
 
   on = <T = any>(
     flags: string,
-    path: string | PathOf,
+    path: string | Path,
     listener: ListenerCallbackWithType<T>
   ): string => {
     return this.domdom.on([flags, pathus(path)].join(' '), (value, opts) =>
@@ -178,31 +178,31 @@ export class GodMode<T> {
   init = (parent: HTMLElement, child?: HTMLElement) =>
     this.domdom.init(parent, child);
 
-  pathOf<X = T>(o?: X): PathOf<X> {
-    return p(o) as PathOf<X>;
+  path<X = T>(o?: X): Path<X> {
+    return p(o) as Path<X>;
   }
 }
 
-export type PathOf<T = unknown> = {
-  [P in keyof T]: PathOf<T[P]>;
+export type Path<T = unknown> = {
+  [P in keyof T]: Path<T[P]>;
 } &
   (T extends Array<infer A>
     ? {
         $path: string;
-        $: PathOf<A>;
-        $x: PathOf<A>;
-        $xx: PathOf<A>;
+        $: Path<A>;
+        $x: Path<A>;
+        $xx: Path<A>;
         $$: {
-          [key: string]: PathOf<A>;
+          [key: string]: Path<A>;
         };
-        [index: number]: PathOf<A>;
+        [index: number]: Path<A>;
       }
     : {
         $path: string;
-        $: PathOf<T>;
-        $x: PathOf<T>;
-        $xx: PathOf<T>;
+        $: Path<T>;
+        $x: Path<T>;
+        $xx: Path<T>;
         $$: {
-          [key: string]: PathOf<T>;
+          [key: string]: Path<T>;
         };
       });

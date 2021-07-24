@@ -6,7 +6,7 @@ interface Data {
   route: Route;
 }
 
-const { React, init, don, pathOf, data } = domdom<Data>({ route: 'panel-a' });
+const { React, init, don, path, data } = domdom<Data>({ route: 'panel-a' });
 
 const PanelA = () => (
   <div>
@@ -18,7 +18,7 @@ const PanelB = () => <div>Panel B! (hash is: {window.location.hash})</div>;
 
 const view = (
   <div>
-    {don(pathOf().route).map((route: Route) => {
+    {don(path().route).map((route: Route) => {
       switch (route) {
         case 'panel-b':
           return <PanelB />;
