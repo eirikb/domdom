@@ -185,11 +185,11 @@ interface Data {
   hello: string;
 }
 
-const { React, init, don, pathOf } = domdom<Data>({
+const { React, init, don, path } = domdom<Data>({
   hello: 'World!',
 });
 
-const view = <span>{don(pathOf().hello)}</span>;
+const view = <span>{don(path().hello)}</span>;
 ```
 Output:
 
@@ -207,13 +207,13 @@ interface Data {
   users: User[];
 }
 
-const { React, init, don, pathOf } = domdom<Data>({
+const { React, init, don, path } = domdom<Data>({
   users: [{ name: 'Hello' }, { name: 'World' }],
 });
 
 const view = (
   <ul>
-    {don(pathOf().users.$).map(user => (
+    {don(path().users.$).map(user => (
       <li>{user.name}</li>
     ))}
   </ul>
@@ -235,15 +235,15 @@ interface Data {
   users: User[];
 }
 
-const { React, init, don, data, pathOf } = domdom<Data>({
+const { React, init, don, data, path } = domdom<Data>({
   users: [{ name: 'Hello' }, { name: 'World' }, { name: 'Yup' }],
 });
 
 const view = (
   <div>
     <ul>
-      {don(pathOf().users.$).map(user => (
-        <li>{don(pathOf(user).name)}</li>
+      {don(path().users.$).map(user => (
+        <li>{don(path(user).name)}</li>
       ))}
     </ul>
     <button onClick={() => (data.users[1].name = '🤷')}>Click me!</button>
@@ -262,14 +262,14 @@ interface Data {
   hello: string;
 }
 
-const { React, init, don, pathOf, data } = domdom<Data>({
+const { React, init, don, path, data } = domdom<Data>({
   hello: 'World!',
 });
 
 const view = (
   <div>
     <div>A: Hello, {data.hello}</div>
-    <div>B: Hello, {don(pathOf().hello)}</div>
+    <div>B: Hello, {don(path().hello)}</div>
     <div>
       <button onClick={() => (data.hello = 'there!')}>Click me!</button>
     </div>
@@ -288,15 +288,15 @@ interface Data {
   toggle: boolean;
 }
 
-const { React, init, don, pathOf, data } = domdom<Data>({
+const { React, init, don, path, data } = domdom<Data>({
   toggle: false,
 });
 
 const view = (
   <div>
     <button onClick={() => (data.toggle = !data.toggle)}>Toggle</button>
-    <button disabled={don(pathOf().toggle)}>A</button>
-    <button disabled={don(pathOf().toggle).map(res => !res)}>B</button>
+    <button disabled={don(path().toggle)}>A</button>
+    <button disabled={don(path().toggle).map(res => !res)}>B</button>
   </div>
 );
 ```
@@ -312,13 +312,13 @@ interface Data {
   hello: string;
 }
 
-const { React, init, don, pathOf } = domdom<Data>({
+const { React, init, don, path } = domdom<Data>({
   hello: 'World!',
 });
 
 const view = (
   <div>
-    <div>Hello, {don(pathOf().hello)}</div>
+    <div>Hello, {don(path().hello)}</div>
     <div>
       <input type="text" dd-model="hello" />
     </div>
@@ -354,13 +354,13 @@ interface Data {
   users: User[];
 }
 
-const { React, init, don, pathOf } = domdom<Data>({
+const { React, init, don, path } = domdom<Data>({
   users: [{ name: 'Yup' }, { name: 'World' }, { name: 'Hello' }],
 });
 
 const view = (
   <ul>
-    {don(pathOf().users.$)
+    {don(path().users.$)
       .filter(user => user.name !== 'World')
       .sort((a, b) => a.name.localeCompare(b.name))
       .map(user => (
@@ -389,7 +389,7 @@ interface Data {
   route: Route;
 }
 
-const { React, init, don, pathOf, data } = domdom<Data>({ route: 'panel-a' });
+const { React, init, don, path, data } = domdom<Data>({ route: 'panel-a' });
 
 const PanelA = () => (
   <div>
@@ -401,7 +401,7 @@ const PanelB = () => <div>Panel B! (hash is: {window.location.hash})</div>;
 
 const view = (
   <div>
-    {don(pathOf().route).map((route: Route) => {
+    {don(path().route).map((route: Route) => {
       switch (route) {
         case 'panel-b':
           return <PanelB />;
@@ -434,9 +434,9 @@ This is how I would suggest putting domdom in its own file for importing.
 
 [app.tsx](./examples/structure/app.tsx):
 ```tsx
-import { data, don, init, pathOf, React } from './domdom';
+import { data, don, init, path, React } from './domdom';
 
-const view = <div>Hello, {don(pathOf().hello)}</div>;
+const view = <div>Hello, {don(path().hello)}</div>;
 
 data.hello = 'There :)';
 
@@ -455,7 +455,7 @@ export const React = dd.React;
 export const init = dd.init;
 export const data = dd.data;
 export const don = dd.don;
-export const pathOf = dd.pathOf;
+export const path = dd.path;
 ```
 Output:
 
@@ -478,7 +478,7 @@ interface Data {
   tick: number;
 }
 
-const { React, init, don, pathOf, data } = domdom<Data>({
+const { React, init, don, path, data } = domdom<Data>({
   run: false,
   tick: 0,
 });
@@ -487,7 +487,7 @@ const view = (
   <div>
     <img
       src="https://i.imgur.com/rsD0RUq.jpg"
-      style={don(pathOf().tick).map(tick => ({ rotate: `${tick % 180}deg` }))}
+      style={don(path().tick).map(tick => ({ rotate: `${tick % 180}deg` }))}
     />
     <button onClick={() => (data.run = !data.run)}>Start/Stop</button>
   </div>
