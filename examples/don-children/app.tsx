@@ -9,15 +9,15 @@ interface Data {
   users: User[];
 }
 
-const { React, init, don, data, pathOf } = domdom<Data>({
+const { React, init, don, data, path } = domdom<Data>({
   users: [{ name: 'Hello' }, { name: 'World' }, { name: 'Yup' }],
 });
 
 const view = (
   <div>
     <ul>
-      {don(pathOf().users.$).map(user => (
-        <li>{don(pathOf(user).name)}</li>
+      {don(path().users.$).map(user => (
+        <li>{don(path(user).name)}</li>
       ))}
     </ul>
     <button onClick={() => (data.users[1].name = '🤷')}>Click me!</button>

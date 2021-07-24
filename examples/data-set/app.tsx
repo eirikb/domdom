@@ -5,14 +5,14 @@ interface Data {
   hello: string;
 }
 
-const { React, init, don, pathOf, data } = domdom<Data>({
+const { React, init, don, path, data } = domdom<Data>({
   hello: 'World!',
 });
 
 const view = (
   <div>
     <div>A: Hello, {data.hello}</div>
-    <div>B: Hello, {don(pathOf().hello)}</div>
+    <div>B: Hello, {don(path().hello)}</div>
     <div>
       <button onClick={() => (data.hello = 'there!')}>Click me!</button>
     </div>

@@ -5,13 +5,13 @@ interface Data {
   hello: string;
 }
 
-const { React, init, don, pathOf } = domdom<Data>({
+const { React, init, don, path } = domdom<Data>({
   hello: 'World!',
 });
 
 const view = (
   <div>
-    <div>Hello, {don(pathOf().hello)}</div>
+    <div>Hello, {don(path().hello)}</div>
     <div>
       <input type="text" dd-model="hello" />
     </div>

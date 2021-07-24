@@ -124,11 +124,11 @@ test('path', t => {
     };
   }
 
-  const { pathOf } = domdom<Yes>({ a: { users: [] } });
+  const { path } = domdom<Yes>({ a: { users: [] } });
 
-  t.is(pathOf().a.$path, 'a');
-  t.is(pathOf().a.users.$path, 'a.users');
-  t.is(pathOf().a.users['$id'].$path, 'a.users.$id');
+  t.is(path().a.$path, 'a');
+  t.is(path().a.users.$path, 'a.users');
+  t.is(path().a.users['$id'].$path, 'a.users.$id');
 });
 
 test('path 2', t => {
@@ -142,18 +142,18 @@ test('path 2', t => {
     };
   }
 
-  const { pathOf, data } = domdom<Yes>({ a: { users: [] } });
+  const { path, data } = domdom<Yes>({ a: { users: [] } });
   data.a = {
     users: [{ name: 'Yes!' }],
   };
 
-  t.is(pathOf().a.$path, 'a');
-  t.is(pathOf().a.users[0].$path, 'a.users.0');
+  t.is(path().a.$path, 'a');
+  t.is(path().a.users[0].$path, 'a.users.0');
 });
 
 test('godMode don', async t => {
-  const { React, init, data, pathOf, don } = domdom<any>({});
-  init(element, <div>{don(pathOf().ok).map(ok => `res ${ok}`)}</div>);
+  const { React, init, data, path, don } = domdom<any>({});
+  init(element, <div>{don(path().ok).map(ok => `res ${ok}`)}</div>);
   t.is(await html(), '<div></div>');
   data.ok = ':)';
   t.is(await html(), '<div>res :)</div>');
@@ -170,11 +170,11 @@ test('godMode on 2', async t => {
     };
   }
 
-  const { init, React, data, don, pathOf } = domdom<Yes>({ a: { users: [] } });
+  const { init, React, data, don, path } = domdom<Yes>({ a: { users: [] } });
   init(
     element,
     <div>
-      {don(pathOf().a.users.$).map<User>(user => (
+      {don(path().a.users.$).map<User>(user => (
         <b>{user.name}</b>
       ))}
     </div>
@@ -204,14 +204,14 @@ test('godMode on 3', async t => {
     };
   }
 
-  const { React, init, don, data, pathOf } = domdom<Yes>({
+  const { React, init, don, data, path } = domdom<Yes>({
     a: { users: [] },
   });
   init(
     element,
     <div>
-      {don(pathOf().a.users.$).map(u => (
-        <span>{don(pathOf(u).name)}</span>
+      {don(path().a.users.$).map(u => (
+        <span>{don(path(u).name)}</span>
       ))}
     </div>
   );
@@ -232,14 +232,14 @@ test('godMode on 4', async t => {
     };
   }
 
-  const { React, init, don, data, pathOf } = domdom<Yes>({
+  const { React, init, don, data, path } = domdom<Yes>({
     a: { users: [] },
   });
   init(
     element,
     <div>
-      {don(pathOf().a.users.$).map(user => (
-        <span>{don(pathOf(user).name)}</span>
+      {don(path().a.users.$).map(user => (
+        <span>{don(path(user).name)}</span>
       ))}
     </div>
   );
@@ -258,13 +258,13 @@ test('array is hacked for now', async t => {
     users: User[];
   }
 
-  const { React, init, don, data, pathOf } = domdom<Data>({
+  const { React, init, don, data, path } = domdom<Data>({
     users: [],
   });
   init(
     element,
     <ul>
-      {don(pathOf().users['$id']).map<User>(user => (
+      {don(path().users['$id']).map<User>(user => (
         <li>{user.name}</li>
       ))}
     </ul>
@@ -280,11 +280,11 @@ test('array is hacked for now', async t => {
 });
 
 test('trigger', t => {
-  const { on, pathOf, trigger } = domdom<any>({});
-  on('=', pathOf().a.b.c, val => {
+  const { on, path, trigger } = domdom<any>({});
+  on('=', path().a.b.c, val => {
     t.is(val, 'Yes!');
   });
-  trigger(pathOf().a.b.c, 'Yes!');
+  trigger(path().a.b.c, 'Yes!');
 });
 
 test('on noGod', t => {
@@ -309,14 +309,14 @@ test('on change', t => {
     users: User[];
   }
 
-  const { data, pathOf, on } = domdom<Data>({
+  const { data, path, on } = domdom<Data>({
     users: [],
   });
 
-  on<User>('!+*', pathOf().users.$, u => {
+  on<User>('!+*', path().users.$, u => {
     u.child = { name: 'Child!' };
   });
-  on<User>('!+*', pathOf().users.$.child!, user => {
+  on<User>('!+*', path().users.$.child!, user => {
     t.is(user.name, 'Child!');
   });
 
@@ -356,18 +356,18 @@ test('pathus', async t => {
     users: User[];
   }
 
-  const { pathOf } = domdom<Data>({
+  const { path } = domdom<Data>({
     users: [],
   });
 
-  t.is(pathOf().users.$path, 'users');
-  t.is(pathOf().users[0].$path, 'users.0');
-  t.is(pathOf().users.$$.ok.$path, 'users.$ok');
-  t.is(pathOf().users[0].$.$path, 'users.0.$');
-  t.is(pathOf().users.$.name.$path, 'users.$.name');
-  t.is(pathOf().users.$$.ok.name.$path, 'users.$ok.name');
-  t.is(pathOf().users.$x.$path, 'users.*');
-  t.is(pathOf().users.$xx.$path, 'users.**');
+  t.is(path().users.$path, 'users');
+  t.is(path().users[0].$path, 'users.0');
+  t.is(path().users.$$.ok.$path, 'users.$ok');
+  t.is(path().users[0].$.$path, 'users.0.$');
+  t.is(path().users.$.name.$path, 'users.$.name');
+  t.is(path().users.$$.ok.name.$path, 'users.$ok.name');
+  t.is(path().users.$x.$path, 'users.*');
+  t.is(path().users.$xx.$path, 'users.**');
 });
 
 test('setting initial data', async t => {
@@ -375,10 +375,10 @@ test('setting initial data', async t => {
     hello: string;
   }
 
-  const { React, init, don, pathOf } = domdom<Data>({
+  const { React, init, don, path } = domdom<Data>({
     hello: ':)',
   });
 
-  init(element, <div>{don(pathOf().hello)}</div>);
+  init(element, <div>{don(path().hello)}</div>);
   t.is(await html(), '<div>:)</div>');
 });

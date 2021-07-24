@@ -1,6 +1,6 @@
-import { data, don, init, pathOf, React } from './domdom';
+import { data, don, init, path, React } from './domdom';
 
-const view = <div>Hello, {don(pathOf().hello)}</div>;
+const view = <div>Hello, {don(path().hello)}</div>;
 
 data.hello = 'There :)';
 

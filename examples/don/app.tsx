@@ -5,11 +5,11 @@ interface Data {
   hello: string;
 }
 
-const { React, init, don, pathOf } = domdom<Data>({
+const { React, init, don, path } = domdom<Data>({
   hello: 'World!',
 });
 
-const view = <span>{don(pathOf().hello)}</span>;
+const view = <span>{don(path().hello)}</span>;
 // Important part
 
 init(document.body, view);

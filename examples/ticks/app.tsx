@@ -5,7 +5,7 @@ interface Data {
   tick: number;
 }
 
-const { React, init, don, pathOf, data } = domdom<Data>({
+const { React, init, don, path, data } = domdom<Data>({
   run: false,
   tick: 0,
 });
@@ -14,7 +14,7 @@ const view = (
   <div>
     <img
       src="https://i.imgur.com/rsD0RUq.jpg"
-      style={don(pathOf().tick).map(tick => ({ rotate: `${tick % 180}deg` }))}
+      style={don(path().tick).map(tick => ({ rotate: `${tick % 180}deg` }))}
     />
     <button onClick={() => (data.run = !data.run)}>Start/Stop</button>
   </div>
