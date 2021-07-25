@@ -634,7 +634,7 @@ test.skip('Listener in when 2', async t => {
 test('Mounted', async t => {
   t.plan(1);
 
-  const Hello = ({}, { mounted }: Opts) => {
+  const Hello = (_, { mounted }: Opts) => {
     mounted(() => t.pass());
     return <div />;
   };
@@ -652,7 +652,7 @@ test('Mounted', async t => {
 test('Mounted on/off', async t => {
   t.plan(2);
 
-  const Hello = ({}, { mounted }: Opts) => {
+  const Hello = (_, { mounted }: Opts) => {
     mounted(() => t.pass());
     return <div />;
   };
@@ -762,7 +762,7 @@ test('Update array without element', async t => {
 });
 
 test('Containment', async t => {
-  const Button = ({}, { children }: Opts) => <button>{children}</button>;
+  const Button = (_, { children }: Opts) => <button>{children}</button>;
 
   init(element, <Button>Test</Button>);
   t.is(await html(), '<button>Test</button>');
@@ -1108,6 +1108,7 @@ test('When + change', async t => {
           case true:
             return <p>{don('ok')}</p>;
         }
+        return null;
       })}
     </div>
   );
@@ -1127,6 +1128,7 @@ test('When + change 2', async t => {
           case true:
             return <p>{don('ok')}</p>;
         }
+        return null;
       })}
     </div>
   );
@@ -1156,6 +1158,7 @@ test('When + filterOn 2', async t => {
               </div>
             );
         }
+        return null;
       })}
     </div>
   );
@@ -1190,6 +1193,7 @@ test('When + filterOn', async t => {
               </div>
             );
         }
+        return null;
       })}
     </div>
   );
@@ -1285,6 +1289,7 @@ test('filterOn mounted destroy mounted', async t => {
               </div>
             );
         }
+        return null;
       })}
     </div>
   );
@@ -1323,6 +1328,7 @@ test('When + filterOn const element', async t => {
               </div>
             );
         }
+        return null;
       })}
     </div>
   );
@@ -1340,7 +1346,7 @@ test('When + filterOn const element', async t => {
 test('When + filterOn const text', async t => {
   const view = (
     <div>
-      {don('show').map(t => {
+      {don('show').map((t): any => {
         switch (t) {
           case true:
             return (
@@ -1354,6 +1360,7 @@ test('When + filterOn const text', async t => {
               </div>
             );
         }
+        return null;
       })}
     </div>
   );
@@ -1478,6 +1485,7 @@ test('When and on no duplicated', async t => {
           case 'ready':
             return <Yes />;
         }
+        return null;
       })}
     </div>
   );
@@ -1527,6 +1535,7 @@ test('When + pathifier', async t => {
               </div>
             );
         }
+        return null;
       })}
     </div>
   );
@@ -1894,6 +1903,7 @@ test('TS and types', async t => {
     <div>
       {don('ok').map<Ok>(ok => {
         t.is(ok.name, 'Hello');
+        return null;
       })}
     </div>
   );
@@ -2031,7 +2041,7 @@ test('Pathifier instead of Domponent', async t => {
 });
 
 test('Pathifier instead of Domponent with mounted', async t => {
-  function Ok({}, { mounted }) {
+  function Ok(_, { mounted }) {
     mounted(() => {
       t.pass();
     });
@@ -2090,12 +2100,15 @@ test('xmlns', async t => {
   init(
     element,
     <div>
-      <a xmlns="http://eh/eh">
+      <a xmlns="http://eh/eh" href="eh">
         <b>eh</b>
       </a>
     </div>
   );
-  t.is(await html(), '<div><a xmlns="http://eh/eh"><b>eh</b></a></div>');
+  t.is(
+    await html(),
+    '<div><a xmlns="http://eh/eh" href="eh"><b>eh</b></a></div>'
+  );
   t.is(document.querySelector('a')?.namespaceURI, 'http://eh/eh');
   t.is(document.querySelector('b')?.namespaceURI, 'http://eh/eh');
 });
