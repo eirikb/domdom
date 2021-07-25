@@ -68,8 +68,9 @@ export class GodMode<T> {
   private _set = (path: string[], value: any) => {
     value = deregulate(value);
     const p = path.join('.');
-    if (Array.isArray(this.domdom.get(p))) {
-      this.domdom.set(p, []);
+    const oldValue = this.domdom.get(p);
+    if (Array.isArray(oldValue) || isProbablyPlainObject(oldValue)) {
+      this.domdom.set(p, undefined);
     }
     this.domdom.set(p, value);
   };
