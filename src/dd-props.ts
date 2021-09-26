@@ -1,61 +1,6 @@
 import { Domode, Mountable } from './types';
 import { BaseTransformer, Data } from '@eirikb/data';
-import { DomPathifier } from './pathifier';
-import { isProbablyPlainObject } from './dom-stower';
-
-function setAttribute(element: HTMLElement, key: string, value: any) {
-  if (value === null) value = '';
-
-  if (key === 'className') key = 'class';
-
-  if (key.startsWith('data-')) {
-    const dataKey = key.split('-')[1];
-    element.dataset[dataKey] = value;
-  } else if (isProbablyPlainObject(value)) {
-    if (!element[key]) {
-      element[key] = value;
-    } else {
-      Object.assign(element[key], value);
-    }
-  } else {
-    if (typeof value === 'boolean' || typeof value === 'undefined') {
-      if (value) {
-        element.setAttribute(key, '');
-      } else {
-        element.removeAttribute(key);
-      }
-    } else {
-      element.setAttribute(key, value);
-    }
-  }
-}
-
-class AttributeTransformer extends BaseTransformer {
-  element: Domode | HTMLInputElement;
-  private readonly key: string;
-
-  constructor(element: Domode | HTMLInputElement, key: string) {
-    super();
-    this.element = element;
-    this.key = key;
-  }
-
-  setVal(value: any) {
-    setAttribute(this.element, this.key, value);
-  }
-
-  add(_: number, entry): void {
-    this.setVal(entry.value);
-  }
-
-  remove(_: number, __): void {
-    this.setVal(undefined);
-  }
-
-  update(_: number, __: number, entry): void {
-    this.setVal(entry.value);
-  }
-}
+import { AttributeTransformer, setAttribute } from './transformers';
 
 export default (
   data: Data,
@@ -112,13 +57,8 @@ export default (
     }
 
     for (let [key, value] of Object.entries(props)) {
-      if (value && value instanceof DomPathifier) {
-        if (value.transformer instanceof AttributeTransformer) {
-          value.transformer.element = element;
-        } else {
-          value.transformer = new AttributeTransformer(element, key);
-        }
-        mountables.push(value);
+      if (value instanceof BaseTransformer) {
+        value.addTransformer(new AttributeTransformer(data, element, key));
       } else if (key.startsWith('on')) {
         const name = key[2].toLocaleLowerCase() + key.slice(3);
         element.addEventListener(name, (...args) => value(...args));

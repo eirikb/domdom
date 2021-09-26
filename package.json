@@ -40,7 +40,7 @@
   },
   "module": "dist/domdom.esm.js",
   "dependencies": {
-    "@eirikb/data": "~4.0.5"
+    "@eirikb/data": "~5.0.0"
   },
   "devDependencies": {
     "ava": "^3.15.0",

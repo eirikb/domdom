@@ -2,7 +2,7 @@ import { serial as test } from 'ava';
 // @ts-ignore
 import browserEnv from 'browser-env';
 import domdom from '../src';
-import { isProbablyPlainObject } from '../src/dom-stower';
+import { isProbablyPlainObject } from '../src/halp';
 
 browserEnv();
 
@@ -381,4 +381,27 @@ test('setting initial data', async t => {
 
   init(element, <div>{don(path().hello)}</div>);
   t.is(await html(), '<div>:)</div>');
+});
+
+test('Types please', async t => {
+  interface Data {
+    hello: { [key: string]: number };
+  }
+
+  const { React, init, don, path } = domdom<Data>({
+    hello: {
+      a: 42,
+      b: 137,
+    },
+  });
+
+  init(
+    element,
+    <div>
+      {don(path().hello.$)
+        .map(i => `${i}`)
+        .map(i => i)}
+    </div>
+  );
+  t.is(await html(), '<div>42137</div>');
 });
