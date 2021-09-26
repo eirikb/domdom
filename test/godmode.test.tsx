@@ -2,7 +2,7 @@ import { serial as test } from 'ava';
 // @ts-ignore
 import browserEnv from 'browser-env';
 import domdom from '../src';
-import { isProbablyPlainObject } from '../src/halp';
+import { isProbablyPlainObject } from '../src/transformers';
 
 browserEnv();
 

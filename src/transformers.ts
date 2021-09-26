@@ -1,7 +1,10 @@
 import { BaseTransformer, Data } from '@eirikb/data';
 import { Entry } from '../../data';
-import { isProbablyPlainObject } from './halp';
 import { Domode } from 'types';
+
+export function isProbablyPlainObject(obj: any) {
+  return typeof obj === 'object' && obj !== null && obj.constructor === Object;
+}
 
 function escapeChild(child: any): Node {
   if (child instanceof Node) return child;

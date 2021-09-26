@@ -103,42 +103,12 @@ export class ReactImpl implements React {
 }
 
 export class Domdom<T> extends GodMode<T> {
-  // private readonly _data: Data;
   React: React;
 
   constructor(data: Data, initialData: T, proxyEnabled = true) {
     super(data, initialData, proxyEnabled);
-    // this._data = data;
     this.React = new ReactImpl(this._data);
   }
-
-  // don = (path: string): BaseTransformer<any, any> => {
-  //   return new DataTransformer(this._data, path);
-  // };
-  //
-  // set = (path: string, value: any, byKey?: string) => {
-  //   this._data.set(path, value, byKey);
-  // };
-  //
-  // unset = (path: string) => {
-  //   this._data.unset(path);
-  // };
-
-  off = (refs: string) => this._data.off(refs);
-
-  // get = <T = any>(path?: string): T | undefined => {
-  //   if (!path) return this._data.get();
-  //   return this._data.get(path);
-  // };
-  //
-  // trigger = (path: string, value?: any) => {
-  //   return this._data.trigger(path, value);
-  // };
-  //
-  // on = <T = any>(
-  //   flagsAndPath: string,
-  //   listener: ListenerCallbackWithType<T>
-  // ): string => this._data.on(flagsAndPath, listener);
 
   init = (parent: HTMLElement, child?: HTMLElement) => {
     const domSquint = new DomSquint(parent);
