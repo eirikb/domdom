@@ -1,8 +1,7 @@
-import { Data, Pathifier } from '@eirikb/data';
+import { Data, Pathifier, GodMode } from '@eirikb/data';
 import { DomSquint } from './dom-squint';
 import ddProps from './dd-props';
 import { Domode, Opts, React } from './types';
-import { GodMode } from '../../data';
 import { Transformers } from './transformers';
 
 export class ReactImpl implements React {
