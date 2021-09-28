@@ -1,5 +1,4 @@
-import { BaseTransformer, Data } from '@eirikb/data';
-import { Entry } from '../../data';
+import { BaseTransformer, Data, Entry } from '@eirikb/data';
 import { Domode } from 'types';
 
 export function isProbablyPlainObject(obj: any) {
