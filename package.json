@@ -1,6 +1,6 @@
 {
   "name": "@eirikb/domdom",
-  "version": "8.1.1",
+  "version": "9.0.0",
   "description": "The proactive web front-end framework for the unprofessional",
   "scripts": {
     "build": "tsdx build",
