@@ -80,7 +80,7 @@ npx parcel index.html
 [index.html](./examples/hello-world/index.html):
 ```html
 <body>
-<script src="app.tsx"></script>
+<script type="module" src="app.tsx"></script>
 </body>
 ```
 [app.tsx](./examples/hello-world/app.tsx):
@@ -503,4 +503,3 @@ const view = (
 init(document.body, view);
 ```
 
-  

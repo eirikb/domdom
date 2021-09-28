@@ -23,11 +23,14 @@ async function html() {
   return element.innerHTML;
 }
 
-let { init, React, get, set, unset, don, trigger, on } = new Domdom(new Data());
+let { init, React, get, set, unset, don, trigger, on } = new Domdom(
+  new Data(),
+  {}
+);
 
 test.beforeEach(() => {
   createElement();
-  const d = new Domdom(new Data());
+  const d = new Domdom(new Data(), {});
   init = d.init;
   React = d.React;
   set = d.set;
@@ -36,6 +39,11 @@ test.beforeEach(() => {
   don = d.don;
   trigger = d.trigger;
   on = d.on;
+});
+
+test('Hello, world!', async t => {
+  init(element, <div>Hello, world!</div>);
+  t.is(await html(), '<div>Hello, world!</div>');
 });
 
 test('Component', async t => {
@@ -1782,13 +1790,13 @@ test('attributes', async t => {
 test('path should not be part of data', async t => {
   t.plan(3);
   init(element, <div>{don('test')}</div>);
-  on('!+* test', val => {
+  on('!+*', 'test', val => {
     t.deepEqual(val, { hello: 'world' });
   });
   set('test', {
     hello: 'world',
   });
-  on('!+* test', val => {
+  on('!+*', 'test', val => {
     t.deepEqual(val, { hello: 'world' });
   });
   t.is('<div>{"hello":"world"}</div>', await html());
@@ -1798,7 +1806,7 @@ test('dd-model', async t => {
   const input = <input type="text" dd-model="test" />;
   init(element, <div>{input}</div>);
   await html();
-  const event = new Event('input');
+  const event = new window.Event('input');
   input.value = 'Yes!';
   input.dispatchEvent(event);
   t.is(get('test'), 'Yes!');
@@ -1815,7 +1823,7 @@ test('sub-path set', async t => {
   );
   set('test', { show: true });
   await html();
-  document.querySelector('button')!.dispatchEvent(new Event('click'));
+  document.querySelector('button')!.dispatchEvent(new window.Event('click'));
   t.deepEqual(get('test'), {
     show: true,
     click: true,
@@ -1833,12 +1841,12 @@ test('sub-path get', async t => {
   );
   set('test', { show: true });
   await html();
-  document.querySelector('button')!.dispatchEvent(new Event('click'));
+  document.querySelector('button')!.dispatchEvent(new window.Event('click'));
   t.deepEqual(get('test'), {
     show: true,
     click: true,
   });
-  document.querySelector('button')!.dispatchEvent(new Event('click'));
+  document.querySelector('button')!.dispatchEvent(new window.Event('click'));
   t.deepEqual(get('test'), {
     show: true,
     click: false,
@@ -1854,14 +1862,14 @@ test('sub-path trigger', async t => {
       ))}
     </div>
   );
-  on('= test.click', t.pass);
+  on('=', 'test.click', t.pass);
   set('test', { show: true });
   await html();
-  document.querySelector('button')!.dispatchEvent(new Event('click'));
+  document.querySelector('button')!.dispatchEvent(new window.Event('click'));
 });
 
 test('Domponent-listeners should not affect global listeners', async t => {
-  on('+!* test', t.pass);
+  on('+!*', 'test', t.pass);
 
   function T() {
     return (
@@ -1885,7 +1893,7 @@ test('Domponent-listeners should not affect global listeners', async t => {
 });
 
 test('global listener start by itself', async t => {
-  on('+!* test', t.pass);
+  on('+!*', 'test', t.pass);
   set('test', 'YES!');
 });
 

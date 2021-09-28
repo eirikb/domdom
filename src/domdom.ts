@@ -1,9 +1,8 @@
-import { Data, ListenerCallbackWithType, Pathifier } from '@eirikb/data';
-import { DomStower } from './dom-stower';
+import { Data, Pathifier, GodMode } from '@eirikb/data';
 import { DomSquint } from './dom-squint';
 import ddProps from './dd-props';
 import { Domode, Opts, React } from './types';
-import { DomPathifier } from './pathifier';
+import { Transformers } from './transformers';
 
 export class ReactImpl implements React {
   private readonly data: Data;
@@ -16,7 +15,7 @@ export class ReactImpl implements React {
     input: string | Function,
     props?: { [key: string]: any },
     ...children: any[]
-  ): Domode | Pathifier {
+  ): Domode {
     return this._createElement(input, props, undefined, ...children);
   }
 
@@ -25,7 +24,7 @@ export class ReactImpl implements React {
     props?: { [key: string]: any },
     namespaceURI?: string,
     ...children: any[]
-  ): Domode | Pathifier {
+  ): Domode {
     children = [].concat(...children);
 
     if (typeof input === 'function') {
@@ -36,7 +35,8 @@ export class ReactImpl implements React {
           cbs.push(cb);
         },
       };
-      const res = input({ ...props }, options) as Domode | DomPathifier;
+      const res = input({ ...props }, options) as Domode;
+      res.mountables = res.mountables ?? [];
       res.mountables.push({
         mounted() {
           for (const cb of cbs) {
@@ -71,22 +71,28 @@ export class ReactImpl implements React {
       ) as Domode;
     };
 
+    const p = new Pathifier(this.data, new Transformers(el, this.data));
     el.mounted = () => {
       for (const mountable of el.mountables) {
         mountable.mounted();
       }
+      p.nodes().forEach(node =>
+        node.value?.mountables?.forEach(cb => cb.mounted())
+      );
+      p.start();
     };
     el.unmounted = () => {
       for (let mountable of el.mountables) {
         mountable.unmounted();
       }
+      p.nodes().forEach(node =>
+        node.value?.mountables?.forEach(cb => cb.unmounted())
+      );
+      p.stop();
     };
 
-    const stower = new DomStower(el);
-
     for (let index = 0; index < children.length; index++) {
-      const child = children[index];
-      stower.add(child, index);
+      p.put(index, children[index]);
     }
 
     ddProps(this.data, el.mountables, el, props);
@@ -95,42 +101,13 @@ export class ReactImpl implements React {
   }
 }
 
-export class Domdom {
-  private readonly _data: Data;
+export class Domdom<T> extends GodMode<T> {
   React: React;
 
-  constructor(data: Data) {
-    this._data = data;
+  constructor(data: Data, initialData: T, proxyEnabled = true) {
+    super(data, initialData, proxyEnabled);
     this.React = new ReactImpl(this._data);
   }
-
-  don = (path: string): Pathifier => {
-    return new DomPathifier(this._data, path);
-  };
-
-  set = (path: string, value: any, byKey?: string) => {
-    this._data.set(path, value, byKey);
-  };
-
-  unset = (path: string) => {
-    this._data.unset(path);
-  };
-
-  off = (refs: string) => this._data.off(refs);
-
-  get = <T = any>(path?: string): T | undefined => {
-    if (!path) return this._data.get();
-    return this._data.get(path);
-  };
-
-  trigger = (path: string, value?: any) => {
-    return this._data.trigger(path, value);
-  };
-
-  on = <T = any>(
-    flagsAndPath: string,
-    listener: ListenerCallbackWithType<T>
-  ): string => this._data.on(flagsAndPath, listener);
 
   init = (parent: HTMLElement, child?: HTMLElement) => {
     const domSquint = new DomSquint(parent);
