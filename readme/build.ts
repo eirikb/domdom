@@ -130,10 +130,10 @@ ${await run('data-attributes', async ({ snapshot, page }) => {
 
 ### Automatic binding
 
-${readCode('dd-model/app.tsx')}
+${readCode('bind/app.tsx')}
 Output:
 
-${await run('dd-model', async ({ snapshot, page }) => {
+${await run('bind', async ({ snapshot, page }) => {
   await snapshot(1);
   await page.click('input', { clickCount: 3 });
   for (const c of 'there'.split('')) {

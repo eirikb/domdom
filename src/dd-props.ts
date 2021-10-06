@@ -35,7 +35,7 @@ export default (
 
   if (props) {
     const propsAsAny = props as any;
-    const model = propsAsAny['dd-model'];
+    const model = propsAsAny['bind'];
     if (model) {
       onChange((value: any) => data.set(model, value));
       let ref: string = '';

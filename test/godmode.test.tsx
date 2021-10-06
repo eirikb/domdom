@@ -45,7 +45,7 @@ test('godMode 2', async t => {
   init(
     element,
     <div>
-      {don('users.$.*').map(user => (
+      {don('users.$.*').map<any>((user: any) => (
         <b>{user.name}</b>
       ))}
     </div>
@@ -67,7 +67,7 @@ test('godMode 3', async t => {
   init(
     element,
     <div>
-      {don('users.$.*').map(user => (
+      {don('users.$.*').map((user: any) => (
         <b>{user.name}</b>
       ))}
     </div>
@@ -88,7 +88,7 @@ test('godMode 4', async t => {
   init(
     element,
     <div>
-      {don('users.$.*').map(user => (
+      {don('users.$.*').map((user: any) => (
         <b>{user.name}</b>
       ))}
     </div>

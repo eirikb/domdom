@@ -48,6 +48,6 @@
     "typescript": "^4.3.2"
   },
   "dependencies": {
-    "@eirikb/data": "^5.0.1"
+    "@eirikb/data": "^5.1.0"
   }
 }

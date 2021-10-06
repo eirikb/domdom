@@ -22,7 +22,7 @@ const view = (
     <button id="desc" onClick={() => (data.desc = !data.desc)}>
       Toggle desc
     </button>
-    <input type="text" placeholder="filter" dd-model="filter" />
+    <input type="text" placeholder="filter" bind="filter" />
 
     <ul>
       {don(path().users)

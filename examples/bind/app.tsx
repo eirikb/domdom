@@ -13,7 +13,7 @@ const view = (
   <div>
     <div>Hello, {don(path().hello)}</div>
     <div>
-      <input type="text" dd-model="hello" />
+      <input type="text" bind="hello" />
     </div>
   </div>
 );

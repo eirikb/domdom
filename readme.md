@@ -306,7 +306,7 @@ Output:
 
 ### Automatic binding
 
-[app.tsx](./examples/dd-model/app.tsx):
+[app.tsx](./examples/bind/app.tsx):
 ```tsx
 interface Data {
   hello: string;
@@ -320,14 +320,14 @@ const view = (
   <div>
     <div>Hello, {don(path().hello)}</div>
     <div>
-      <input type="text" dd-model="hello" />
+      <input type="text" bind="hello" />
     </div>
   </div>
 );
 ```
 Output:
 
-![dd-model](readme/img/dd-model.gif)
+![bind](readme/img/bind.gif)
 
 ## Pathifier
 
@@ -503,4 +503,3 @@ const view = (
 init(document.body, view);
 ```
 
-  
